@@ -22,6 +22,20 @@ repositories {
 group "io.github.kgpu"
 version '0.1.0'
 
+import org.gradle.internal.os.OperatingSystem
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        project.ext.natives = "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.natives = "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.natives = "natives-windows"
+        break
+}
+
 kotlin {
     jvm {
         withJava();
@@ -45,6 +59,13 @@ kotlin {
             dependencies {
                 implementation(project(":native"))
                 implementation kotlin('stdlib-jdk8')
+
+                def lwjglVersion = "3.2.3"
+
+                implementation "org.lwjgl:lwjgl:$lwjglVersion"
+                implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+                runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$natives"
+                runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$natives"
             }
         }
     }

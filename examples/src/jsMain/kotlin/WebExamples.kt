@@ -1,7 +1,10 @@
 import io.github.kgpu.Kgpu
-import io.Hello;
+import io.github.kgpu.Window
 
 fun main(){
-    println(Hello.FOO);
-    Kgpu.init()
+    val window = Window()
+    window.setTitle("Kgpu - Web")
+
+    Kgpu.runLoop(window) {
+    }
 }

@@ -1,12 +1,17 @@
 package io.github.kgpu
 
-expect object WebGPU{
+expect object Kgpu{
     val backendName: String
+
+    fun runLoop(window: Window, func: () -> Unit)
 }
 
-object Kgpu {
+expect class Window(){
 
-    fun init(){
-        println("Initializing webgpu: ${WebGPU.backendName}")
-    }
+    fun setTitle(title: String)
+
+    fun isCloseRequested() : Boolean
+
+    fun update()
+
 }
