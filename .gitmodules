@@ -1,0 +1,3 @@
+[submodule "native/wgpu-native"]
+	path = native/wgpu-native
+	url = git@github.com:DevOrc/wgpu-native.git

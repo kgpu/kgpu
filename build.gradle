@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.72'
+    id 'java'
+}
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+group "io.github.kgpu"
+version '0.1.0'
+
+kotlin {
+    jvm {
+        withJava();
+    }
+    js(){
+        browser()
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation kotlin('stdlib-js')
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation(project(":native"))
+                implementation kotlin('stdlib-jdk8')
+            }
+        }
+    }
+}

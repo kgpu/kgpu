@@ -1,0 +1,111 @@
+plugins {
+    id 'java-library'
+    id "com.diffplug.gradle.spotless" version "4.4.0"
+}
+
+group "io.github.kgpu"
+version '0.1.0'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api group: 'com.github.jnr', name: 'jnr-ffi', version: '2.1.15'
+    implementation group: 'com.github.jnr', name: 'jffi', version: '1.2.23'
+
+    testImplementation(project(":native:jnrgen"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.2")
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        showStandardStreams = true
+
+        info{
+            events "started", "passed"
+        }
+        events "skipped", "failed"
+
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+    }
+
+    afterSuite { desc, result ->
+        if (!desc.parent) { // will match the outermost suite
+            println "Found an ran ${result.testCount} tests"
+            print "Results: ${result.resultType} "
+            print "${result.successfulTestCount} successes, "
+            print "${result.failedTestCount} failures, "
+            println "${result.skippedTestCount} skipped)"
+
+            if(result.skippedTestCount > 0){
+                throw new RuntimeException("Tests cannot be skipped for wgpuj/native!");
+            }
+        }
+    }
+}
+
+spotless {
+    java {
+        removeUnusedImports()
+        indentWithSpaces()
+    }
+}
+
+task openNativeDocs(type: Exec){
+    workingDir "${projectDir}/wgpu-native"
+    commandLine 'cargo', 'doc', '--open'
+}
+
+task updateBindings(type: Copy){
+    from("${projectDir}/jnrgen/build/jnr-gen") {
+        include '**.java'
+    }
+    into "${projectDir}/src/main/java/com/noahcharlton/wgpuj/jni"
+    dependsOn ':native:jnrgen:generateBindings'
+}
+
+updateBindings.finalizedBy spotlessApply
+
+task createNatives(type: Copy){
+    from("${projectDir}/wgpu-native/target/debug") {
+        include 'wgpu_native.dll'
+        include 'libwgpu_native.so'
+        include 'libwgpu_native.dylib'
+    }
+    into "${projectDir}/src/main/resources"
+}
+
+task cargoBuild(type:Exec) {
+    workingDir "${projectDir}/wgpu-native"
+    commandLine 'cargo', 'build'
+}
+
+task createTestNatives(type: Copy){
+    from("${projectDir}/wgpu-test/target/debug") {
+        include 'wgpu_test.dll'
+        include 'libwgpu_test.so'
+        include 'libwgpu_test.dylib'
+    }
+    into "${projectDir}/src/test/resources"
+}
+
+task cargoTestBuild(type:Exec) {
+    workingDir "${projectDir}/wgpu-test"
+    commandLine 'cargo', 'build'
+}
+
+test.dependsOn cleanTest
+compileJava.dependsOn createNatives
+compileTestJava.dependsOn createTestNatives
+createNatives.dependsOn cargoBuild
+createTestNatives.dependsOn cargoTestBuild
