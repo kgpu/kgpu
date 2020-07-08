@@ -15,7 +15,11 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
     private final DynamicStructRef<WgpuBindGroupEntry> entries = new DynamicStructRef<>(WgpuBindGroupEntry.class);
     private final Struct.Unsigned64 entriesLength = new Struct.Unsigned64();
 
-    private WgpuBindGroupDescriptor(){}
+    protected WgpuBindGroupDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBindGroupDescriptor(Runtime runtime){
@@ -28,7 +32,7 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBindGroupDescriptor createHeap(){
-        return new WgpuBindGroupDescriptor();
+        return new WgpuBindGroupDescriptor(false);
     }
 
     /**
@@ -39,9 +43,7 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBindGroupDescriptor createDirect(){
-        var struct = new WgpuBindGroupDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBindGroupDescriptor(true);
     }
 
 

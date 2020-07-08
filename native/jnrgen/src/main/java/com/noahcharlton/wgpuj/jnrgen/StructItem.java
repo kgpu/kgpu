@@ -76,9 +76,10 @@ public class StructItem implements Item {
     private void writeConstructors(BufferedWriter writer) throws IOException {
         writer.write("\n");
 
-        writer.write("    private ");
+        writer.write("    protected ");
         writer.write(name);
-        writer.write("(){}\n\n");
+        writer.write("(boolean direct){\n         if(direct){\n");
+        writer.write("             useDirectMemory();\n        }\n    }\n\n");
 
         writer.write("    @Deprecated\n    public ");
         writer.write(name);
@@ -89,14 +90,14 @@ public class StructItem implements Item {
         writer.write(name);
         writer.write(" createHeap(){\n        return new ");
         writer.write(name);
-        writer.write("();\n    }\n\n");
+        writer.write("(false);\n    }\n\n");
 
         writer.write(createDirectJavadoc);
         writer.write("    public static ");
         writer.write(name);
-        writer.write(" createDirect(){\n        var struct = new ");
+        writer.write(" createDirect(){\n        return new ");
         writer.write(name);
-        writer.write("();\n        struct.useDirectMemory();\n        return struct;\n    }\n\n");
+        writer.write("(true);\n    }\n\n");
 
         writer.write("\n");
     }

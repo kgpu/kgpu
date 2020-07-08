@@ -9,7 +9,11 @@ public class WgpuComputePassDescriptor extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 todo = new Struct.Unsigned32();
 
-    private WgpuComputePassDescriptor(){}
+    protected WgpuComputePassDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuComputePassDescriptor(Runtime runtime){
@@ -22,7 +26,7 @@ public class WgpuComputePassDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuComputePassDescriptor createHeap(){
-        return new WgpuComputePassDescriptor();
+        return new WgpuComputePassDescriptor(false);
     }
 
     /**
@@ -33,9 +37,7 @@ public class WgpuComputePassDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuComputePassDescriptor createDirect(){
-        var struct = new WgpuComputePassDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuComputePassDescriptor(true);
     }
 
 

@@ -11,7 +11,11 @@ public class WgpuVertexAttributeDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuVertexFormat> format = new Struct.Enum<>(WgpuVertexFormat.class);
     private final Struct.Unsigned32 shaderLocation = new Struct.Unsigned32();
 
-    private WgpuVertexAttributeDescriptor(){}
+    protected WgpuVertexAttributeDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuVertexAttributeDescriptor(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuVertexAttributeDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuVertexAttributeDescriptor createHeap(){
-        return new WgpuVertexAttributeDescriptor();
+        return new WgpuVertexAttributeDescriptor(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuVertexAttributeDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuVertexAttributeDescriptor createDirect(){
-        var struct = new WgpuVertexAttributeDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuVertexAttributeDescriptor(true);
     }
 
 

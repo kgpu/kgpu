@@ -21,7 +21,11 @@ public class WgpuRenderPipelineDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 sampleMask = new Struct.Unsigned32();
     private final Struct.Boolean alphaToCoverageEnabled = new Struct.Boolean();
 
-    private WgpuRenderPipelineDescriptor(){}
+    protected WgpuRenderPipelineDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRenderPipelineDescriptor(Runtime runtime){
@@ -34,7 +38,7 @@ public class WgpuRenderPipelineDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRenderPipelineDescriptor createHeap(){
-        return new WgpuRenderPipelineDescriptor();
+        return new WgpuRenderPipelineDescriptor(false);
     }
 
     /**
@@ -45,9 +49,7 @@ public class WgpuRenderPipelineDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRenderPipelineDescriptor createDirect(){
-        var struct = new WgpuRenderPipelineDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRenderPipelineDescriptor(true);
     }
 
 

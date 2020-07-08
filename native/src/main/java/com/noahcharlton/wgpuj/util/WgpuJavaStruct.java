@@ -43,9 +43,6 @@ public abstract class WgpuJavaStruct extends Struct {
      * structs. It achieves this by calculating the size of the struct at the time
      * the memory is used, instead of in the constructor.
      *
-     * Additionally, dynamic struct ref uses a non runtime constructor that is standard
-     * for Wgpuj structs.
-     *
      * @see <a href=https://github.com/DevOrc/wgpu-java/issues/24>Github Issue #24</a>
      */
     public class DynamicStructRef<T extends WgpuJavaStruct> extends PointerField {
@@ -56,14 +53,14 @@ public abstract class WgpuJavaStruct extends Struct {
             this.structType = structType;
 
             try {
-                structConstructor = structType.getDeclaredConstructor();
+                structConstructor = structType.getDeclaredConstructor(Runtime.class);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("StructRef classes must have an empty constructor!", e);
             }
         }
 
         public final void set(T struct) {
-            set(struct.getPointerTo());
+            set(struct == null ? WgpuJava.createNullPointer() : struct.getPointerTo());
         }
 
         public final void set(T[] structs) {
@@ -89,7 +86,7 @@ public abstract class WgpuJavaStruct extends Struct {
         public final T get() {
             T struct;
             try {
-                struct = structConstructor.newInstance();
+                struct = structConstructor.newInstance(getRuntime());
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("Failed to create " + structType.getName(), e);
             }
@@ -107,7 +104,7 @@ public abstract class WgpuJavaStruct extends Struct {
                 T[] array = (T[]) Array.newInstance(structType, length);
 
                 for (int i = 0; i < length; ++i) {
-                    array[i] = structConstructor.newInstance();
+                    array[i] = structConstructor.newInstance(getRuntime());
                     array[i].useMemory(getPointer().slice(Struct.size(array[i]) * i));
                 }
 

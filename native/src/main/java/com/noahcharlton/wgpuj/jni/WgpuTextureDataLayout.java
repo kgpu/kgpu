@@ -11,7 +11,11 @@ public class WgpuTextureDataLayout extends WgpuJavaStruct {
     private final Struct.Unsigned32 bytesPerRow = new Struct.Unsigned32();
     private final Struct.Unsigned32 rowsPerImage = new Struct.Unsigned32();
 
-    private WgpuTextureDataLayout(){}
+    protected WgpuTextureDataLayout(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuTextureDataLayout(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuTextureDataLayout extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuTextureDataLayout createHeap(){
-        return new WgpuTextureDataLayout();
+        return new WgpuTextureDataLayout(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuTextureDataLayout extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuTextureDataLayout createDirect(){
-        var struct = new WgpuTextureDataLayout();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuTextureDataLayout(true);
     }
 
 

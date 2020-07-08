@@ -16,7 +16,11 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
     private final Struct.Enum<WgpuTextureComponentType> textureComponentType = new Struct.Enum<>(WgpuTextureComponentType.class);
     private final Struct.Enum<WgpuTextureFormat> storageTextureFormat = new Struct.Enum<>(WgpuTextureFormat.class);
 
-    private WgpuBindGroupLayoutEntry(){}
+    protected WgpuBindGroupLayoutEntry(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBindGroupLayoutEntry(Runtime runtime){
@@ -29,7 +33,7 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBindGroupLayoutEntry createHeap(){
-        return new WgpuBindGroupLayoutEntry();
+        return new WgpuBindGroupLayoutEntry(false);
     }
 
     /**
@@ -40,9 +44,7 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBindGroupLayoutEntry createDirect(){
-        var struct = new WgpuBindGroupLayoutEntry();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBindGroupLayoutEntry(true);
     }
 
 

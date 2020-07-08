@@ -12,7 +12,11 @@ public class WgpuAnisotropicSamplerDescriptorExt extends WgpuJavaStruct {
     private final Struct.Enum<WgpuSType> sType = new Struct.Enum<>(WgpuSType.class);
     private final Struct.Unsigned8 anisotropicClamp = new Struct.Unsigned8();
 
-    private WgpuAnisotropicSamplerDescriptorExt(){}
+    protected WgpuAnisotropicSamplerDescriptorExt(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuAnisotropicSamplerDescriptorExt(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuAnisotropicSamplerDescriptorExt extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuAnisotropicSamplerDescriptorExt createHeap(){
-        return new WgpuAnisotropicSamplerDescriptorExt();
+        return new WgpuAnisotropicSamplerDescriptorExt(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuAnisotropicSamplerDescriptorExt extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuAnisotropicSamplerDescriptorExt createDirect(){
-        var struct = new WgpuAnisotropicSamplerDescriptorExt();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuAnisotropicSamplerDescriptorExt(true);
     }
 
 

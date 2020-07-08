@@ -11,7 +11,11 @@ public class WgpuBufferBinding extends WgpuJavaStruct {
     private final Struct.Unsigned64 offset = new Struct.Unsigned64();
     private final Struct.Unsigned64 size = new Struct.Unsigned64();
 
-    private WgpuBufferBinding(){}
+    protected WgpuBufferBinding(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBufferBinding(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuBufferBinding extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBufferBinding createHeap(){
-        return new WgpuBufferBinding();
+        return new WgpuBufferBinding(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuBufferBinding extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBufferBinding createDirect(){
-        var struct = new WgpuBufferBinding();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBufferBinding(true);
     }
 
 

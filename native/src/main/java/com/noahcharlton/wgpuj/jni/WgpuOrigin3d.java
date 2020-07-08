@@ -11,7 +11,11 @@ public class WgpuOrigin3d extends WgpuJavaStruct {
     private final Struct.Unsigned32 y = new Struct.Unsigned32();
     private final Struct.Unsigned32 z = new Struct.Unsigned32();
 
-    private WgpuOrigin3d(){}
+    protected WgpuOrigin3d(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuOrigin3d(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuOrigin3d extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuOrigin3d createHeap(){
-        return new WgpuOrigin3d();
+        return new WgpuOrigin3d(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuOrigin3d extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuOrigin3d createDirect(){
-        var struct = new WgpuOrigin3d();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuOrigin3d(true);
     }
 
 

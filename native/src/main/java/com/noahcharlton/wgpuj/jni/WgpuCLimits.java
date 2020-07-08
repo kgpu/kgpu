@@ -9,7 +9,11 @@ public class WgpuCLimits extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 maxBindGroups = new Struct.Unsigned32();
 
-    private WgpuCLimits(){}
+    protected WgpuCLimits(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuCLimits(Runtime runtime){
@@ -22,7 +26,7 @@ public class WgpuCLimits extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuCLimits createHeap(){
-        return new WgpuCLimits();
+        return new WgpuCLimits(false);
     }
 
     /**
@@ -33,9 +37,7 @@ public class WgpuCLimits extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuCLimits createDirect(){
-        var struct = new WgpuCLimits();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuCLimits(true);
     }
 
 

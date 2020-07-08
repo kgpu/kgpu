@@ -11,7 +11,11 @@ public class WgpuChainedStruct extends WgpuJavaStruct {
     private final DynamicStructRef<WgpuChainedStruct> next = new DynamicStructRef<>(WgpuChainedStruct.class);
     private final Struct.Enum<WgpuSType> sType = new Struct.Enum<>(WgpuSType.class);
 
-    private WgpuChainedStruct(){}
+    protected WgpuChainedStruct(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuChainedStruct(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuChainedStruct extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuChainedStruct createHeap(){
-        return new WgpuChainedStruct();
+        return new WgpuChainedStruct(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuChainedStruct extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuChainedStruct createDirect(){
-        var struct = new WgpuChainedStruct();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuChainedStruct(true);
     }
 
 

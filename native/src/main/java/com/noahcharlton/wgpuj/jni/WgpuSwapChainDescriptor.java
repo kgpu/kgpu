@@ -13,7 +13,11 @@ public class WgpuSwapChainDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 height = new Struct.Unsigned32();
     private final Struct.Enum<WgpuPresentMode> presentMode = new Struct.Enum<>(WgpuPresentMode.class);
 
-    private WgpuSwapChainDescriptor(){}
+    protected WgpuSwapChainDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuSwapChainDescriptor(Runtime runtime){
@@ -26,7 +30,7 @@ public class WgpuSwapChainDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuSwapChainDescriptor createHeap(){
-        return new WgpuSwapChainDescriptor();
+        return new WgpuSwapChainDescriptor(false);
     }
 
     /**
@@ -37,9 +41,7 @@ public class WgpuSwapChainDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuSwapChainDescriptor createDirect(){
-        var struct = new WgpuSwapChainDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuSwapChainDescriptor(true);
     }
 
 

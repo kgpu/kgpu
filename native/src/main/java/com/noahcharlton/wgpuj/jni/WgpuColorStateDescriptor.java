@@ -12,7 +12,11 @@ public class WgpuColorStateDescriptor extends WgpuJavaStruct {
     private final WgpuBlendDescriptor colorBlend = inner(WgpuBlendDescriptor.createHeap());
     private final Struct.Unsigned32 writeMask = new Struct.Unsigned32();
 
-    private WgpuColorStateDescriptor(){}
+    protected WgpuColorStateDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuColorStateDescriptor(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuColorStateDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuColorStateDescriptor createHeap(){
-        return new WgpuColorStateDescriptor();
+        return new WgpuColorStateDescriptor(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuColorStateDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuColorStateDescriptor createDirect(){
-        var struct = new WgpuColorStateDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuColorStateDescriptor(true);
     }
 
 

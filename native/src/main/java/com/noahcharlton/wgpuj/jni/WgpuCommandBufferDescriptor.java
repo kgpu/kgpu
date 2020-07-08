@@ -9,7 +9,11 @@ public class WgpuCommandBufferDescriptor extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 todo = new Struct.Unsigned32();
 
-    private WgpuCommandBufferDescriptor(){}
+    protected WgpuCommandBufferDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuCommandBufferDescriptor(Runtime runtime){
@@ -22,7 +26,7 @@ public class WgpuCommandBufferDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuCommandBufferDescriptor createHeap(){
-        return new WgpuCommandBufferDescriptor();
+        return new WgpuCommandBufferDescriptor(false);
     }
 
     /**
@@ -33,9 +37,7 @@ public class WgpuCommandBufferDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuCommandBufferDescriptor createDirect(){
-        var struct = new WgpuCommandBufferDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuCommandBufferDescriptor(true);
     }
 
 

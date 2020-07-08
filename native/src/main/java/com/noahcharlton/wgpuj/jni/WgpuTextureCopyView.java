@@ -11,7 +11,11 @@ public class WgpuTextureCopyView extends WgpuJavaStruct {
     private final Struct.Unsigned32 mipLevel = new Struct.Unsigned32();
     private final WgpuOrigin3d origin = inner(WgpuOrigin3d.createHeap());
 
-    private WgpuTextureCopyView(){}
+    protected WgpuTextureCopyView(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuTextureCopyView(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuTextureCopyView extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuTextureCopyView createHeap(){
-        return new WgpuTextureCopyView();
+        return new WgpuTextureCopyView(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuTextureCopyView extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuTextureCopyView createDirect(){
-        var struct = new WgpuTextureCopyView();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuTextureCopyView(true);
     }
 
 

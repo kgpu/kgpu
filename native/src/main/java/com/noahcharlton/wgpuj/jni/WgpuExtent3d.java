@@ -11,7 +11,11 @@ public class WgpuExtent3d extends WgpuJavaStruct {
     private final Struct.Unsigned32 height = new Struct.Unsigned32();
     private final Struct.Unsigned32 depth = new Struct.Unsigned32();
 
-    private WgpuExtent3d(){}
+    protected WgpuExtent3d(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuExtent3d(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuExtent3d extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuExtent3d createHeap(){
-        return new WgpuExtent3d();
+        return new WgpuExtent3d(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuExtent3d extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuExtent3d createDirect(){
-        var struct = new WgpuExtent3d();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuExtent3d(true);
     }
 
 

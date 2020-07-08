@@ -32,23 +32,23 @@ actual class Window actual constructor() {
 
     }
 
-    actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter{
+    actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
         return Adapter((js("navigator.gpu.requestAdapter()") as Promise<GPUAdapter>).await())
     }
 }
 
-open external class GPUObjectBase{
+open external class GPUObjectBase {
     val label: String
 }
 
-open external class GPUObjectDescriptorBase{
+open external class GPUObjectDescriptorBase {
     val label: String
 }
 
 
-actual class Adapter(val jsType: GPUAdapter){
+actual class Adapter(val jsType: GPUAdapter) {
 
-    actual suspend fun requestDeviceAsync() : Device {
+    actual suspend fun requestDeviceAsync(): Device {
         return Device(jsType.requestDevice().await())
     }
 
@@ -59,8 +59,8 @@ actual class Adapter(val jsType: GPUAdapter){
 }
 
 open external class GPUAdapter {
-    val name : String
-    val extensions : List<GPUExtensionName>
+    val name: String
+    val extensions: List<GPUExtensionName>
 
     fun requestDevice(): Promise<GPUDevice>
 }
@@ -76,9 +76,9 @@ enum class GPUExtensionName {
 }
 
 actual enum class PowerPreference(jsType: GPUPowerPreference?) {
-    LOW(GPUPowerPreference.LOW_POWER),
+    LOW_POWER(GPUPowerPreference.LOW_POWER),
     DEFAULT(null),
-    PERFORMANCE(GPUPowerPreference.HIGH_PERFORMANCE)
+    HIGH_PERFORMANCE(GPUPowerPreference.HIGH_PERFORMANCE)
 }
 
 /**
@@ -102,6 +102,15 @@ actual class Device(val jsType: GPUDevice) {
 
         return ShaderModule(moduleJs)
     }
+
+    actual fun createRenderPipeline(desc: RenderPipelineDescriptor) : RenderPipeline {
+        TODO("Not implemented yet")
+    }
+
+    actual fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout {
+        TODO("Not implemented yet")
+    }
+
 }
 
 open external class GPUDevice {
@@ -110,17 +119,130 @@ open external class GPUDevice {
     val limits: Any
     val defaultQueue: Any
 
-    fun createShaderModule(desc: dynamic) : GPUShaderModule
+    fun createShaderModule(desc: dynamic): GPUShaderModule
 }
 
 external class GPUShaderModule : GPUObjectBase {
     val compilationInfo: Any
 }
 
-actual class ShaderModule(val jsType: GPUShaderModule){
+actual class ShaderModule(val jsType: GPUShaderModule) {
 
     override fun toString(): String {
         return "ShaderModule($jsType)"
     }
 
 }
+
+actual class ProgrammableStageDescriptor actual constructor(module: ShaderModule, entry: String) {
+
+    init {
+        TODO("Not implemented")
+    }
+
+}
+
+actual enum class PrimitiveTopology {
+    POINT_LIST, LINE_LIST, LINE_STRIP, TRIANGLE_LIST, TRIANGLE_STRIP,
+}
+
+actual enum class FrontFace {
+    CCW, CW,
+}
+
+actual enum class CullMode {
+    NONE, FRONT, BACK,
+}
+
+actual class RasterizationStateDescriptor actual constructor(
+        val frontFace: FrontFace,
+        val cullMode: CullMode,
+        val clampDepth: Boolean,
+        val depthBias: Long,
+        val depthBiasSlopeScale: Float,
+        val depthBiasClamp: Float);
+
+actual enum class TextureFormat {
+    R8_UNORM, R8_SNORM, R8_UINT, R8_SINT, R16_UINT, R16_SINT, R16_FLOAT, RG8_UNORM, RG8_SNORM, RG8_UINT, RG8_SINT, R32_UINT, R32_SINT, R32_FLOAT, RG16_UINT, RG16_SINT, RG16_FLOAT, RGBA8_UNORM, RGBA8_UNORM_SRGB, RGBA8_SNORM, RGBA8_UINT, RGBA8_SINT, BGRA8_UNORM, BGRA8_UNORM_SRGB, RGB10A2_UNORM, RG11B10_FLOAT, RG32_UINT, RG32_SINT, RG32_FLOAT, RGBA16_UINT, RGBA16_SINT, RGBA16_FLOAT, RGBA32_UINT, RGBA32_SINT, RGBA32_FLOAT, DEPTH32_FLOAT, DEPTH24_PLUS, DEPTH24_PLUS_STENCIL8,
+}
+
+actual enum class BlendOperation {
+    ADD, SUBTRACT, REVERSE_SUBTRACT, MIN, MAX,
+}
+
+actual enum class StencilOperation {
+    KEEP, ZERO, REPLACE, INVERT, INCREMENT_CLAMP, DECREMENT_CLAMP, INCREMENT_WRAP, DECREMENT_WRAP,
+}
+
+actual enum class BlendFactor {
+    ZERO, ONE, SRC_COLOR, ONE_MINUS_SRC_COLOR, SRC_ALPHA, ONE_MINUS_SRC_ALPHA, DST_COLOR, ONE_MINUS_DST_COLOR, DST_ALPHA, ONE_MINUS_DST_ALPHA, SRC_ALPHA_SATURATED, BLEND_COLOR, ONE_MINUS_BLEND_COLOR,
+}
+
+actual class ColorStateDescriptor actual constructor(
+        val format: TextureFormat,
+        val alphaBlend: BlendDescriptor,
+        val colorBlend: BlendDescriptor,
+        val writeMask: Long)
+
+actual class RenderPipelineDescriptor actual constructor(
+        val layout: PipelineLayout,
+        val vertexStage: ProgrammableStageDescriptor,
+        val fragmentStage: ProgrammableStageDescriptor,
+        val primitive: PrimitiveTopology,
+        val rasterizationState: RasterizationStateDescriptor,
+        val colorStates: Array<ColorStateDescriptor>,
+        val depthStencilState: Any?,
+        val vertexState: VertexStateDescriptor,
+        val sampleCount: Int,
+        val sampleMask: Int,
+        val alphaToCoverage: Boolean
+)
+
+actual enum class IndexFormat {
+    UINT16, UINT32,
+}
+
+actual enum class VertexFormat {
+    UCHAR2, UCHAR4, CHAR2, CHAR4, UCHAR2_NORM, UCHAR4_NORM, CHAR2_NORM, CHAR4_NORM, USHORT2, USHORT4, SHORT2, SHORT4, USHORT2_NORM, USHORT4_NORM, SHORT2_NORM, SHORT4_NORM, HALF2, HALF4, FLOAT, FLOAT2, FLOAT3, FLOAT4, UINT, UINT2, UINT3, UINT4, INT, INT2, INT3, INT4,
+}
+
+actual class VertexAttributeDescriptor actual constructor(
+        val format: VertexFormat,
+        val offset: Long,
+        val shaderLocation: Int)
+
+actual enum class InputStepMode {
+    VERTEX, INSTANCE,
+}
+
+actual class VertexBufferLayoutDescriptor actual constructor(
+        val stride: Long,
+        val stepMode: InputStepMode,
+        val attributes: Array<VertexAttributeDescriptor>)
+
+actual class VertexStateDescriptor actual constructor(
+        val indexFormat: IndexFormat,
+        val vertexBuffers: Array<VertexBufferLayoutDescriptor>)
+
+actual class BindGroupLayoutEntry {
+    init {
+        TODO();
+    }
+}
+
+actual class BindGroupLayout {
+
+    init {
+        TODO()
+    }
+
+}
+
+actual class PipelineLayoutDescriptor actual constructor(val bindGroupLayouts: Array<BindGroupLayout>)
+actual class PipelineLayout {
+    init {
+        TODO()
+    }
+}
+
+actual class RenderPipeline

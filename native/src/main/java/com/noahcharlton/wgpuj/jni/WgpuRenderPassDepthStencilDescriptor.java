@@ -17,7 +17,11 @@ public class WgpuRenderPassDepthStencilDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 clearStencil = new Struct.Unsigned32();
     private final Struct.Boolean stencilReadOnly = new Struct.Boolean();
 
-    private WgpuRenderPassDepthStencilDescriptor(){}
+    protected WgpuRenderPassDepthStencilDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRenderPassDepthStencilDescriptor(Runtime runtime){
@@ -30,7 +34,7 @@ public class WgpuRenderPassDepthStencilDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRenderPassDepthStencilDescriptor createHeap(){
-        return new WgpuRenderPassDepthStencilDescriptor();
+        return new WgpuRenderPassDepthStencilDescriptor(false);
     }
 
     /**
@@ -41,9 +45,7 @@ public class WgpuRenderPassDepthStencilDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRenderPassDepthStencilDescriptor createDirect(){
-        var struct = new WgpuRenderPassDepthStencilDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRenderPassDepthStencilDescriptor(true);
     }
 
 

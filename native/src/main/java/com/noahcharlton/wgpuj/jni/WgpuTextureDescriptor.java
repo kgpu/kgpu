@@ -17,7 +17,11 @@ public class WgpuTextureDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuTextureFormat> format = new Struct.Enum<>(WgpuTextureFormat.class);
     private final Struct.Unsigned32 usage = new Struct.Unsigned32();
 
-    private WgpuTextureDescriptor(){}
+    protected WgpuTextureDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuTextureDescriptor(Runtime runtime){
@@ -30,7 +34,7 @@ public class WgpuTextureDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuTextureDescriptor createHeap(){
-        return new WgpuTextureDescriptor();
+        return new WgpuTextureDescriptor(false);
     }
 
     /**
@@ -41,9 +45,7 @@ public class WgpuTextureDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuTextureDescriptor createDirect(){
-        var struct = new WgpuTextureDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuTextureDescriptor(true);
     }
 
 

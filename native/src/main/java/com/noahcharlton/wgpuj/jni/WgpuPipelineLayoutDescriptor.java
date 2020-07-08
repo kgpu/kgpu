@@ -10,7 +10,11 @@ public class WgpuPipelineLayoutDescriptor extends WgpuJavaStruct {
     private final Struct.Pointer bindGroupLayouts = new Struct.Pointer();
     private final Struct.Unsigned64 bindGroupLayoutsLength = new Struct.Unsigned64();
 
-    private WgpuPipelineLayoutDescriptor(){}
+    protected WgpuPipelineLayoutDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuPipelineLayoutDescriptor(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuPipelineLayoutDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuPipelineLayoutDescriptor createHeap(){
-        return new WgpuPipelineLayoutDescriptor();
+        return new WgpuPipelineLayoutDescriptor(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuPipelineLayoutDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuPipelineLayoutDescriptor createDirect(){
-        var struct = new WgpuPipelineLayoutDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuPipelineLayoutDescriptor(true);
     }
 
 

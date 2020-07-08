@@ -12,7 +12,11 @@ public class WgpuColor extends WgpuJavaStruct {
     private final Struct.Double b = new Struct.Double();
     private final Struct.Double a = new Struct.Double();
 
-    private WgpuColor(){}
+    protected WgpuColor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuColor(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuColor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuColor createHeap(){
-        return new WgpuColor();
+        return new WgpuColor(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuColor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuColor createDirect(){
-        var struct = new WgpuColor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuColor(true);
     }
 
 

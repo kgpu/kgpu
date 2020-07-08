@@ -10,7 +10,11 @@ public class WgpuRequestAdapterOptions extends WgpuJavaStruct {
     private final Struct.Enum<WgpuPowerPreference> powerPreference = new Struct.Enum<>(WgpuPowerPreference.class);
     private final Struct.Unsigned64 compatibleSurface = new Struct.Unsigned64();
 
-    private WgpuRequestAdapterOptions(){}
+    protected WgpuRequestAdapterOptions(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRequestAdapterOptions(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuRequestAdapterOptions extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRequestAdapterOptions createHeap(){
-        return new WgpuRequestAdapterOptions();
+        return new WgpuRequestAdapterOptions(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuRequestAdapterOptions extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRequestAdapterOptions createDirect(){
-        var struct = new WgpuRequestAdapterOptions();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRequestAdapterOptions(true);
     }
 
 

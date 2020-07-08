@@ -8,7 +8,11 @@ public class WgpuShaderModuleDescriptor extends WgpuJavaStruct {
 
     private final WgpuU32Array code = inner(WgpuU32Array.createHeap());
 
-    private WgpuShaderModuleDescriptor(){}
+    protected WgpuShaderModuleDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuShaderModuleDescriptor(Runtime runtime){
@@ -21,7 +25,7 @@ public class WgpuShaderModuleDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuShaderModuleDescriptor createHeap(){
-        return new WgpuShaderModuleDescriptor();
+        return new WgpuShaderModuleDescriptor(false);
     }
 
     /**
@@ -32,9 +36,7 @@ public class WgpuShaderModuleDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuShaderModuleDescriptor createDirect(){
-        var struct = new WgpuShaderModuleDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuShaderModuleDescriptor(true);
     }
 
 

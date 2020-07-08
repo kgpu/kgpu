@@ -10,7 +10,11 @@ public class WgpuSwapChainOutput extends WgpuJavaStruct {
     private final Struct.Enum<WgpuSwapChainStatus> status = new Struct.Enum<>(WgpuSwapChainStatus.class);
     private final Struct.Unsigned64 viewId = new Struct.Unsigned64();
 
-    private WgpuSwapChainOutput(){}
+    protected WgpuSwapChainOutput(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuSwapChainOutput(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuSwapChainOutput extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuSwapChainOutput createHeap(){
-        return new WgpuSwapChainOutput();
+        return new WgpuSwapChainOutput(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuSwapChainOutput extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuSwapChainOutput createDirect(){
-        var struct = new WgpuSwapChainOutput();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuSwapChainOutput(true);
     }
 
 

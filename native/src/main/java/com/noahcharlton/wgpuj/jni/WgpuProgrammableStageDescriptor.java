@@ -12,7 +12,11 @@ public class WgpuProgrammableStageDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned64 module = new Struct.Unsigned64();
     private final @CStrPointer Struct.Pointer entryPoint = new Struct.Pointer();
 
-    private WgpuProgrammableStageDescriptor(){}
+    protected WgpuProgrammableStageDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuProgrammableStageDescriptor(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuProgrammableStageDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuProgrammableStageDescriptor createHeap(){
-        return new WgpuProgrammableStageDescriptor();
+        return new WgpuProgrammableStageDescriptor(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuProgrammableStageDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuProgrammableStageDescriptor createDirect(){
-        var struct = new WgpuProgrammableStageDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuProgrammableStageDescriptor(true);
     }
 
 

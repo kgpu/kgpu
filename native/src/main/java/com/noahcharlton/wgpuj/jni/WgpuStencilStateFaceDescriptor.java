@@ -12,7 +12,11 @@ public class WgpuStencilStateFaceDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuStencilOperation> depthFailOp = new Struct.Enum<>(WgpuStencilOperation.class);
     private final Struct.Enum<WgpuStencilOperation> passOp = new Struct.Enum<>(WgpuStencilOperation.class);
 
-    private WgpuStencilStateFaceDescriptor(){}
+    protected WgpuStencilStateFaceDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuStencilStateFaceDescriptor(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuStencilStateFaceDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuStencilStateFaceDescriptor createHeap(){
-        return new WgpuStencilStateFaceDescriptor();
+        return new WgpuStencilStateFaceDescriptor(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuStencilStateFaceDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuStencilStateFaceDescriptor createDirect(){
-        var struct = new WgpuStencilStateFaceDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuStencilStateFaceDescriptor(true);
     }
 
 

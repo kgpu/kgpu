@@ -15,7 +15,11 @@ public class WgpuDepthStencilStateDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 stencilReadMask = new Struct.Unsigned32();
     private final Struct.Unsigned32 stencilWriteMask = new Struct.Unsigned32();
 
-    private WgpuDepthStencilStateDescriptor(){}
+    protected WgpuDepthStencilStateDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuDepthStencilStateDescriptor(Runtime runtime){
@@ -28,7 +32,7 @@ public class WgpuDepthStencilStateDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuDepthStencilStateDescriptor createHeap(){
-        return new WgpuDepthStencilStateDescriptor();
+        return new WgpuDepthStencilStateDescriptor(false);
     }
 
     /**
@@ -39,9 +43,7 @@ public class WgpuDepthStencilStateDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuDepthStencilStateDescriptor createDirect(){
-        var struct = new WgpuDepthStencilStateDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuDepthStencilStateDescriptor(true);
     }
 
 

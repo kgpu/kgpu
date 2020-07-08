@@ -11,7 +11,11 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
     private final Struct.Unsigned32 _NO_USE_padding = new Struct.Unsigned32();
     private final WgpuBindingResource resource = inner(WgpuBindingResource.createHeap());
 
-    private WgpuBindGroupEntry(){}
+    protected WgpuBindGroupEntry(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBindGroupEntry(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBindGroupEntry createHeap(){
-        return new WgpuBindGroupEntry();
+        return new WgpuBindGroupEntry(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBindGroupEntry createDirect(){
-        var struct = new WgpuBindGroupEntry();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBindGroupEntry(true);
     }
 
 

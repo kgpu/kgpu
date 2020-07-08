@@ -18,7 +18,11 @@ public class WgpuTextureViewDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 baseArrayLayer = new Struct.Unsigned32();
     private final Struct.Unsigned32 arrayLayerCount = new Struct.Unsigned32();
 
-    private WgpuTextureViewDescriptor(){}
+    protected WgpuTextureViewDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuTextureViewDescriptor(Runtime runtime){
@@ -31,7 +35,7 @@ public class WgpuTextureViewDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuTextureViewDescriptor createHeap(){
-        return new WgpuTextureViewDescriptor();
+        return new WgpuTextureViewDescriptor(false);
     }
 
     /**
@@ -42,9 +46,7 @@ public class WgpuTextureViewDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuTextureViewDescriptor createDirect(){
-        var struct = new WgpuTextureViewDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuTextureViewDescriptor(true);
     }
 
 

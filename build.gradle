@@ -59,7 +59,7 @@ kotlin {
         }
         jvmMain {
             dependencies {
-                implementation(project(":native"))
+                api(project(":native"))
                 implementation kotlin('stdlib-jdk8')
                 api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
 

@@ -10,7 +10,11 @@ public class WgpuBufferCopyView extends WgpuJavaStruct {
     private final Struct.Unsigned64 buffer = new Struct.Unsigned64();
     private final WgpuTextureDataLayout layout = inner(WgpuTextureDataLayout.createHeap());
 
-    private WgpuBufferCopyView(){}
+    protected WgpuBufferCopyView(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBufferCopyView(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuBufferCopyView extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBufferCopyView createHeap(){
-        return new WgpuBufferCopyView();
+        return new WgpuBufferCopyView(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuBufferCopyView extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBufferCopyView createDirect(){
-        var struct = new WgpuBufferCopyView();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBufferCopyView(true);
     }
 
 

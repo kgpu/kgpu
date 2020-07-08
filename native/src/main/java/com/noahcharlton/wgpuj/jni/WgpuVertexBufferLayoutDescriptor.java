@@ -13,7 +13,11 @@ public class WgpuVertexBufferLayoutDescriptor extends WgpuJavaStruct {
     private final DynamicStructRef<WgpuVertexAttributeDescriptor> attributes = new DynamicStructRef<>(WgpuVertexAttributeDescriptor.class);
     private final Struct.Unsigned64 attributesLength = new Struct.Unsigned64();
 
-    private WgpuVertexBufferLayoutDescriptor(){}
+    protected WgpuVertexBufferLayoutDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuVertexBufferLayoutDescriptor(Runtime runtime){
@@ -26,7 +30,7 @@ public class WgpuVertexBufferLayoutDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuVertexBufferLayoutDescriptor createHeap(){
-        return new WgpuVertexBufferLayoutDescriptor();
+        return new WgpuVertexBufferLayoutDescriptor(false);
     }
 
     /**
@@ -37,9 +41,7 @@ public class WgpuVertexBufferLayoutDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuVertexBufferLayoutDescriptor createDirect(){
-        var struct = new WgpuVertexBufferLayoutDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuVertexBufferLayoutDescriptor(true);
     }
 
 

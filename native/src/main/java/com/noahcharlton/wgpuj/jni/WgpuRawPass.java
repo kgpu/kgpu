@@ -12,7 +12,11 @@ public class WgpuRawPass extends WgpuJavaStruct {
     private final Struct.Unsigned64 capacity = new Struct.Unsigned64();
     private final Struct.Unsigned64 parent = new Struct.Unsigned64();
 
-    private WgpuRawPass(){}
+    protected WgpuRawPass(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRawPass(Runtime runtime){
@@ -25,7 +29,7 @@ public class WgpuRawPass extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRawPass createHeap(){
-        return new WgpuRawPass();
+        return new WgpuRawPass(false);
     }
 
     /**
@@ -36,9 +40,7 @@ public class WgpuRawPass extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRawPass createDirect(){
-        var struct = new WgpuRawPass();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRawPass(true);
     }
 
 

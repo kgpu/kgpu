@@ -13,7 +13,11 @@ public class WgpuRenderPassColorDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuStoreOp> storeOp = new Struct.Enum<>(WgpuStoreOp.class);
     private final WgpuColor clearColor = inner(WgpuColor.createHeap());
 
-    private WgpuRenderPassColorDescriptor(){}
+    protected WgpuRenderPassColorDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRenderPassColorDescriptor(Runtime runtime){
@@ -26,7 +30,7 @@ public class WgpuRenderPassColorDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRenderPassColorDescriptor createHeap(){
-        return new WgpuRenderPassColorDescriptor();
+        return new WgpuRenderPassColorDescriptor(false);
     }
 
     /**
@@ -37,9 +41,7 @@ public class WgpuRenderPassColorDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRenderPassColorDescriptor createDirect(){
-        var struct = new WgpuRenderPassColorDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRenderPassColorDescriptor(true);
     }
 
 

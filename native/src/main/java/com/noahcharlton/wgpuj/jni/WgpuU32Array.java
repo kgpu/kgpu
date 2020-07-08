@@ -10,7 +10,11 @@ public class WgpuU32Array extends WgpuJavaStruct {
     private final Struct.Pointer bytes = new Struct.Pointer();
     private final Struct.Unsigned64 length = new Struct.Unsigned64();
 
-    private WgpuU32Array(){}
+    protected WgpuU32Array(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuU32Array(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuU32Array extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuU32Array createHeap(){
-        return new WgpuU32Array();
+        return new WgpuU32Array(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuU32Array extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuU32Array createDirect(){
-        var struct = new WgpuU32Array();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuU32Array(true);
     }
 
 

@@ -10,7 +10,11 @@ public class WgpuComputePipelineDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned64 layout = new Struct.Unsigned64();
     private final WgpuProgrammableStageDescriptor computeStage = inner(WgpuProgrammableStageDescriptor.createHeap());
 
-    private WgpuComputePipelineDescriptor(){}
+    protected WgpuComputePipelineDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuComputePipelineDescriptor(Runtime runtime){
@@ -23,7 +27,7 @@ public class WgpuComputePipelineDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuComputePipelineDescriptor createHeap(){
-        return new WgpuComputePipelineDescriptor();
+        return new WgpuComputePipelineDescriptor(false);
     }
 
     /**
@@ -34,9 +38,7 @@ public class WgpuComputePipelineDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuComputePipelineDescriptor createDirect(){
-        var struct = new WgpuComputePipelineDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuComputePipelineDescriptor(true);
     }
 
 

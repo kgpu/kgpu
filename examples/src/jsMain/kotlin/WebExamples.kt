@@ -1,7 +1,4 @@
-import io.github.kgpu.Kgpu
-import io.github.kgpu.KgpuFiles
-import io.github.kgpu.PowerPreference
-import io.github.kgpu.Window
+import io.github.kgpu.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

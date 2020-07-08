@@ -11,7 +11,11 @@ public class WgpuCommandEncoderDescriptor extends WgpuJavaStruct {
 
     private final @CStrPointer Struct.Pointer label = new Struct.Pointer();
 
-    private WgpuCommandEncoderDescriptor(){}
+    protected WgpuCommandEncoderDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuCommandEncoderDescriptor(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuCommandEncoderDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuCommandEncoderDescriptor createHeap(){
-        return new WgpuCommandEncoderDescriptor();
+        return new WgpuCommandEncoderDescriptor(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuCommandEncoderDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuCommandEncoderDescriptor createDirect(){
-        var struct = new WgpuCommandEncoderDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuCommandEncoderDescriptor(true);
     }
 
 

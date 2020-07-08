@@ -13,7 +13,11 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
     private final Struct.Float depthBiasSlopeScale = new Struct.Float();
     private final Struct.Float depthBiasClamp = new Struct.Float();
 
-    private WgpuRasterizationStateDescriptor(){}
+    protected WgpuRasterizationStateDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuRasterizationStateDescriptor(Runtime runtime){
@@ -26,7 +30,7 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuRasterizationStateDescriptor createHeap(){
-        return new WgpuRasterizationStateDescriptor();
+        return new WgpuRasterizationStateDescriptor(false);
     }
 
     /**
@@ -37,9 +41,7 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuRasterizationStateDescriptor createDirect(){
-        var struct = new WgpuRasterizationStateDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuRasterizationStateDescriptor(true);
     }
 
 

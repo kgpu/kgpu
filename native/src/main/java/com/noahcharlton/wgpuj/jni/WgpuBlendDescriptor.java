@@ -11,7 +11,11 @@ public class WgpuBlendDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuBlendFactor> dstFactor = new Struct.Enum<>(WgpuBlendFactor.class);
     private final Struct.Enum<WgpuBlendOperation> operation = new Struct.Enum<>(WgpuBlendOperation.class);
 
-    private WgpuBlendDescriptor(){}
+    protected WgpuBlendDescriptor(boolean direct){
+         if(direct){
+             useDirectMemory();
+        }
+    }
 
     @Deprecated
     public WgpuBlendDescriptor(Runtime runtime){
@@ -24,7 +28,7 @@ public class WgpuBlendDescriptor extends WgpuJavaStruct {
     * cannot be directly passed into native code. 
     */
     public static WgpuBlendDescriptor createHeap(){
-        return new WgpuBlendDescriptor();
+        return new WgpuBlendDescriptor(false);
     }
 
     /**
@@ -35,9 +39,7 @@ public class WgpuBlendDescriptor extends WgpuJavaStruct {
     * @see WgpuJavaStruct#useDirectMemory
     */
     public static WgpuBlendDescriptor createDirect(){
-        var struct = new WgpuBlendDescriptor();
-        struct.useDirectMemory();
-        return struct;
+        return new WgpuBlendDescriptor(true);
     }
 
 
