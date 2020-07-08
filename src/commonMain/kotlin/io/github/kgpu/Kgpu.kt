@@ -8,6 +8,12 @@ expect object Kgpu{
 
 expect class Device {
 
+    fun createShaderModule(data: ByteArray) : ShaderModule;
+
+}
+
+expect class ShaderModule{
+
 }
 
 expect class Adapter{

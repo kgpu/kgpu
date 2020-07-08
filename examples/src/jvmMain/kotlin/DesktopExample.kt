@@ -1,4 +1,5 @@
 import io.github.kgpu.Kgpu;
+import io.github.kgpu.KgpuFiles
 import io.github.kgpu.PowerPreference
 import io.github.kgpu.Window
 import kotlinx.coroutines.GlobalScope
@@ -16,6 +17,14 @@ fun main(){
             println("Adapter: $adapter")
             val device = adapter.requestDeviceAsync();
             println("Device: $device")
+
+            val vertexShader = KgpuFiles.loadInternal("/triangle.vert.spv")
+            val vertexModule = device.createShaderModule(vertexShader)
+            val fragShader = KgpuFiles.loadInternal("/triangle.frag.spv")
+            val fragModule = device.createShaderModule(fragShader)
+
+            println("Vertex Shader: $vertexModule")
+            println("Fragment Shader: $fragModule")
         }.invoke()
 
         Kgpu.runLoop(window) {

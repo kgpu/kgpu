@@ -4,6 +4,7 @@ import com.noahcharlton.wgpuj.WgpuJava
 import com.noahcharlton.wgpuj.jni.WgpuCLimits
 import com.noahcharlton.wgpuj.jni.WgpuPowerPreference
 import com.noahcharlton.wgpuj.jni.WgpuRequestAdapterOptions
+import com.noahcharlton.wgpuj.jni.WgpuShaderModuleDescriptor
 import com.noahcharlton.wgpuj.util.Platform
 import com.noahcharlton.wgpuj.util.SharedLibraryLoader
 import io.github.kgpu.GlfwHandler.getOsWindowHandle
@@ -161,7 +162,7 @@ private object GlfwHandler {
 actual class Adapter(val id: Long) {
 
     override fun toString(): String {
-        return "Adapter(${java.lang.Long.toUnsignedString(id, 2)})"
+        return "Adapter${Id.fromLong(id)}"
     }
 
     actual suspend fun requestDeviceAsync(): Device {
@@ -183,6 +184,25 @@ actual enum class PowerPreference(val nativeType: WgpuPowerPreference) {
 actual class Device(val id: Long) {
 
     override fun toString(): String {
-        return "Device(${java.lang.Long.toUnsignedString(id, 2)})"
+        return "Device${Id.fromLong(id)}"
     }
+
+    actual fun createShaderModule(data: ByteArray): ShaderModule {
+        val desc = WgpuShaderModuleDescriptor.createDirect();
+        val codePtr = WgpuJava.createByteArrayPointer(data)
+        desc.code.bytes = codePtr;
+        desc.code.length = data.size.toLong() / 4 //length is in terms of u32s
+
+        val module = WgpuJava.wgpuNative.wgpu_device_create_shader_module(id, desc.pointerTo)
+
+        return ShaderModule(module)
+    }
+}
+
+actual class ShaderModule(val moduleId: Long) {
+
+    override fun toString(): String {
+        return "ShaderModule${Id.fromLong(moduleId)}"
+    }
+
 }

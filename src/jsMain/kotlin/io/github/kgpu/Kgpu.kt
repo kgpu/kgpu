@@ -37,6 +37,15 @@ actual class Window actual constructor() {
     }
 }
 
+open external class GPUObjectBase{
+    val label: String
+}
+
+open external class GPUObjectDescriptorBase{
+    val label: String
+}
+
+
 actual class Adapter(val jsType: GPUAdapter){
 
     actual suspend fun requestDeviceAsync() : Device {
@@ -85,8 +94,33 @@ actual class Device(val jsType: GPUDevice) {
         return "Device($jsType)"
     }
 
+    actual fun createShaderModule(data: ByteArray): ShaderModule {
+        val desc = asDynamic()
+        desc.code = data;
+
+        val moduleJs = jsType.createShaderModule(desc)
+
+        return ShaderModule(moduleJs)
+    }
 }
 
 open external class GPUDevice {
+    val adapter: GPUAdapter
+    val extensions: List<GPUExtensionName>
+    val limits: Any
+    val defaultQueue: Any
+
+    fun createShaderModule(desc: dynamic) : GPUShaderModule
+}
+
+external class GPUShaderModule : GPUObjectBase {
+    val compilationInfo: Any
+}
+
+actual class ShaderModule(val jsType: GPUShaderModule){
+
+    override fun toString(): String {
+        return "ShaderModule($jsType)"
+    }
 
 }
