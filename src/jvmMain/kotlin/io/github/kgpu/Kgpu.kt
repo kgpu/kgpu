@@ -1,13 +1,23 @@
 package io.github.kgpu
 
 import com.noahcharlton.wgpuj.WgpuJava
+import com.noahcharlton.wgpuj.jni.WgpuCLimits
+import com.noahcharlton.wgpuj.jni.WgpuPowerPreference
+import com.noahcharlton.wgpuj.jni.WgpuRequestAdapterOptions
+import com.noahcharlton.wgpuj.util.Platform
 import com.noahcharlton.wgpuj.util.SharedLibraryLoader
+import io.github.kgpu.GlfwHandler.getOsWindowHandle
+import jnr.ffi.Pointer
 import org.lwjgl.Version
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.GLFWNativeWin32
+import org.lwjgl.glfw.GLFWNativeX11
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.awt.Dimension
+import java.util.concurrent.atomic.AtomicLong
+
 
 actual object Kgpu {
     actual val backendName: String = "Desktop"
@@ -28,6 +38,8 @@ actual object Kgpu {
             window.update()
             func()
         }
+
+        GlfwHandler.terminate();
     }
 }
 
@@ -51,6 +63,38 @@ actual class Window actual constructor() {
 
     actual fun update() {
         GLFW.glfwPollEvents();
+    }
+
+    private fun createSurface(): Long {
+        val osHandle = getOsWindowHandle(handle)
+        if (Platform.isWindows) {
+            return WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(WgpuJava.createNullPointer(), osHandle)
+        } else if (Platform.isLinux) {
+            val display = GLFWNativeX11.glfwGetX11Display()
+            return WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
+        }
+        throw UnsupportedOperationException(
+            "Platform not supported. See " +
+                    "https://github.com/DevOrc/wgpu-java/issues/4"
+        )
+    }
+
+    actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
+        val adapter = AtomicLong(0)
+        val defaultBackend : Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
+        val options = WgpuRequestAdapterOptions.createDirect()
+        options.compatibleSurface = createSurface()
+        options.powerPreference = preference.nativeType
+
+        WgpuJava.wgpuNative.wgpu_request_adapter_async(
+            options.pointerTo,
+            defaultBackend,
+            false,
+            { received: Long, userData: Pointer? -> adapter.set(received) },
+            WgpuJava.createNullPointer()
+        )
+
+        return Adapter(adapter.get())
     }
 
 }
@@ -88,5 +132,57 @@ private object GlfwHandler {
 
             return Dimension(width.get(), height.get())
         }
+    }
+
+    fun terminate() {
+        GLFW.glfwTerminate()
+
+        val callback = GLFW.glfwSetErrorCallback(null)
+        callback?.free()
+    }
+
+    fun getOsWindowHandle(handle: Long): Long {
+        return when {
+            Platform.isWindows -> {
+                GLFWNativeWin32.glfwGetWin32Window(handle)
+            }
+            Platform.isLinux -> {
+                GLFWNativeX11.glfwGetX11Window(handle)
+            }
+            else -> {
+                throw UnsupportedOperationException(
+                    "Platform not supported. See https://github.com/DevOrc/wgpu-java/issues/4"
+                )
+            }
+        }
+    }
+}
+
+actual class Adapter(val id: Long) {
+
+    override fun toString(): String {
+        return "Adapter(${java.lang.Long.toUnsignedString(id, 2)})"
+    }
+
+    actual suspend fun requestDeviceAsync(): Device {
+        val limits = WgpuCLimits.createDirect();
+        limits.maxBindGroups = 4;
+        val deviceId = WgpuJava.wgpuNative.wgpu_adapter_request_device(id, 0,
+            limits.pointerTo, WgpuJava.createNullPointer());
+
+        return Device(deviceId)
+    }
+}
+
+actual enum class PowerPreference(val nativeType: WgpuPowerPreference) {
+    LOW(WgpuPowerPreference.LOW_POWER),
+    DEFAULT(WgpuPowerPreference.DEFAULT),
+    PERFORMANCE(WgpuPowerPreference.HIGH_PERFORMANCE)
+}
+
+actual class Device(val id: Long) {
+
+    override fun toString(): String {
+        return "Device(${java.lang.Long.toUnsignedString(id, 2)})"
     }
 }

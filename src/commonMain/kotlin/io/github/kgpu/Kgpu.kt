@@ -6,6 +6,20 @@ expect object Kgpu{
     fun runLoop(window: Window, func: () -> Unit)
 }
 
+expect class Device {
+
+}
+
+expect class Adapter{
+
+    suspend fun requestDeviceAsync() : Device
+
+}
+
+expect enum class PowerPreference{
+    LOW, DEFAULT, PERFORMANCE
+}
+
 expect class Window(){
 
     fun setTitle(title: String)
@@ -14,4 +28,5 @@ expect class Window(){
 
     fun update()
 
+    suspend fun requestAdapterAsync(preference: PowerPreference) : Adapter
 }

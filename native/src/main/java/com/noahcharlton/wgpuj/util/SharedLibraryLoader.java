@@ -18,10 +18,6 @@ import java.util.zip.CRC32;
  */
 public class SharedLibraryLoader {
 
-    private static final boolean isWindows = System.getProperty("os.name").contains("Windows");
-    private static final boolean isLinux = System.getProperty("os.name").contains("Linux");
-    private static final boolean isMac = System.getProperty("os.name").contains("Mac");
-
     private String crc(InputStream input) {
         if(input == null) throw new IllegalArgumentException("input cannot be null.");
         CRC32 crc = new CRC32();
@@ -40,9 +36,9 @@ public class SharedLibraryLoader {
     }
 
     private String mapLibraryName(String libraryName) {
-        if(isWindows) return libraryName + ".dll";
-        if(isLinux) return "lib" + libraryName + ".so";
-        if(isMac) return "lib" + libraryName + ".dylib";
+        if(Platform.isWindows) return libraryName + ".dll";
+        if(Platform.isLinux) return "lib" + libraryName + ".so";
+        if(Platform.isMac) return "lib" + libraryName + ".dylib";
 
         return libraryName;
     }
