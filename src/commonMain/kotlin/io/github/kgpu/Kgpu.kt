@@ -42,24 +42,24 @@ expect class BindGroupLayoutEntry{
 }
 
 expect class ShaderModule
-expect class ProgrammableStageDescriptor(module: ShaderModule, entry: String)
+expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
 expect class PipelineLayout
 expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
 expect class RenderPipeline
 
 expect class RenderPipelineDescriptor(
-        layout: PipelineLayout,
-        vertexStage: ProgrammableStageDescriptor,
-        fragmentStage: ProgrammableStageDescriptor,
-        primitive: PrimitiveTopology,
-        rasterizationState: RasterizationStateDescriptor,
-        colorStates: Array<ColorStateDescriptor>,
-        depthStencilState: Any?,
-        vertexState: VertexStateDescriptor,
-        sampleCount: Int,
-        sampleMask: Int,
-        alphaToCoverage: Boolean);
+    layout: PipelineLayout,
+    vertexStage: ProgrammableStageDescriptor,
+    fragmentStage: ProgrammableStageDescriptor,
+    primitiveTopology: PrimitiveTopology,
+    rasterizationState: RasterizationStateDescriptor,
+    colorStates: Array<ColorStateDescriptor>,
+    depthStencilState: Any?,
+    vertexState: VertexStateDescriptor,
+    sampleCount: Int,
+    sampleMask: Int,
+    alphaToCoverage: Boolean);
 
 
 expect enum class PrimitiveTopology {
@@ -114,7 +114,7 @@ expect class VertexStateDescriptor(
         vertexBuffers: Array<VertexBufferLayoutDescriptor>
 )
 
-class BlendDescriptor(val srcFactor: BlendFactor, val dstFactor: BlendFactor, val operation: BlendOperation)
+expect class BlendDescriptor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation)
 
 expect enum class TextureFormat {
     R8_UNORM,

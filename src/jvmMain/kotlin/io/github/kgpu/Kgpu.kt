@@ -14,9 +14,7 @@ import org.lwjgl.glfw.GLFWNativeX11
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.awt.Dimension
-import java.util.*
 import java.util.concurrent.atomic.AtomicLong
-import java.util.stream.Stream
 
 
 actual object Kgpu {
@@ -215,10 +213,10 @@ actual class ShaderModule(val moduleId: Long) {
 }
 
 actual class ProgrammableStageDescriptor actual
-    constructor(module: ShaderModule, entry: kotlin.String) : WgpuProgrammableStageDescriptor(true) {
+    constructor(module: ShaderModule, entryPoint: kotlin.String) : WgpuProgrammableStageDescriptor(true) {
 
     init {
-        this.entryPoint = entry
+        this.entryPoint = entryPoint
         this.module = module.moduleId
     }
 
@@ -283,24 +281,24 @@ actual class ColorStateDescriptor actual constructor(
 }
 
 actual class RenderPipelineDescriptor actual constructor(
-        layout: PipelineLayout,
-        vertexStage: ProgrammableStageDescriptor,
-        fragmentStage: ProgrammableStageDescriptor,
-        primitive: PrimitiveTopology,
-        rasterizationState: RasterizationStateDescriptor,
-        colorStates: Array<ColorStateDescriptor>,
-        depthStencilState: Any?,
-        vertexState: VertexStateDescriptor,
-        sampleCount: Int,
-        sampleMask: Int,
-        alphaToCoverage: kotlin.Boolean) : WgpuRenderPipelineDescriptor(true){
+    layout: PipelineLayout,
+    vertexStage: ProgrammableStageDescriptor,
+    fragmentStage: ProgrammableStageDescriptor,
+    primitiveTopology: PrimitiveTopology,
+    rasterizationState: RasterizationStateDescriptor,
+    colorStates: Array<ColorStateDescriptor>,
+    depthStencilState: Any?,
+    vertexState: VertexStateDescriptor,
+    sampleCount: Int,
+    sampleMask: Int,
+    alphaToCoverage: kotlin.Boolean) : WgpuRenderPipelineDescriptor(true){
 
     init {
         this.layout = layout.id;
         this.vertexStage.entryPoint = vertexStage.entryPoint
         this.vertexStage.module = vertexStage.module
         this.fragmentStage.set(fragmentStage)
-        this.primitiveTopology = primitive
+        this.primitiveTopology = primitiveTopology
         this.rasterizationState.set(rasterizationState)
         this.colorStates.set(colorStates)
         this.colorStatesLength = colorStates.size.toLong()
@@ -387,3 +385,9 @@ actual class RenderPipeline internal constructor(val id: Long){
     }
 
 }
+
+actual class BlendDescriptor actual constructor(
+    val srcFactor: BlendFactor,
+    val dstFactor: BlendFactor,
+    val operation: BlendOperation
+)
