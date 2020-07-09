@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 actual object Kgpu {
     actual val backendName: String = "Desktop"
+    actual val undefined = null
 
     fun init(){
         val libraryFile = SharedLibraryLoader().load("wgpu_native")

@@ -7,6 +7,7 @@ import kotlin.browser.document as jsDocument
 
 actual object Kgpu {
     actual val backendName: String = "Web"
+    actual val undefined = kotlin.js.undefined
 
     actual fun runLoop(window: Window, func: () -> Unit) {
         func();

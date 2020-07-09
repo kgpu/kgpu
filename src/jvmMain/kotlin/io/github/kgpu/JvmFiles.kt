@@ -1,10 +1,5 @@
 package io.github.kgpu
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 

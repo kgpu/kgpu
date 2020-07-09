@@ -2,6 +2,7 @@ package io.github.kgpu
 
 expect object Kgpu {
     val backendName: String
+    val undefined: Nothing?
 
     fun runLoop(window: Window, func: () -> Unit)
 }

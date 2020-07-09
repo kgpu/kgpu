@@ -37,9 +37,7 @@ switch (OperatingSystem.current()) {
 }
 
 kotlin {
-    jvm {
-        withJava();
-    }
+    jvm()
     js(){
         browser()
     }
