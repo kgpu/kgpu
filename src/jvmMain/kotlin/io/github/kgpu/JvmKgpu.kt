@@ -44,6 +44,20 @@ actual object Kgpu {
 
 actual class Window actual constructor() {
     private val handle : Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
+    private val surface: Long
+
+    init {
+        val osHandle = getOsWindowHandle(handle)
+        surface = if (Platform.isWindows) {
+            WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(WgpuJava.createNullPointer(), osHandle)
+        } else if (Platform.isLinux) {
+            val display = GLFWNativeX11.glfwGetX11Display()
+            WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
+        }else throw UnsupportedOperationException(
+            "Platform not supported. See " +
+                    "https://github.com/DevOrc/wgpu-java/issues/4"
+        )
+    }
 
     init {
         if(handle == MemoryUtil.NULL)
@@ -64,25 +78,11 @@ actual class Window actual constructor() {
         GLFW.glfwPollEvents();
     }
 
-    private fun createSurface(): Long {
-        val osHandle = getOsWindowHandle(handle)
-        if (Platform.isWindows) {
-            return WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(WgpuJava.createNullPointer(), osHandle)
-        } else if (Platform.isLinux) {
-            val display = GLFWNativeX11.glfwGetX11Display()
-            return WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-        }
-        throw UnsupportedOperationException(
-            "Platform not supported. See " +
-                    "https://github.com/DevOrc/wgpu-java/issues/4"
-        )
-    }
-
     actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
         val adapter = AtomicLong(0)
         val defaultBackend : Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
         val options = WgpuRequestAdapterOptions.createDirect()
-        options.compatibleSurface = createSurface()
+        options.compatibleSurface = surface
         options.powerPreference = preference
 
         WgpuJava.wgpuNative.wgpu_request_adapter_async(
@@ -96,6 +96,25 @@ actual class Window actual constructor() {
         return Adapter(adapter.get())
     }
 
+    actual fun getWindowSize() : WindowSize {
+        val dimension = GlfwHandler.getWindowDimension(handle)
+
+        return WindowSize(dimension.width, dimension.height)
+    }
+
+    actual fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain {
+        val size = getWindowSize()
+        val nativeDesc = WgpuSwapChainDescriptor.createDirect();
+        nativeDesc.format = desc.format
+        nativeDesc.usage = desc.usage
+        nativeDesc.presentMode = WgpuPresentMode.FIFO
+        nativeDesc.width = size.width.toLong()
+        nativeDesc.height = size.height.toLong()
+
+        val id = WgpuJava.wgpuNative.wgpu_device_create_swap_chain(desc.device.id, surface, nativeDesc.pointerTo)
+
+        return SwapChain(id)
+    }
 }
 
 private object GlfwHandler {
@@ -203,6 +222,12 @@ actual class Device(val id: Long) {
 
         return PipelineLayout(id)
     }
+
+    actual fun createTexture(desc: TextureDescriptor): Texture {
+        val id = WgpuJava.wgpuNative.wgpu_device_create_texture(id, desc.pointerTo)
+
+        return Texture(id)
+    }
 }
 
 actual class ShaderModule(val moduleId: Long) {
@@ -239,6 +264,9 @@ actual typealias BlendOperation = WgpuBlendOperation
 actual typealias IndexFormat = WgpuIndexFormat
 actual typealias VertexFormat = WgpuVertexFormat
 actual typealias InputStepMode = WgpuInputStepMode
+actual typealias TextureDimension = WgpuTextureDimension
+actual typealias TextureAspect = WgpuTextureAspect
+actual typealias TextureViewDimension = WgpuTextureViewDimension
 
 actual class RasterizationStateDescriptor actual constructor(
         frontFace: FrontFace,
@@ -392,3 +420,96 @@ actual class BlendDescriptor actual constructor(
     val dstFactor: BlendFactor,
     val operation: BlendOperation
 )
+
+actual class Extent3D actual constructor(
+    width: Long,
+    height: Long,
+    depth: Long) : WgpuExtent3d(true) {
+
+    init {
+        this.width = width
+        this.height = height
+        this.depth = depth
+    }
+
+}
+
+actual class TextureDescriptor actual constructor(
+    size: Extent3D,
+    mipLevelCount: Long,
+    sampleCount: Int,
+    dimension: TextureDimension,
+    format: TextureFormat,
+    textureUsage: Long)  : WgpuTextureDescriptor(true) {
+
+    init {
+        this.size.width = size.width
+        this.size.height = size.height
+        this.size.depth = size.depth
+        this.mipLevelCount = mipLevelCount
+        this.sampleCount = sampleCount.toLong();
+        this.format = format;
+        this.usage = textureUsage;
+    }
+
+}
+
+actual class TextureViewDescriptor actual constructor(
+    format: TextureFormat,
+    dimension: TextureViewDimension,
+    aspect: TextureAspect,
+    baseMipLevel: Long,
+    mipLevelCount: Long,
+    baseArrayLayer: Long,
+    arrayLayerCount: Long) : WgpuTextureViewDescriptor(true){
+
+    init {
+        this.format = format
+        this.dimension = dimension
+        this.aspect = aspect
+        this.baseMipLevel = baseMipLevel
+        this.levelCount = mipLevelCount
+        this.baseArrayLayer = baseArrayLayer
+        this.arrayLayerCount = arrayLayerCount
+    }
+
+}
+
+actual class Texture(val id: Long) {
+
+    actual fun createView(desc: TextureViewDescriptor?): TextureView {
+        val ptr = desc?.pointerTo ?: WgpuJava.createNullPointer()
+
+        return TextureView(WgpuJava.wgpuNative.wgpu_texture_create_view(id, ptr))
+    }
+
+    override fun toString(): String {
+        return "Texture${Id.fromLong(id)}"
+    }
+
+}
+
+actual class TextureView(val id: Long){
+
+    override fun toString(): String {
+        return "TextureView${Id.fromLong(id)}"
+    }
+}
+
+actual class SwapChainDescriptor actual constructor(
+    val device: Device,
+    val format: TextureFormat,
+    val usage: Long)
+
+actual class SwapChain(val id: Long){
+    override fun toString(): String {
+        return "SwapChain${Id.fromLong(id)}"
+    }
+
+    actual fun getCurrentTextureView(): TextureView {
+        val output = WgpuSwapChainOutput.createDirect()
+        val id = WgpuJava.wgpuNative.wgpu_swap_chain_get_next_texture_jnr_hack(id, output.pointerTo)
+
+        return TextureView(output.viewId)
+    }
+}

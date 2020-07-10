@@ -1,9 +1,10 @@
 package io.github.kgpu
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.await
+import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Promise
-import kotlin.browser.window as jsWindow
 import kotlin.browser.document as jsDocument
+import kotlin.browser.window as jsWindow
 
 actual object Kgpu {
     actual val backendName: String = "Web"
@@ -21,6 +22,8 @@ actual object Kgpu {
 
 actual class Window actual constructor() {
 
+    private val canvas = kotlin.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
+
     actual fun setTitle(title: String) {
         jsDocument.title = title
     }
@@ -35,6 +38,16 @@ actual class Window actual constructor() {
 
     actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
         return Adapter((js("navigator.gpu.requestAdapter()") as Promise<GPUAdapter>).await())
+    }
+
+    actual fun getWindowSize() : WindowSize{
+        return WindowSize(canvas.width, canvas.height)
+    }
+
+    actual fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain{
+        val context = canvas.getContext("gpupresent") //See https://github.com/gpuweb/gpuweb/issues/131
+
+        return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
     }
 }
 
@@ -110,9 +123,13 @@ actual class Device(val jsType: GPUDevice) {
         return jsType.createPipelineLayout(desc)
     }
 
+    actual fun createTexture(desc: TextureDescriptor) : Texture {
+        return Texture(jsType.createTexture(desc))
+    }
+
 }
 
-open external class GPUDevice {
+external class GPUDevice {
     val adapter: GPUAdapter
     val extensions: List<GPUExtensionName>
     val limits: Any
@@ -123,6 +140,22 @@ open external class GPUDevice {
     fun createPipelineLayout(desc: PipelineLayoutDescriptor): GPUPipelineLayout
 
     fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline
+
+    fun createTexture(desc: TextureDescriptor) : GPUTexture
+}
+
+actual class Texture(val jsType: GPUTexture) {
+
+    actual fun createView(desc: TextureViewDescriptor?) : TextureView {
+        return TextureView(jsType.createView(desc))
+    }
+
+}
+
+external class GPUTexture {
+
+    fun createView(desc: TextureViewDescriptor?) : GPUTextureView
+
 }
 
 external class GPUShaderModule : GPUObjectBase {
@@ -254,6 +287,68 @@ actual enum class InputStepMode {
     VERTEX, INSTANCE,
 }
 
+actual class Extent3D actual constructor(
+    val width: Long,
+    val height: Long,
+    val depth: Long)
+
+actual enum class TextureDimension(val jsType: String) {
+    D1("1d"),
+    D2("2d"),
+    D3("3d")
+}
+
+actual class TextureDescriptor actual constructor(
+    val size: Extent3D,
+    val mipLevelCount: Long,
+    val sampleCount: Int,
+    dimension: TextureDimension,
+    format: TextureFormat,
+    val textureUsage: Long){
+
+    val dimension = dimension.jsType
+    val format = format.jsType
+}
+
+actual class TextureViewDescriptor actual constructor(
+    format: TextureFormat,
+    dimension: TextureViewDimension,
+    aspect: TextureAspect,
+    val baseMipLevel: Long,
+    val mipLevelCount: Long,
+    val baseArrayLayer: Long,
+    val arrayLayerCount: Long){
+
+    val format = format.jsType
+    val dimension = dimension.jsType
+    val aspect = aspect.jsType
+}
+
+actual class TextureView(val jsType: GPUTextureView)
+external class GPUTextureView
+
+actual class SwapChain(val jsType: GPUSwapChain){
+
+    actual fun getCurrentTextureView(): TextureView {
+        val texture = Texture(jsType.getCurrentTexture())
+
+        return texture.createView(undefined)
+    }
+}
+
+external class GPUSwapChain{
+    fun getCurrentTexture() : GPUTexture
+}
+
+actual class SwapChainDescriptor actual constructor(
+    device: Device,
+    format: TextureFormat,
+    val usage: Long
+){
+    val device = device.jsType
+    val format = format.jsType
+}
+
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,
     R8_SNORM,
@@ -366,4 +461,19 @@ actual enum class VertexFormat {
     INT2,
     INT3,
     INT4,
+}
+
+actual enum class TextureAspect(val jsType: String) {
+    ALL("all"),
+    STENCIL_ONLY("stencil-only"),
+    DEPTH_ONLY("depth-only"),
+}
+
+actual enum class TextureViewDimension(val jsType: String) {
+    D1("1d"),
+    D2("2d"),
+    D2_ARRAY("2d-array"),
+    CUBE("cube"),
+    CUBE_ARRAY("cube-array"),
+    D3("3d"),
 }

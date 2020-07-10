@@ -2,7 +2,7 @@ import io.github.kgpu.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-fun runExample(window: Window){
+fun runExample(window: Window) {
     GlobalScope.launch {
         suspend {
             val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
@@ -60,11 +60,26 @@ fun runExample(window: Window){
             )
             println("Pipeline Descriptor: $pipelineDesc")
 
-            var pipeline = device.createRenderPipeline(pipelineDesc)
+            val pipeline = device.createRenderPipeline(pipelineDesc)
             println("Pipeline: $pipeline")
-        }.invoke()
 
-        Kgpu.runLoop(window) {
-        }
+            val windowSize = window.getWindowSize()
+            println("Window: $windowSize")
+
+            val swapChain = window.configureSwapChain(
+                SwapChainDescriptor(
+                    device,
+                    TextureFormat.BGRA8_UNORM,
+                    TextureUsage.OUTPUT_ATTACHMENT
+                )
+            )
+            println("SwapChain: $swapChain")
+            val swapChainTexture = swapChain.getCurrentTextureView();
+            println("SwapChain Current Texture: $swapChainTexture")
+
+            Kgpu.runLoop(window) {
+
+            }
+        }.invoke()
     }
 }

@@ -14,8 +14,9 @@ expect class Device {
     fun createRenderPipeline(desc: RenderPipelineDescriptor) : RenderPipeline
 
     fun createPipelineLayout(desc: PipelineLayoutDescriptor) : PipelineLayout
-}
 
+    fun createTexture(desc: TextureDescriptor) : Texture
+}
 
 expect class Adapter {
 
@@ -36,18 +37,74 @@ expect class Window() {
     fun update()
 
     suspend fun requestAdapterAsync(preference: PowerPreference): Adapter
+
+    fun getWindowSize() : WindowSize
+
+    fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain
 }
 
-expect class BindGroupLayoutEntry{
-    //TODO
+class WindowSize(val width: Int, val height: Int){
+    override fun toString(): String {
+        return "WindowSize($width, $height)"
+    }
 }
 
+expect class TextureView
 expect class ShaderModule
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
 expect class PipelineLayout
 expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
 expect class RenderPipeline
+
+expect class Extent3D (width: Long, height: Long, depth: Long)
+
+object TextureUsage {
+    const val COPY_SRC : Long = 1
+    const val COPY_DST : Long = 2
+    const val SAMPLED : Long = 4
+    const val STORAGE : Long = 8
+    const val OUTPUT_ATTACHMENT : Long = 16
+}
+
+expect class SwapChain{
+
+    fun getCurrentTextureView() : TextureView
+
+}
+
+expect class BindGroupLayoutEntry{
+    //TODO
+}
+
+expect class SwapChainDescriptor(
+    device: Device,
+    format: TextureFormat,
+    usage: Long
+)
+
+expect class Texture {
+    fun createView(desc: TextureViewDescriptor?) : TextureView
+}
+
+expect class TextureViewDescriptor(
+    format: TextureFormat,
+    dimension: TextureViewDimension,
+    aspect: TextureAspect,
+    baseMipLevel: Long,
+    mipLevelCount: Long,
+    baseArrayLayer: Long,
+    arrayLayerCount: Long
+)
+
+expect class TextureDescriptor(
+    size: Extent3D,
+    mipLevelCount: Long,
+    sampleCount: Int,
+    dimension: TextureDimension,
+    format: TextureFormat,
+    textureUsage: Long
+)
 
 expect class RenderPipelineDescriptor(
     layout: PipelineLayout,
@@ -116,6 +173,25 @@ expect class VertexStateDescriptor(
 )
 
 expect class BlendDescriptor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation)
+
+expect enum class TextureViewDimension{
+    D1,
+    D2,
+    D2_ARRAY,
+    CUBE,
+    CUBE_ARRAY,
+    D3,
+}
+
+expect enum class TextureAspect {
+    ALL,
+    STENCIL_ONLY,
+    DEPTH_ONLY,
+}
+
+expect enum class TextureDimension {
+    D1, D2, D3
+}
 
 expect enum class TextureFormat {
     R8_UNORM,
