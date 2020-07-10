@@ -16,6 +16,10 @@ expect class Device {
     fun createPipelineLayout(desc: PipelineLayoutDescriptor) : PipelineLayout
 
     fun createTexture(desc: TextureDescriptor) : Texture
+
+    fun createCommandEncoder() : CommandEncoder
+
+    fun getDefaultQueue() : Queue
 }
 
 expect class Adapter {
@@ -43,10 +47,45 @@ expect class Window() {
     fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain
 }
 
+class Color(val r: Double, val g: Double, val b: Double, val a: Double){
+
+    companion object{
+        val BLACK = Color(0.0, 0.0, 0.0, 1.0)
+        val WHITE = Color(1.0, 1.0, 1.0, 1.0)
+        val RED = Color(1.0, 0.0, 0.0, 1.0)
+        val GREEN = Color(0.0, 1.0, 0.0, 1.0)
+        val BLUE = Color(0.0, 0.0, 1.0, 1.0)
+        val CLEAR = Color(0.0, 0.0, 0.0, 0.0)
+    }
+
+}
 class WindowSize(val width: Int, val height: Int){
     override fun toString(): String {
         return "WindowSize($width, $height)"
     }
+}
+
+expect class CommandEncoder{
+
+    fun beginRenderPass(desc: RenderPassDescriptor) : RenderPassEncoder
+
+    fun finish() : CommandBuffer
+}
+
+expect class RenderPassEncoder{
+
+    fun setPipeline(pipeline: RenderPipeline)
+
+    fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int)
+
+    fun endPass()
+
+}
+
+expect class Queue {
+
+    fun submit(cmdBuffers: Array<CommandBuffer>)
+
 }
 
 expect class TextureView
@@ -56,6 +95,8 @@ expect class PipelineLayout
 expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
 expect class RenderPipeline
+expect class CommandBuffer
+
 
 expect class Extent3D (width: Long, height: Long, depth: Long)
 
@@ -67,10 +108,23 @@ object TextureUsage {
     const val OUTPUT_ATTACHMENT : Long = 16
 }
 
+expect class RenderPassColorAttachmentDescriptor(
+    attachment: TextureView,
+    loadValue: Pair<LoadOp, Color>,
+    storeOp: StoreOp
+)
+
+expect class RenderPassDescriptor(
+    colorAttachments: Array<RenderPassColorAttachmentDescriptor>
+)
+
 expect class SwapChain{
 
     fun getCurrentTextureView() : TextureView
 
+    fun present()
+
+    fun isOutOfDate() : Boolean
 }
 
 expect class BindGroupLayoutEntry{
@@ -116,7 +170,7 @@ expect class RenderPipelineDescriptor(
     depthStencilState: Any?,
     vertexState: VertexStateDescriptor,
     sampleCount: Int,
-    sampleMask: Int,
+    sampleMask: Long,
     alphaToCoverage: Boolean);
 
 
@@ -310,4 +364,14 @@ expect enum class VertexFormat {
 expect enum class InputStepMode {
     VERTEX,
     INSTANCE,
+}
+
+expect enum class LoadOp{
+    CLEAR,
+    LOAD,
+}
+
+expect enum class StoreOp{
+    CLEAR,
+    STORE,
 }

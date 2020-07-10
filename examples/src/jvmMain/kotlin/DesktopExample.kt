@@ -1,6 +1,7 @@
-import io.github.kgpu.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+
+import io.github.kgpu.Kgpu
+import io.github.kgpu.Window
+import kotlinx.coroutines.runBlocking
 
 fun main() {
     Kgpu.init();
@@ -8,6 +9,7 @@ fun main() {
     val window = Window()
     window.setTitle("Kgpu - Desktop")
 
-    runExample(window)
-    Thread.sleep(5000)
+    runBlocking {
+        runExample(window)
+    }
 }

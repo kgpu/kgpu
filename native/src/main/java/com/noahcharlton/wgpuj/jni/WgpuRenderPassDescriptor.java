@@ -11,9 +11,11 @@ public class WgpuRenderPassDescriptor extends WgpuJavaStruct {
     private final Struct.UnsignedLong colorAttachmentsLength = new Struct.UnsignedLong();
     private final Struct.Pointer depthStencilAttachment = new Struct.Pointer();
 
+
+
     public WgpuRenderPassDescriptor(WgpuRenderPassDepthStencilDescriptor depthStencilDescriptor,
                                     WgpuRenderPassColorDescriptor... colorAttachments) {
-        useDirectMemory();
+        this(true);
 
         this.colorAttachments.set(colorAttachments);
         this.colorAttachmentsLength.set(colorAttachments.length);
@@ -23,8 +25,13 @@ public class WgpuRenderPassDescriptor extends WgpuJavaStruct {
             throw new UnsupportedOperationException("Depth stencil not implemented!");
     }
 
+    public WgpuRenderPassDescriptor(boolean useDirect) {
+        if(useDirect)
+            useDirectMemory();
+    }
+
     public WgpuRenderPassDescriptor() {
-        useDirectMemory();
+        this(true);
     }
 
     public StructRef<WgpuRenderPassColorDescriptor> getColorAttachments() {

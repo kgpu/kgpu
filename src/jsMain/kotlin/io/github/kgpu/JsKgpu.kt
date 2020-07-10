@@ -1,6 +1,8 @@
 package io.github.kgpu
 
 import kotlinx.coroutines.await
+import org.khronos.webgl.Int8Array
+import org.khronos.webgl.Uint32Array
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Promise
 import kotlin.browser.document as jsDocument
@@ -23,6 +25,8 @@ actual object Kgpu {
 actual class Window actual constructor() {
 
     private val canvas = kotlin.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
+    private val context = canvas.getContext("gpupresent")
+    private var canvasHackRan = false
 
     actual fun setTitle(title: String) {
         jsDocument.title = title
@@ -45,7 +49,10 @@ actual class Window actual constructor() {
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain{
-        val context = canvas.getContext("gpupresent") //See https://github.com/gpuweb/gpuweb/issues/131
+        if(!canvasHackRan){
+            canvas.width += 1 //Hack to get around chromium not showing canvas unless clicked/resized
+            canvasHackRan = true
+        }
 
         return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
     }
@@ -110,7 +117,8 @@ actual class Device(val jsType: GPUDevice) {
 
     actual fun createShaderModule(data: ByteArray): ShaderModule {
         val desc = asDynamic()
-        desc.code = data;
+        val bytes = Int8Array(data.toTypedArray())
+        desc.code = Uint32Array(bytes.buffer, 0, data.size / 4)
 
         return jsType.createShaderModule(desc)
     }
@@ -127,6 +135,15 @@ actual class Device(val jsType: GPUDevice) {
         return Texture(jsType.createTexture(desc))
     }
 
+    actual fun createCommandEncoder() : CommandEncoder{
+        return CommandEncoder(jsType.createCommandEncoder())
+    }
+
+    actual fun getDefaultQueue(): Queue {
+        val queue = jsType.asDynamic().defaultQueue as GPUQueue;
+
+        return Queue(queue)
+    }
 }
 
 external class GPUDevice {
@@ -142,6 +159,51 @@ external class GPUDevice {
     fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline
 
     fun createTexture(desc: TextureDescriptor) : GPUTexture
+
+    fun createCommandEncoder() : GPUCommandEncoder
+}
+
+actual class CommandEncoder(val jsType: GPUCommandEncoder) {
+
+    actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
+        return RenderPassEncoder(jsType.beginRenderPass(desc))
+    }
+
+    actual fun finish(): CommandBuffer {
+        return CommandBuffer(jsType.finish())
+    }
+
+}
+
+external class GPUCommandEncoder {
+
+    fun beginRenderPass(desc: RenderPassDescriptor) : GPURenderPassEncoder
+
+    fun finish() : GPUCommandBuffer
+
+}
+
+actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
+    actual fun setPipeline(pipeline: RenderPipeline) {
+        jsType.setPipeline(pipeline)
+    }
+
+    actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
+        jsType.draw(vertexCount, instanceCount, firstVertex, firstInstance)
+    }
+
+    actual fun endPass() {
+        jsType.endPass()
+    }
+
+}
+
+external class GPURenderPassEncoder{
+    fun setPipeline(pipeline: RenderPipeline)
+
+    fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int)
+
+    fun endPass()
 }
 
 actual class Texture(val jsType: GPUTexture) {
@@ -237,7 +299,7 @@ actual class RenderPipelineDescriptor actual constructor(
         val depthStencilState: Any?,
         val vertexState: VertexStateDescriptor,
         val sampleCount: Int,
-        val sampleMask: Int,
+        val sampleMask: Long,
         val alphaToCoverage: Boolean) {
 
     val primitiveTopology = "triangle-list"
@@ -334,6 +396,14 @@ actual class SwapChain(val jsType: GPUSwapChain){
 
         return texture.createView(undefined)
     }
+
+    actual fun present() {
+        //Not needed on WebGPU
+    }
+
+    actual fun isOutOfDate(): Boolean {
+        return false
+    }
 }
 
 external class GPUSwapChain{
@@ -347,6 +417,40 @@ actual class SwapChainDescriptor actual constructor(
 ){
     val device = device.jsType
     val format = format.jsType
+}
+
+actual class RenderPassColorAttachmentDescriptor actual constructor(
+    attachment: TextureView,
+    loadValue: Pair<LoadOp, Color>,
+    storeOp: StoreOp
+){
+    val attachment = attachment.jsType
+    val storeOp = storeOp.jsType
+    val loadValue = if(loadValue.first == LoadOp.CLEAR) {
+        loadValue.second.asDynamic()
+    } else {
+        loadValue.first.jsType.asDynamic()
+    }
+}
+
+actual class RenderPassDescriptor actual constructor(
+    val colorAttachments: Array<RenderPassColorAttachmentDescriptor>
+)
+
+actual class CommandBuffer(val jsType: GPUCommandBuffer)
+external class GPUCommandBuffer
+
+actual class Queue(val jsType: GPUQueue){
+
+    actual fun submit(cmdBuffers: Array<CommandBuffer>) {
+        jsType.submit(cmdBuffers.map { it.jsType }.toTypedArray())
+    }
+
+}
+external class GPUQueue{
+
+    fun submit(cmdBuffers: Array<GPUCommandBuffer>)
+
 }
 
 actual enum class TextureFormat(val jsType: String = "") {
@@ -476,4 +580,14 @@ actual enum class TextureViewDimension(val jsType: String) {
     CUBE("cube"),
     CUBE_ARRAY("cube-array"),
     D3("3d"),
+}
+
+actual enum class LoadOp(val jsType: String) {
+    CLEAR("clear"),
+    LOAD("load"),
+}
+
+actual enum class StoreOp(val jsType: String) {
+    CLEAR("clear"),
+    STORE("store"),
 }

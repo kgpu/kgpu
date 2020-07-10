@@ -113,7 +113,7 @@ actual class Window actual constructor() {
 
         val id = WgpuJava.wgpuNative.wgpu_device_create_swap_chain(desc.device.id, surface, nativeDesc.pointerTo)
 
-        return SwapChain(id)
+        return SwapChain(id, this)
     }
 }
 
@@ -228,6 +228,61 @@ actual class Device(val id: Long) {
 
         return Texture(id)
     }
+
+    actual fun createCommandEncoder(): CommandEncoder {
+        val desc = WgpuCommandEncoderDescriptor.createDirect();
+        desc.label = "Default Command Encoder";
+
+        val id = WgpuJava.wgpuNative.wgpu_device_create_command_encoder(id, desc.pointerTo)
+        return CommandEncoder(id)
+    }
+
+    actual fun getDefaultQueue(): Queue {
+        val queueId = WgpuJava.wgpuNative.wgpu_device_get_default_queue(id)
+
+        return Queue(queueId)
+    }
+}
+
+actual class CommandEncoder(val id: Long) {
+
+    override fun toString(): String {
+        return "CommandEncoder${Id.fromLong(id)}"
+    }
+
+    actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
+        val pass = WgpuJava.wgpuNative.wgpu_command_encoder_begin_render_pass(id, desc.pointerTo);
+
+        return RenderPassEncoder(pass)
+    }
+
+    actual fun finish(): CommandBuffer {
+        val id = WgpuJava.wgpuNative.wgpu_command_encoder_finish(id, WgpuJava.createNullPointer())
+
+        return CommandBuffer(id)
+    }
+}
+
+
+actual class RenderPassEncoder(val pass: WgpuRawPass) {
+
+    override fun toString(): String {
+        return "RenderPassEncoder"
+    }
+
+    actual fun setPipeline(pipeline: RenderPipeline) {
+        WgpuJava.wgpuNative.wgpu_render_pass_set_pipeline(pass.pointerTo, pipeline.id)
+    }
+
+    actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
+        WgpuJava.wgpuNative.wgpu_render_pass_draw(pass.pointerTo,
+            vertexCount, instanceCount, firstVertex, firstInstance)
+    }
+
+    actual fun endPass() {
+        WgpuJava.wgpuNative.wgpu_render_pass_end_pass(pass.pointerTo)
+    }
+
 }
 
 actual class ShaderModule(val moduleId: Long) {
@@ -267,6 +322,8 @@ actual typealias InputStepMode = WgpuInputStepMode
 actual typealias TextureDimension = WgpuTextureDimension
 actual typealias TextureAspect = WgpuTextureAspect
 actual typealias TextureViewDimension = WgpuTextureViewDimension
+actual typealias LoadOp = WgpuLoadOp
+actual typealias StoreOp = WgpuStoreOp
 
 actual class RasterizationStateDescriptor actual constructor(
         frontFace: FrontFace,
@@ -319,7 +376,7 @@ actual class RenderPipelineDescriptor actual constructor(
     depthStencilState: Any?,
     vertexState: VertexStateDescriptor,
     sampleCount: Int,
-    sampleMask: Int,
+    sampleMask: Long,
     alphaToCoverage: kotlin.Boolean) : WgpuRenderPipelineDescriptor(true){
 
     init {
@@ -501,15 +558,75 @@ actual class SwapChainDescriptor actual constructor(
     val format: TextureFormat,
     val usage: Long)
 
-actual class SwapChain(val id: Long){
+actual class SwapChain(val id: Long, private val window: Window){
+
+    private val size = window.getWindowSize()
+
     override fun toString(): String {
         return "SwapChain${Id.fromLong(id)}"
     }
 
     actual fun getCurrentTextureView(): TextureView {
         val output = WgpuSwapChainOutput.createDirect()
-        val id = WgpuJava.wgpuNative.wgpu_swap_chain_get_next_texture_jnr_hack(id, output.pointerTo)
+        WgpuJava.wgpuNative.wgpu_swap_chain_get_next_texture_jnr_hack(id, output.pointerTo)
 
         return TextureView(output.viewId)
     }
+
+    actual fun present() {
+        WgpuJava.wgpuNative.wgpu_swap_chain_present(id)
+    }
+
+    actual fun isOutOfDate() : Boolean {
+        return window.getWindowSize() != size
+    }
+}
+
+actual class RenderPassColorAttachmentDescriptor actual constructor(
+    attachment: TextureView,
+    loadValue: Pair<LoadOp, Color>,
+    storeOp: StoreOp
+) : WgpuRenderPassColorDescriptor(true){
+    init {
+        this.attachment = attachment.id
+        this.storeOp = storeOp
+        this.loadOp = loadValue.first
+        copyToNativeColor(this.clearColor, loadValue.second)
+    }
+}
+
+fun copyToNativeColor(native: WgpuColor, color: Color){
+    native.r = color.r
+    native.g = color.g
+    native.b = color.b
+    native.a = color.a
+}
+
+actual class RenderPassDescriptor actual constructor(
+    colorAttachments: Array<RenderPassColorAttachmentDescriptor>
+) : WgpuRenderPassDescriptor(
+    null,
+    *colorAttachments
+)
+
+actual class CommandBuffer(val id: Long){
+
+    override fun toString(): String {
+        return "CommandBuffer(${Id.fromLong(id)}"
+    }
+
+}
+
+actual class Queue(val id: Long){
+
+    override fun toString(): String {
+        return "Queue${Id.fromLong(id)}"
+    }
+
+    actual fun submit(cmdBuffers: Array<CommandBuffer>) {
+        val ptr = WgpuJava.createLongArrayPointer(cmdBuffers.map { it.id }.toLongArray())
+
+        WgpuJava.wgpuNative.wgpu_queue_submit(id, ptr, cmdBuffers.size)
+    }
+
 }
