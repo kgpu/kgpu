@@ -242,6 +242,28 @@ actual class Device(val id: Long) {
 
         return Queue(queueId)
     }
+
+    actual fun createBuffer(desc: BufferDescriptor): Buffer {
+        desc.label = "Kgpu Buffer"
+        val id = WgpuJava.wgpuNative.wgpu_device_create_buffer(id, desc.pointerTo)
+
+        return Buffer(id)
+    }
+
+    actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
+        val id = WgpuJava.wgpuNative.wgpu_device_create_bind_group_layout(id, desc.pointerTo)
+
+        return BindGroupLayout(id)
+    }
+
+    actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
+        val buffer = createBuffer(desc)
+
+        buffer.getMappedData(0, data.size.toLong()).putBytes(data, 0)
+        buffer.unmap()
+
+        return buffer
+    }
 }
 
 actual class CommandEncoder(val id: Long) {
@@ -283,6 +305,10 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
         WgpuJava.wgpuNative.wgpu_render_pass_end_pass(pass.pointerTo)
     }
 
+    actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
+        WgpuJava.wgpuNative.wgpu_render_pass_set_vertex_buffer(pass.pointerTo, slot.toInt(), buffer.id, offset, size)
+    }
+
 }
 
 actual class ShaderModule(val moduleId: Long) {
@@ -303,10 +329,18 @@ actual class ProgrammableStageDescriptor actual
 
 }
 
-actual class BindGroupLayoutEntry : WgpuBindGroupEntry(true) {
+actual class BindGroupLayoutEntry actual constructor(
+    binding: Long,
+    visibility: Long,
+    type: BindingType
+) : WgpuBindGroupLayoutEntry(true) {
+
     init {
-        TODO();
+        this.binding = binding
+        this.visibility = visibility
+        this.ty = type
     }
+
 }
 
 actual typealias PrimitiveTopology = WgpuPrimitiveTopology
@@ -324,6 +358,7 @@ actual typealias TextureAspect = WgpuTextureAspect
 actual typealias TextureViewDimension = WgpuTextureViewDimension
 actual typealias LoadOp = WgpuLoadOp
 actual typealias StoreOp = WgpuStoreOp
+actual typealias BindingType = WgpuBindingType
 
 actual class RasterizationStateDescriptor actual constructor(
         frontFace: FrontFace,
@@ -413,12 +448,12 @@ actual class VertexAttributeDescriptor actual constructor(
 }
 
 actual class VertexBufferLayoutDescriptor actual constructor(
-        stride: Long,
-        stepMode: InputStepMode,
-        attributes: Array<VertexAttributeDescriptor>) : WgpuVertexBufferLayoutDescriptor(true) {
+    arrayStride: Long,
+    stepMode: InputStepMode,
+    attributes: Array<VertexAttributeDescriptor>) : WgpuVertexBufferLayoutDescriptor(true) {
 
     init{
-        this.arrayStride = stride
+        this.arrayStride = arrayStride
         this.stepMode = stepMode
         this.attributes.set(attributes)
         this.attributesLength = attributes.size.toLong()
@@ -627,6 +662,53 @@ actual class Queue(val id: Long){
         val ptr = WgpuJava.createLongArrayPointer(cmdBuffers.map { it.id }.toLongArray())
 
         WgpuJava.wgpuNative.wgpu_queue_submit(id, ptr, cmdBuffers.size)
+    }
+
+}
+
+actual class BufferDescriptor actual constructor(
+    size: Long,
+    usage: Long,
+    mappedAtCreation: kotlin.Boolean) : WgpuBufferDescriptor(true){
+
+    init {
+        this.size = size
+        this.usage = usage
+        this.mappedAtCreation = mappedAtCreation
+    }
+
+}
+
+actual class Buffer(val id: Long){
+
+    override fun toString(): String {
+        return "Buffer${Id.fromLong(id)}"
+    }
+
+    actual fun getMappedData(start: Long, size: Long): BufferData {
+        return BufferData(WgpuJava.wgpuNative.wgpu_buffer_get_mapped_range(id, start, size))
+    }
+
+    actual fun unmap() {
+        WgpuJava.wgpuNative.wgpu_buffer_unmap(id)
+    }
+
+}
+
+actual class BufferData(val data: Pointer) {
+
+    actual fun putBytes(bytes: ByteArray, offset: Int) {
+        data.put(offset.toLong(), bytes, 0, bytes.size)
+    }
+
+}
+
+actual class BindGroupLayoutDescriptor actual constructor(
+    entries: Array<BindGroupLayoutEntry>) : WgpuBindGroupLayoutDescriptor(true) {
+
+    init {
+        this.entries.set(entries)
+        this.entriesLength = entries.size.toLong()
     }
 
 }

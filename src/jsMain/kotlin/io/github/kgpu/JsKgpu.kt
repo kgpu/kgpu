@@ -1,8 +1,10 @@
 package io.github.kgpu
 
 import kotlinx.coroutines.await
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.khronos.webgl.Uint32Array
+import org.khronos.webgl.Uint8Array
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Promise
 import kotlin.browser.document as jsDocument
@@ -144,6 +146,25 @@ actual class Device(val jsType: GPUDevice) {
 
         return Queue(queue)
     }
+
+    actual fun createBuffer(desc: BufferDescriptor): Buffer {
+        return Buffer(jsType.createBuffer(desc))
+    }
+
+    actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
+        return BindGroupLayout(jsType.createBindGroupLayout(desc))
+    }
+
+    actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray) : Buffer {
+        val values = jsType.createBufferMapped(desc)
+        val buffer = values[0] as GPUBuffer
+        val mapping = Int8Array(values[1] as ArrayBuffer)
+        mapping.set(data.toTypedArray(), 0)
+        buffer.unmap()
+
+        return Buffer(buffer)
+    }
+
 }
 
 external class GPUDevice {
@@ -161,6 +182,13 @@ external class GPUDevice {
     fun createTexture(desc: TextureDescriptor) : GPUTexture
 
     fun createCommandEncoder() : GPUCommandEncoder
+
+    fun createBuffer(desc: BufferDescriptor) : GPUBuffer
+
+    fun createBindGroupLayout(desc: BindGroupLayoutDescriptor) : GPUBindGroupLayout
+
+    @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
+    fun createBufferMapped(desc: BufferDescriptor) : Array<dynamic>
 }
 
 actual class CommandEncoder(val jsType: GPUCommandEncoder) {
@@ -196,6 +224,9 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
         jsType.endPass()
     }
 
+    actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
+        jsType.setVertexBuffer(slot, buffer.jsType, offset, size)
+    }
 }
 
 external class GPURenderPassEncoder{
@@ -204,6 +235,8 @@ external class GPURenderPassEncoder{
     fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int)
 
     fun endPass()
+
+    fun setVertexBuffer(slot: Long, buffer: GPUBuffer, offset: Long, size: Long)
 }
 
 actual class Texture(val jsType: GPUTexture) {
@@ -306,16 +339,20 @@ actual class RenderPipelineDescriptor actual constructor(
 }
 
 actual class VertexAttributeDescriptor actual constructor(
-        val format: VertexFormat,
+        format: VertexFormat,
         val offset: Long,
         val shaderLocation: Int
-)
+){
+    val format = format.jsType
+}
 
 actual class VertexBufferLayoutDescriptor actual constructor(
-        val stride: Long,
-        val stepMode: InputStepMode,
-        val attributes: Array<VertexAttributeDescriptor>
-)
+    val arrayStride: Long,
+    stepMode: InputStepMode,
+    val attributes: Array<VertexAttributeDescriptor>
+){
+    val stepMode = stepMode.jsType
+}
 
 actual class VertexStateDescriptor actual constructor(
         indexFormat: IndexFormat,
@@ -324,17 +361,17 @@ actual class VertexStateDescriptor actual constructor(
     val indexFormat = indexFormat.jsType
 }
 
-actual class BindGroupLayoutEntry {
-    init {
-        TODO();
-    }
+actual class BindGroupLayoutEntry actual constructor(
+    val binding: Long,
+    val visibility: Long,
+    val type: BindingType
+)
+
+actual class BindGroupLayout(val jsType: GPUBindGroupLayout) {
+
 }
 
-actual class BindGroupLayout {
-
-    init {
-        TODO()
-    }
+external class GPUBindGroupLayout{
 
 }
 
@@ -345,8 +382,9 @@ actual typealias PipelineLayout = GPUPipelineLayout
 
 actual class RenderPipeline
 
-actual enum class InputStepMode {
-    VERTEX, INSTANCE,
+actual enum class InputStepMode(val jsType: String) {
+    VERTEX("vertex"),
+    INSTANCE("instance"),
 }
 
 actual class Extent3D actual constructor(
@@ -453,6 +491,46 @@ external class GPUQueue{
 
 }
 
+actual class BufferDescriptor actual constructor(
+    val size: Long,
+    val usage: Long,
+    val mappedAtCreation: Boolean
+)
+
+actual class Buffer(val jsType: GPUBuffer){
+
+    actual fun getMappedData(start: Long, size: Long): BufferData {
+        val data = jsType.getMappedRange(start, size)
+
+        TODO("Not implemented in browsers yet. Use old function Device.createBufferWithData() instead")
+//        return BufferData(Uint8Array(data))
+    }
+
+    actual fun unmap() {
+        jsType.unmap()
+    }
+
+}
+
+external class GPUBuffer{
+
+    fun getMappedRange(start: Long, size: Long) : ArrayBuffer
+
+    fun unmap();
+}
+
+
+actual class BufferData(val data: Uint8Array) {
+
+    actual fun putBytes(bytes: ByteArray, offset: Int) {
+        data.set(bytes.toTypedArray(), offset)
+    }
+
+}
+
+actual class BindGroupLayoutDescriptor actual constructor(
+    val entries: Array<BindGroupLayoutEntry>)
+
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,
     R8_SNORM,
@@ -534,37 +612,37 @@ actual enum class IndexFormat(val jsType: String) {
     UINT32("uint32"),
 }
 
-actual enum class VertexFormat {
-    UCHAR2,
-    UCHAR4,
-    CHAR2,
-    CHAR4,
-    UCHAR2_NORM,
-    UCHAR4_NORM,
-    CHAR2_NORM,
-    CHAR4_NORM,
-    USHORT2,
-    USHORT4,
-    SHORT2,
-    SHORT4,
-    USHORT2_NORM,
-    USHORT4_NORM,
-    SHORT2_NORM,
-    SHORT4_NORM,
-    HALF2,
-    HALF4,
-    FLOAT,
-    FLOAT2,
-    FLOAT3,
-    FLOAT4,
-    UINT,
-    UINT2,
-    UINT3,
-    UINT4,
-    INT,
-    INT2,
-    INT3,
-    INT4,
+actual enum class VertexFormat(val jsType: String) {
+    UCHAR2("uchar2"),
+    UCHAR4("uchar4"),
+    CHAR2("char2"),
+    CHAR4("char4"),
+    UCHAR2_NORM("uchar2norm"),
+    UCHAR4_NORM("uchar4norm"),
+    CHAR2_NORM("char2norm"),
+    CHAR4_NORM("char4norm"),
+    USHORT2("ushort2"),
+    USHORT4("ushort4"),
+    SHORT2("short2"),
+    SHORT4("short4"),
+    USHORT2_NORM("ushort2norm"),
+    USHORT4_NORM("ushort4norm"),
+    SHORT2_NORM("short2norm"),
+    SHORT4_NORM("short4norm"),
+    HALF2("half2"),
+    HALF4("half4"),
+    FLOAT("float"),
+    FLOAT2("float2"),
+    FLOAT3("float3"),
+    FLOAT4("float4"),
+    UINT("uint"),
+    UINT2("uint2"),
+    UINT3("uint3"),
+    UINT4("uint4"),
+    INT("int"),
+    INT2("int2"),
+    INT3("int3"),
+    INT4("int4"),
 }
 
 actual enum class TextureAspect(val jsType: String) {
@@ -590,4 +668,15 @@ actual enum class LoadOp(val jsType: String) {
 actual enum class StoreOp(val jsType: String) {
     CLEAR("clear"),
     STORE("store"),
+}
+
+actual enum class BindingType(val jsType: String) {
+    UNIFORM_BUFFER("uniform-buffer"),
+    STORAGE_BUFFER("storage-buffer"),
+    READONLY_STORAGE_BUFFER("readonly-storage-buffer"),
+    SAMPLER("sampler"),
+    COMPARISON_SAMPLER("comparison-sampler"),
+    SAMPLED_TEXTURE("sampled-texture"),
+    READONLY_STORAGE_TEXTURE("readonly-storage-texture"),
+    WRITEONLY_STORAGE_TEXTURE("writeonly-storage-texture"),
 }

@@ -46,6 +46,17 @@ task runJvmExample(type: JavaExec, dependsOn: [jvmJar]) {
     args = []
 }
 
+task exampleFatJar(type: Jar, dependsOn: [jvmJar]) {
+    manifest {
+        attributes 'Main-Class': "DesktopExampleKt"
+    }
+    dependsOn configurations.jvmRuntimeClasspath
+    from {
+        configurations.jvmRuntimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jvmJar
+}
+
 task buildWeb(type: Copy, dependsOn: assemble) {
     from("$buildDir/distributions") {
         include("**.**")

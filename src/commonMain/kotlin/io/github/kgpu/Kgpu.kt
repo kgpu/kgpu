@@ -7,6 +7,10 @@ expect object Kgpu {
     fun runLoop(window: Window, func: () -> Unit)
 }
 
+object Primitives{
+    const val FLOAT_BYTES : Long = 4
+}
+
 expect class Device {
 
     fun createShaderModule(data: ByteArray): ShaderModule
@@ -20,6 +24,13 @@ expect class Device {
     fun createCommandEncoder() : CommandEncoder
 
     fun getDefaultQueue() : Queue
+
+    fun createBuffer(desc: BufferDescriptor) : Buffer
+
+    fun createBindGroupLayout(desc: BindGroupLayoutDescriptor) : BindGroupLayout
+
+    @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
+    fun createBufferWithData(desc: BufferDescriptor, data: ByteArray) : Buffer
 }
 
 expect class Adapter {
@@ -80,6 +91,8 @@ expect class RenderPassEncoder{
 
     fun endPass()
 
+    fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long)
+
 }
 
 expect class Queue {
@@ -96,7 +109,6 @@ expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
 expect class RenderPipeline
 expect class CommandBuffer
-
 
 expect class Extent3D (width: Long, height: Long, depth: Long)
 
@@ -127,9 +139,21 @@ expect class SwapChain{
     fun isOutOfDate() : Boolean
 }
 
-expect class BindGroupLayoutEntry{
-    //TODO
+object ShaderStage{
+
+    const val VERTEX: Long = 1
+    const val FRAGMENT: Long = 2
+    const val COMPUTE: Long = 4
+
 }
+
+expect class BindGroupLayoutEntry(
+    binding: Long,
+    visibility: Long,
+    type: BindingType
+)
+
+expect class BindGroupLayoutDescriptor(entries: Array<BindGroupLayoutEntry>)
 
 expect class SwapChainDescriptor(
     device: Device,
@@ -139,6 +163,38 @@ expect class SwapChainDescriptor(
 
 expect class Texture {
     fun createView(desc: TextureViewDescriptor?) : TextureView
+}
+
+object BufferUsage{
+    const val MAP_READ : Long = 1
+    const val MAP_WRITE : Long =  2
+    const val COPY_SRC : Long =  4
+    const val COPY_DST : Long =  8
+    const val INDEX : Long =  16
+    const val VERTEX : Long =  32
+    const val UNIFORM : Long =  64
+    const val STORAGE : Long =  128
+    const val INDIRECT : Long =  256
+    const val QUERY_RESOLVE : Long =  512
+}
+
+expect class BufferDescriptor(
+    size: Long,
+    usage: Long,
+    mappedAtCreation: Boolean
+)
+
+expect class Buffer{
+
+    fun getMappedData(start: Long, size: Long) : BufferData
+
+    fun unmap();
+}
+
+expect class BufferData{
+
+    fun putBytes(bytes: ByteArray, offset: Int = 0)
+
 }
 
 expect class TextureViewDescriptor(
@@ -216,9 +272,9 @@ expect class VertexAttributeDescriptor(
 )
 
 expect class VertexBufferLayoutDescriptor(
-        stride: Long,
-        stepMode: InputStepMode,
-        attributes: Array<VertexAttributeDescriptor>
+    arrayStride: Long,
+    stepMode: InputStepMode,
+    attributes: Array<VertexAttributeDescriptor>
 )
 
 expect class VertexStateDescriptor(
@@ -374,4 +430,15 @@ expect enum class LoadOp{
 expect enum class StoreOp{
     CLEAR,
     STORE,
+}
+
+expect enum class BindingType{
+    UNIFORM_BUFFER,
+    STORAGE_BUFFER,
+    READONLY_STORAGE_BUFFER,
+    SAMPLER,
+    COMPARISON_SAMPLER,
+    SAMPLED_TEXTURE,
+    READONLY_STORAGE_TEXTURE,
+    WRITEONLY_STORAGE_TEXTURE,
 }

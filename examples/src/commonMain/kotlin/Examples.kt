@@ -1,5 +1,21 @@
-
 import io.github.kgpu.*
+
+fun toByteArray(floatArray: FloatArray): ByteArray {
+    val bytes = ByteArray(floatArray.size * 4)
+    floatArray.forEachIndexed { index, float ->
+        run {
+            val i = index * 4
+            val bits = float.toRawBits()
+
+            bytes[i + 3] = (bits shr 24).toByte()
+            bytes[i + 2] = (bits shr 16).toByte()
+            bytes[i + 1] = (bits shr 8).toByte()
+            bytes[i + 0] = bits.toByte()
+        }
+    }
+
+    return bytes
+}
 
 suspend fun runExample(window: Window) {
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
@@ -11,6 +27,22 @@ suspend fun runExample(window: Window) {
     val vertexModule = device.createShaderModule(vertexShader)
     val fragShader = KgpuFiles.loadInternal("/triangle.frag.spv")
     val fragModule = device.createShaderModule(fragShader)
+
+    val positions = floatArrayOf(
+        -.5f, .5f, 0f, 1f, 0f, 0f,
+        .5f, .5f, 0f, 0f, 1f, 0f,
+        0f, -.5f, 0f, 0f, 0f, 1f
+    )
+    val bufferSize = positions.size * Primitives.FLOAT_BYTES
+    val buffer = device.createBufferWithData(
+        BufferDescriptor(
+            bufferSize,
+            BufferUsage.VERTEX,
+            true
+        ),
+        toByteArray(positions)
+    )
+    println("Buffer: $buffer")
 
     println("Vertex Shader: $vertexModule")
     println("Fragment Shader: $fragModule")
@@ -50,7 +82,26 @@ suspend fun runExample(window: Window) {
             )
         ),
         Kgpu.undefined,
-        VertexStateDescriptor(IndexFormat.UINT16, emptyArray()),
+        VertexStateDescriptor(
+            IndexFormat.UINT16, arrayOf(
+                VertexBufferLayoutDescriptor(
+                    6 * Primitives.FLOAT_BYTES,
+                    InputStepMode.VERTEX,
+                    arrayOf(
+                        VertexAttributeDescriptor(
+                            VertexFormat.FLOAT3,
+                            0,
+                            0
+                        ),
+                        VertexAttributeDescriptor(
+                            VertexFormat.FLOAT3,
+                            3 * Primitives.FLOAT_BYTES,
+                            1
+                        )
+                    )
+                )
+            )
+        ),
         1,
         0xFFFFFFFF,
         false
@@ -69,7 +120,7 @@ suspend fun runExample(window: Window) {
     )
 
     Kgpu.runLoop(window) {
-        if(swapChain.isOutOfDate()){
+        if (swapChain.isOutOfDate()) {
             swapChain = window.configureSwapChain(
                 SwapChainDescriptor(
                     device,
@@ -93,6 +144,7 @@ suspend fun runExample(window: Window) {
             )
         )
         renderPassEncoder.setPipeline(pipeline)
+        renderPassEncoder.setVertexBuffer(0, buffer, 0, bufferSize)
         renderPassEncoder.draw(3, 1, 0, 0)
         renderPassEncoder.endPass()
 
