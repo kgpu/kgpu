@@ -84,7 +84,7 @@ suspend fun runExample(window: Window) {
 
         val colorAttachment = RenderPassColorAttachmentDescriptor(
             swapChainTexture,
-            Pair(LoadOp.CLEAR, Color.BLUE),
+            Pair(LoadOp.CLEAR, Color.WHITE),
             StoreOp.STORE
         )
         val renderPassEncoder = cmdEncoder.beginRenderPass(

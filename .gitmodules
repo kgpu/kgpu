@@ -1,3 +1,4 @@
 [submodule "native/wgpu-native"]
 	path = native/wgpu-native
-	url = git@github.com:DevOrc/wgpu-native.git
+	url = https://github.com/DevOrc/wgpu-native
+	branch = jnr-compatible
