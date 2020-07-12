@@ -14,6 +14,10 @@ actual object Kgpu {
     actual val backendName: String = "Web"
     actual val undefined = kotlin.js.undefined
 
+    actual fun init(){
+        GlMatrix.init()
+    }
+
     actual fun runLoop(window: Window, func: () -> Unit) {
         func();
 

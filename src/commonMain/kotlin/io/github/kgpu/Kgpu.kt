@@ -4,6 +4,8 @@ expect object Kgpu {
     val backendName: String
     val undefined: Nothing?
 
+    fun init()
+
     fun runLoop(window: Window, func: () -> Unit)
 }
 

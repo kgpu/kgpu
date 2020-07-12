@@ -23,9 +23,9 @@ suspend fun runExample(window: Window) {
     val device = adapter.requestDeviceAsync();
     println("Device: $device")
 
-    val vertexShader = KgpuFiles.loadInternal("/triangle.vert.spv")
+    val vertexShader = KgpuFiles.loadInternal("triangle.vert.spv")
     val vertexModule = device.createShaderModule(vertexShader)
-    val fragShader = KgpuFiles.loadInternal("/triangle.frag.spv")
+    val fragShader = KgpuFiles.loadInternal("triangle.frag.spv")
     val fragModule = device.createShaderModule(fragShader)
 
     val positions = floatArrayOf(

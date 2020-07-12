@@ -1,3 +1,0 @@
-rootProject.name = 'kgpu'
-include 'native', 'native:jnrgen', 'examples'
-

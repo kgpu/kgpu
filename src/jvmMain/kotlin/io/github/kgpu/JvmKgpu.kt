@@ -21,7 +21,7 @@ actual object Kgpu {
     actual val backendName: String = "Desktop"
     actual val undefined = null
 
-    fun init(){
+    actual fun init(){
         val libraryFile = SharedLibraryLoader().load("wgpu_native")
         WgpuJava.init(libraryFile)
 

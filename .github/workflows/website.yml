@@ -20,7 +20,7 @@ jobs:
         run: chmod +x gradlew
       - name: Build Documentation
         run: |
-          ./gradlew build buildWeb generateDocumentation
+          ./gradlew build buildWeb generateBook copyExamplesToBook dokka --info
       - name: Deploy To Github Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

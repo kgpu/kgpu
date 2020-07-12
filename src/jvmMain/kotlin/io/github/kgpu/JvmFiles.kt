@@ -6,8 +6,14 @@ import java.io.InputStream
 
 actual object KgpuFiles {
 
-    actual suspend fun loadInternal(path: String) : ByteArray{
-        val inputStream: InputStream = KgpuFiles::class.java.getResourceAsStream(path)
+    actual suspend fun loadInternal(path: String): ByteArray {
+        var jarPath = if (!path.startsWith("/")) {
+            "/$path"
+        } else {
+            path
+        }
+
+        val inputStream: InputStream = KgpuFiles::class.java.getResourceAsStream(jarPath)
             ?: throw RuntimeException("Failed to find file: $path")
 
         return try {
