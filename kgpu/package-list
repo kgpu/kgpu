@@ -5,3 +5,4 @@ com.noahcharlton.wgpuj
 com.noahcharlton.wgpuj.jni
 com.noahcharlton.wgpuj.util
 io.github.kgpu
+io.github.kgpu.internal
