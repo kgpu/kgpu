@@ -23,7 +23,11 @@ fun mathTest(){
     println("Op0 = ${matrix.toFloats().joinToString()}")
 }
 
-suspend fun runExample(window: Window) {
+suspend fun runCubeExample(window: Window){
+
+}
+
+suspend fun runTriangleExample(window: Window) {
     mathTest()
 
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)

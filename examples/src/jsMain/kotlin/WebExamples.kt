@@ -1,18 +1,22 @@
-
 import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
-import io.github.kgpu.internal.glMatrix
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import io.github.kgpu.internal.mat4
+import org.w3c.dom.url.URL
+import kotlin.browser.window
 
-fun main() {
+fun main(){
     Kgpu.init()
 
-    val window = Window()
-    window.setTitle("Kgpu - Web")
+    val kgpuWindow = Window()
+    kgpuWindow.setTitle("Kgpu - Web")
+
+    val params = URL(window.location.href).searchParams;
 
     GlobalScope.launch {
-        runExample(window)
+        when(params.get("example")){
+            "1" -> runCubeExample(kgpuWindow)
+            else -> runTriangleExample(kgpuWindow)
+        }
     }
 }

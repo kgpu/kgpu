@@ -70,10 +70,17 @@ tasks {
         }
     }
 
-    register("runJvmExample", Exec::class){
+    register("runTriangleExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-triangle")
+    }
+
+    register("runCubeExample", Exec::class){
+        dependsOn("jvmFatJar")
+
+        workingDir("$projectDir")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-cube")
     }
 }
