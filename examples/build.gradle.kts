@@ -17,16 +17,16 @@ kotlin {
         withJava()
         tasks{
             register<Jar>("jvmFatJar") {
-                doFirst {
-                    manifest {
-                        attributes["Main-Class"] = "DesktopExampleKt"
-                    }
-                    archiveBaseName.set("${project.name}-fat")
-                    from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) },
-                        compilations.getByName("main").output.classesDirs,
-                        compilations.getByName("main").output.resourcesDir
-                    )
+                dependsOn("jvmJar")
+
+                manifest {
+                    attributes["Main-Class"] = "DesktopExampleKt"
                 }
+                archiveBaseName.set("${project.name}-fat")
+                from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) },
+                    compilations.getByName("main").output.classesDirs,
+                    compilations.getByName("main").output.resourcesDir
+                )
             }
         }
     }

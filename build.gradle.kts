@@ -39,12 +39,15 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 api(project(":native"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+                api("org.joml:joml:1.9.25")
 
                 val lwjglVersion: String by extra
                 implementation("org.lwjgl:lwjgl:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+                implementation("org.lwjgl:lwjgl-shaderc:$lwjglVersion")
                 runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:$natives")
                 runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:$natives")
+                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:$natives")
             }
         }
 

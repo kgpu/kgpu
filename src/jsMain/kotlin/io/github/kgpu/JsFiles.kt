@@ -1,5 +1,6 @@
 package io.github.kgpu
 
+import io.github.kgpu.internal.ArrayBufferUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.await
@@ -15,14 +16,14 @@ actual object KgpuFiles {
 
     actual suspend fun loadInternal(path: String) : ByteArray {
         val response = window.fetch(path, RequestInit()).await().arrayBuffer().await()
-        val bytes = Uint8Array(response)
-        val output = ByteArray(bytes.length);
 
-        for(i : Int in 0..bytes.length){
-            output[i] = bytes[i];
-        }
+        return ArrayBufferUtils.toByteArray(response);
+    }
 
-        return output;
+    actual suspend fun loadInternalUtf8(path: String) : String {
+        val response = window.fetch(path, RequestInit()).await().text()
+
+        return response.await();
     }
 
 }

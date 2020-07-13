@@ -17,15 +17,25 @@ fun toByteArray(floatArray: FloatArray): ByteArray {
     return bytes
 }
 
+fun mathTest(){
+    val matrix = Matrix4f().translate(1f, 2f, 3f)
+
+    println("Op0 = ${matrix.toFloats().joinToString()}")
+}
+
 suspend fun runExample(window: Window) {
+    mathTest()
+
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
     println("Adapter: $adapter")
     val device = adapter.requestDeviceAsync();
     println("Device: $device")
 
-    val vertexShader = KgpuFiles.loadInternal("triangle.vert.spv")
+    val vertexShaderSrc = KgpuFiles.loadInternalUtf8("triangle.vert")
+    val vertexShader = ShaderCompiler.compile("vertex", vertexShaderSrc, ShaderType.VERTEX)
     val vertexModule = device.createShaderModule(vertexShader)
-    val fragShader = KgpuFiles.loadInternal("triangle.frag.spv")
+    val fragShaderSrc = KgpuFiles.loadInternalUtf8("triangle.frag")
+    val fragShader = ShaderCompiler.compile("frag", fragShaderSrc, ShaderType.FRAGMENT)
     val fragModule = device.createShaderModule(fragShader)
 
     val positions = floatArrayOf(

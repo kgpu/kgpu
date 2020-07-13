@@ -2,6 +2,7 @@ package io.github.kgpu
 
 import java.io.IOException
 import java.io.InputStream
+import java.nio.charset.StandardCharsets
 
 
 actual object KgpuFiles {
@@ -21,6 +22,10 @@ actual object KgpuFiles {
         } catch (e: IOException) {
             throw RuntimeException("Failed to read file $path", e)
         }
+    }
+
+    actual suspend fun loadInternalUtf8(path: String): String {
+        return String(loadInternal(path), StandardCharsets.UTF_8)
     }
 
 }

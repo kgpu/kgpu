@@ -1,5 +1,7 @@
 package io.github.kgpu
 
+import io.github.kgpu.internal.Glslang
+import io.github.kgpu.internal.GlslangLibrary
 import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
@@ -15,7 +17,7 @@ actual object Kgpu {
     actual val undefined = kotlin.js.undefined
 
     actual fun init(){
-        GlMatrix.init()
+        GlslangLibrary.init()
     }
 
     actual fun runLoop(window: Window, func: () -> Unit) {
