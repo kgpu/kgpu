@@ -28,20 +28,36 @@
             background-color: black;
             border: solid thick black
         }
+        ul{
+            list-style-type: none;
+            padding: 10px;
+            background-color: black;
+            max-width: 600px;
+            border-radius: 20px;
+        }
+        li{
+            display: inline;
+            padding: 30px;
+            font-size: 24px;
+        }
     </style>
 </head>
 
 <body>
 <center>
-    <h1>Kgpu</h1>
+    <h1 id="title">Kgpu</h1>
     <p id="errorMessage" hidden="true">
         Your browser does not currently support WebGPU. You must use Chrome Canary, Edge Canary, or Firefox Nightly and
         enable WebGPU (See <a href="https://github.com/gpuweb/gpuweb/wiki/Implementation-Status">here</a>
         for more details)
     </p>
     <div id="content">
-        <canvas id="kgpuCanvas" width="600" height="400"></canvas>
         <p><a href="https://github.com/kgpu/kgpu">Source Code</a></p>
+        <canvas id="kgpuCanvas" width="600" height="400"></canvas>
+        <ul>
+            <li><a href="index.html?example=0">Triangle</a></li>
+            <li><a href="index.html?example=1">Cube</a></li>
+        </ul>
     </div>
 </center>
 <script>
