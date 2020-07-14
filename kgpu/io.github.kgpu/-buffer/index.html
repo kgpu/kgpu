@@ -9,7 +9,7 @@
 <br/>
 <h1>Buffer</h1>
 <a name="io.github.kgpu.Buffer"></a>
-(js, jvm) <code><span class="keyword">class </span><span class="identifier">Buffer</span></code>
+(js, jvm) <code><span class="keyword">class </span><span class="identifier">Buffer</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-into-binding-resource/index.html"><span class="identifier">IntoBindingResource</span></a></code>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -18,7 +18,7 @@
 <h4><a href="-init-.html">&lt;init&gt;</a></h4>
 </td>
 <td>
-(js) <code><span class="identifier">Buffer</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$<init>(io.github.kgpu.GPUBuffer)/jsType">jsType</span><span class="symbol">:</span>&nbsp;<a href="../-g-p-u-buffer/index.html"><span class="identifier">GPUBuffer</span></a><span class="symbol">)</span></code><br/>
+(js) <code><span class="identifier">Buffer</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$<init>(io.github.kgpu.GPUBuffer, kotlin.Long)/jsType">jsType</span><span class="symbol">:</span>&nbsp;<a href="../-g-p-u-buffer/index.html"><span class="identifier">GPUBuffer</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Buffer$<init>(io.github.kgpu.GPUBuffer, kotlin.Long)/size">size</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span></code><br/>
 (jvm) <code><span class="identifier">Buffer</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$<init>(kotlin.Long, kotlin.Long)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Buffer$<init>(kotlin.Long, kotlin.Long)/size">size</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span></code></td>
 </tr>
 </tbody>
@@ -44,7 +44,7 @@
 </tr>
 <tr>
 <td>
-(jvm) 
+(js, jvm) 
 <h4><a href="size.html">size</a></h4>
 </td>
 <td>
@@ -65,6 +65,14 @@
 </tr>
 <tr>
 <td>
+<h4><a href="into-binding-resource.html">intoBindingResource</a></h4>
+</td>
+<td>
+(js) <code><span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="keyword">dynamic</span></code><br/>
+(jvm) <code><span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$intoBindingResource(com.noahcharlton.wgpuj.jni.WgpuBindingResource)/resource">resource</span><span class="symbol">:</span>&nbsp;<a href="../../com.noahcharlton.wgpuj.jni/-wgpu-binding-resource/index.html"><span class="identifier">WgpuBindingResource</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
 (jvm) 
 <h4><a href="to-string.html">toString</a></h4>
 </td>
@@ -78,6 +86,19 @@
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">unmap</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="../-into-binding-resource/into-binding-resource.html">intoBindingResource</a></h4>
+</td>
+<td>
+(js) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="keyword">dynamic</span></code><br/>
+(jvm) <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.IntoBindingResource$intoBindingResource(com.noahcharlton.wgpuj.jni.WgpuBindingResource)/resource">resource</span><span class="symbol">:</span>&nbsp;<a href="../../com.noahcharlton.wgpuj.jni/-wgpu-binding-resource/index.html"><span class="identifier">WgpuBindingResource</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 </tbody>
 </table>
