@@ -247,7 +247,7 @@ actual class Device(val id: Long) {
         desc.label = "Kgpu Buffer"
         val id = WgpuJava.wgpuNative.wgpu_device_create_buffer(id, desc.pointerTo)
 
-        return Buffer(id)
+        return Buffer(id, desc.size)
     }
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
@@ -263,6 +263,12 @@ actual class Device(val id: Long) {
         buffer.unmap()
 
         return buffer
+    }
+
+    actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
+        val id = WgpuJava.wgpuNative.wgpu_device_create_bind_group(id, desc.pointerTo)
+
+        return BindGroup(id)
     }
 }
 
@@ -307,6 +313,20 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
 
     actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
         WgpuJava.wgpuNative.wgpu_render_pass_set_vertex_buffer(pass.pointerTo, slot.toInt(), buffer.id, offset, size)
+    }
+
+    actual fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int) {
+        WgpuJava.wgpuNative.wgpu_render_pass_draw_indexed(pass.pointerTo, indexCount, instanceCount,
+            firstVertex, baseVertex, firstInstance)
+    }
+
+    actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
+        WgpuJava.wgpuNative.wgpu_render_pass_set_index_buffer(pass.pointerTo, buffer.id, offset, size)
+    }
+
+    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
+        WgpuJava.wgpuNative.wgpu_render_pass_set_bind_group(pass.pointerTo, index, bindGroup.id,
+            WgpuJava.createNullPointer(), 0)
     }
 
 }
@@ -679,7 +699,7 @@ actual class BufferDescriptor actual constructor(
 
 }
 
-actual class Buffer(val id: Long){
+actual class Buffer(val id: Long, val size: Long){
 
     override fun toString(): String {
         return "Buffer${Id.fromLong(id)}"
@@ -709,6 +729,43 @@ actual class BindGroupLayoutDescriptor actual constructor(
     init {
         this.entries.set(entries)
         this.entriesLength = entries.size.toLong()
+    }
+
+}
+
+actual class BindGroupEntry actual constructor(
+    binding: Long,
+    bindingResource: Any) : WgpuBindGroupEntry(true){
+
+    init {
+        this.binding = binding
+
+        if(bindingResource is Buffer){
+            this.resource.setTag(WgpuBindingResourceTag.BUFFER)
+            this.resource.data.binding.buffer = bindingResource.id
+            this.resource.data.binding.size = bindingResource.size
+        }else{
+            throw RuntimeException("Unknown binding resource!")
+        }
+    }
+
+}
+
+actual class BindGroupDescriptor actual constructor(
+    layout: BindGroupLayout,
+    entries: Array<BindGroupEntry>) : WgpuBindGroupDescriptor(true){
+
+    init {
+        this.layout = layout.id
+        this.entries.set(entries)
+        this.entriesLength = entries.size.toLong()
+    }
+}
+
+actual class BindGroup(val id: Long){
+
+    override fun toString(): String {
+        return "BindGroup${Id.fromLong(id)}"
     }
 
 }

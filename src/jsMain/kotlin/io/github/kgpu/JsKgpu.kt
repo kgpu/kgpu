@@ -171,6 +171,10 @@ actual class Device(val jsType: GPUDevice) {
         return Buffer(buffer)
     }
 
+    actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
+        return BindGroup(jsType.createBindGroup(desc))
+    }
+
 }
 
 external class GPUDevice {
@@ -195,6 +199,8 @@ external class GPUDevice {
 
     @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
     fun createBufferMapped(desc: BufferDescriptor) : Array<dynamic>
+
+    fun createBindGroup(desc: BindGroupDescriptor): GPUBindGroup
 }
 
 actual class CommandEncoder(val jsType: GPUCommandEncoder) {
@@ -233,6 +239,18 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
     actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
         jsType.setVertexBuffer(slot, buffer.jsType, offset, size)
     }
+
+    actual fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int) {
+        jsType.drawIndexed(indexCount, instanceCount, firstVertex, baseVertex, firstInstance)
+    }
+
+    actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
+        jsType.setIndexBuffer(buffer.jsType, offset, size)
+    }
+
+    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
+        jsType.setBindGroup(0, bindGroup.jsType)
+    }
 }
 
 external class GPURenderPassEncoder{
@@ -243,6 +261,12 @@ external class GPURenderPassEncoder{
     fun endPass()
 
     fun setVertexBuffer(slot: Long, buffer: GPUBuffer, offset: Long, size: Long)
+
+    fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int)
+
+    fun setIndexBuffer(buffer: GPUBuffer, offset: Long, size: Long)
+
+    fun setBindGroup(index: Int, bindGroup: GPUBindGroup)
 }
 
 actual class Texture(val jsType: GPUTexture) {
@@ -294,7 +318,7 @@ actual enum class FrontFace(val jsType: String) {
 actual enum class CullMode(val jsType: String) {
     NONE("none"),
     FRONT("front"),
-    BACK(""),
+    BACK("back"),
 }
 
 actual class RasterizationStateDescriptor actual constructor(
@@ -370,8 +394,10 @@ actual class VertexStateDescriptor actual constructor(
 actual class BindGroupLayoutEntry actual constructor(
     val binding: Long,
     val visibility: Long,
-    val type: BindingType
-)
+    type: BindingType
+){
+    val type = type.jsType
+}
 
 actual class BindGroupLayout(val jsType: GPUBindGroupLayout) {
 
@@ -381,7 +407,9 @@ external class GPUBindGroupLayout{
 
 }
 
-actual class PipelineLayoutDescriptor actual constructor(val bindGroupLayouts: Array<BindGroupLayout>)
+actual class PipelineLayoutDescriptor actual constructor(bindGroupLayouts: Array<BindGroupLayout>){
+    val bindGroupLayouts = bindGroupLayouts.map { it.jsType }.toTypedArray()
+}
 
 external class GPUPipelineLayout
 actual typealias PipelineLayout = GPUPipelineLayout
@@ -536,6 +564,31 @@ actual class BufferData(val data: Uint8Array) {
 
 actual class BindGroupLayoutDescriptor actual constructor(
     val entries: Array<BindGroupLayoutEntry>)
+
+actual class BindGroupEntry actual constructor(val binding: Long, bindingResource: Any){
+
+    val resource = asDynamic()
+
+    init {
+        if(bindingResource is Buffer){
+            resource.buffer = bindingResource.jsType
+        }else{
+            throw RuntimeException("Unknown binding resource!")
+        }
+    }
+
+}
+
+actual class BindGroupDescriptor actual constructor(
+    layout: BindGroupLayout,
+    val entries: Array<BindGroupEntry>
+){
+    val layout = layout.jsType
+}
+
+actual class BindGroup(val jsType: GPUBindGroup)
+
+external class GPUBindGroup
 
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,

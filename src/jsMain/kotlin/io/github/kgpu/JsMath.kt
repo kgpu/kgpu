@@ -26,4 +26,35 @@ actual class Matrix4f actual constructor(){
 
         return out
     }
+
+    actual fun ortho(left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float): Matrix4f {
+        mat4.ortho(mat, left, right, bottom, top, near, far)
+
+        return this
+    }
+
+    actual fun lookAt(eye: Vec3f, center: Vec3f, up: Vec3f): Matrix4f {
+        mat4.lookAt(mat, eye.vec, center.vec, up.vec)
+
+        return this
+    }
+
+    actual fun mul(other: Matrix4f): Matrix4f {
+        mat4.mul(mat, mat, other.mat)
+
+        return this
+    }
+
+    actual fun perspective(fov: Float, aspect: Float, near: Float, far: Float): Matrix4f {
+        mat4.perspective(mat, fov, aspect, near, far)
+
+        return this
+    }
+}
+
+actual class Vec3f actual constructor(x: Float, y: Float, z: Float){
+    val vec = vec3.fromValues(x, y, z)
+
+    actual constructor() : this(0f, 0f, 0f)
+
 }

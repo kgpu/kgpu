@@ -33,6 +33,8 @@ expect class Device {
 
     @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
     fun createBufferWithData(desc: BufferDescriptor, data: ByteArray) : Buffer
+
+    fun createBindGroup(desc: BindGroupDescriptor) : BindGroup
 }
 
 expect class Adapter {
@@ -95,6 +97,11 @@ expect class RenderPassEncoder{
 
     fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long)
 
+    fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int)
+
+    fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long)
+
+    fun setBindGroup(index: Int, bindGroup: BindGroup)
 }
 
 expect class Queue {
@@ -111,6 +118,7 @@ expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
 expect class RenderPipeline
 expect class CommandBuffer
+expect class BindGroup
 
 expect class Extent3D (width: Long, height: Long, depth: Long)
 
@@ -140,6 +148,10 @@ expect class SwapChain{
 
     fun isOutOfDate() : Boolean
 }
+
+expect class BindGroupEntry(binding: Long, bindingResource: Any)
+
+expect class BindGroupDescriptor(layout: BindGroupLayout, entries: Array<BindGroupEntry>)
 
 object ShaderStage{
 
