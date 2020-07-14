@@ -448,7 +448,7 @@ actual class RenderPipelineDescriptor actual constructor(
         this.vertexState.vertexBuffers.set(vertexState.vertexBuffers.get(vertexState.vertexBuffersLength.toInt()))
         this.vertexState.vertexBuffersLength = vertexState.vertexBuffersLength
         this.sampleCount = sampleCount.toLong()
-        this.sampleMask = sampleMask.toLong()
+        this.sampleMask = sampleMask
         this.alphaToCoverageEnabled = alphaToCoverage
     }
 
@@ -470,7 +470,7 @@ actual class VertexAttributeDescriptor actual constructor(
 actual class VertexBufferLayoutDescriptor actual constructor(
     arrayStride: Long,
     stepMode: InputStepMode,
-    attributes: Array<VertexAttributeDescriptor>) : WgpuVertexBufferLayoutDescriptor(true) {
+    vararg attributes: VertexAttributeDescriptor) : WgpuVertexBufferLayoutDescriptor(true) {
 
     init{
         this.arrayStride = arrayStride
@@ -483,7 +483,7 @@ actual class VertexBufferLayoutDescriptor actual constructor(
 
 actual class VertexStateDescriptor actual constructor(
         indexFormat: IndexFormat,
-        vertexBuffers: Array<VertexBufferLayoutDescriptor>) : WgpuVertexStateDescriptor(true) {
+        vararg vertexBuffers: VertexBufferLayoutDescriptor) : WgpuVertexStateDescriptor(true) {
     init {
         this.indexFormat = indexFormat;
         this.vertexBuffers.set(vertexBuffers)
@@ -500,7 +500,7 @@ actual class BindGroupLayout internal constructor(val id: Long){
 }
 
 actual class PipelineLayoutDescriptor actual constructor(
-        bindGroupLayouts: Array<BindGroupLayout>) : WgpuPipelineLayoutDescriptor(true){
+        vararg bindGroupLayouts: BindGroupLayout) : WgpuPipelineLayoutDescriptor(true){
 
     init {
         val ids = bindGroupLayouts.map { it.id }.toLongArray()
@@ -639,14 +639,19 @@ actual class SwapChain(val id: Long, private val window: Window){
 
 actual class RenderPassColorAttachmentDescriptor actual constructor(
     attachment: TextureView,
-    loadValue: Pair<LoadOp, Color>,
+    clearColor: Color?,
     storeOp: StoreOp
 ) : WgpuRenderPassColorDescriptor(true){
     init {
         this.attachment = attachment.id
         this.storeOp = storeOp
-        this.loadOp = loadValue.first
-        copyToNativeColor(this.clearColor, loadValue.second)
+        this.loadOp = if(clearColor == null){
+            LoadOp.LOAD
+        }else{
+            LoadOp.CLEAR
+        }
+
+        copyToNativeColor(this.clearColor, clearColor ?: Color.CLEAR)
     }
 }
 
@@ -658,8 +663,7 @@ fun copyToNativeColor(native: WgpuColor, color: Color){
 }
 
 actual class RenderPassDescriptor actual constructor(
-    colorAttachments: Array<RenderPassColorAttachmentDescriptor>
-) : WgpuRenderPassDescriptor(
+    vararg colorAttachments: RenderPassColorAttachmentDescriptor) : WgpuRenderPassDescriptor(
     null,
     *colorAttachments
 )
@@ -678,7 +682,7 @@ actual class Queue(val id: Long){
         return "Queue${Id.fromLong(id)}"
     }
 
-    actual fun submit(cmdBuffers: Array<CommandBuffer>) {
+    actual fun submit(vararg cmdBuffers: CommandBuffer) {
         val ptr = WgpuJava.createLongArrayPointer(cmdBuffers.map { it.id }.toLongArray())
 
         WgpuJava.wgpuNative.wgpu_queue_submit(id, ptr, cmdBuffers.size)
@@ -699,7 +703,14 @@ actual class BufferDescriptor actual constructor(
 
 }
 
-actual class Buffer(val id: Long, val size: Long){
+actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource{
+
+    override fun intoBindingResource(resource: WgpuBindingResource) {
+        resource.setTag(WgpuBindingResourceTag.BUFFER)
+        resource.data.binding.buffer = id
+        resource.data.binding.size = size
+        resource.data.binding.offset = 0
+    }
 
     override fun toString(): String {
         return "Buffer${Id.fromLong(id)}"
@@ -724,7 +735,7 @@ actual class BufferData(val data: Pointer) {
 }
 
 actual class BindGroupLayoutDescriptor actual constructor(
-    entries: Array<BindGroupLayoutEntry>) : WgpuBindGroupLayoutDescriptor(true) {
+    vararg entries: BindGroupLayoutEntry) : WgpuBindGroupLayoutDescriptor(true) {
 
     init {
         this.entries.set(entries)
@@ -735,25 +746,18 @@ actual class BindGroupLayoutDescriptor actual constructor(
 
 actual class BindGroupEntry actual constructor(
     binding: Long,
-    bindingResource: Any) : WgpuBindGroupEntry(true){
+    resource: IntoBindingResource) : WgpuBindGroupEntry(true){
 
     init {
         this.binding = binding
-
-        if(bindingResource is Buffer){
-            this.resource.setTag(WgpuBindingResourceTag.BUFFER)
-            this.resource.data.binding.buffer = bindingResource.id
-            this.resource.data.binding.size = bindingResource.size
-        }else{
-            throw RuntimeException("Unknown binding resource!")
-        }
+        resource.intoBindingResource(this.resource)
     }
 
 }
 
 actual class BindGroupDescriptor actual constructor(
     layout: BindGroupLayout,
-    entries: Array<BindGroupEntry>) : WgpuBindGroupDescriptor(true){
+    vararg entries: BindGroupEntry) : WgpuBindGroupDescriptor(true){
 
     init {
         this.layout = layout.id
@@ -767,5 +771,11 @@ actual class BindGroup(val id: Long){
     override fun toString(): String {
         return "BindGroup${Id.fromLong(id)}"
     }
+
+}
+
+actual interface IntoBindingResource{
+
+    fun intoBindingResource(resource: WgpuBindingResource)
 
 }

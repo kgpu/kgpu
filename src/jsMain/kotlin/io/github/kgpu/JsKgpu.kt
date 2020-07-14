@@ -1,6 +1,5 @@
 package io.github.kgpu
 
-import io.github.kgpu.internal.Glslang
 import io.github.kgpu.internal.GlslangLibrary
 import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
@@ -154,7 +153,7 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun createBuffer(desc: BufferDescriptor): Buffer {
-        return Buffer(jsType.createBuffer(desc))
+        return Buffer(jsType.createBuffer(desc), desc.size)
     }
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
@@ -168,7 +167,7 @@ actual class Device(val jsType: GPUDevice) {
         mapping.set(data.toTypedArray(), 0)
         buffer.unmap()
 
-        return Buffer(buffer)
+        return Buffer(buffer, desc.size)
     }
 
     actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
@@ -379,14 +378,14 @@ actual class VertexAttributeDescriptor actual constructor(
 actual class VertexBufferLayoutDescriptor actual constructor(
     val arrayStride: Long,
     stepMode: InputStepMode,
-    val attributes: Array<VertexAttributeDescriptor>
+    vararg val attributes: VertexAttributeDescriptor
 ){
     val stepMode = stepMode.jsType
 }
 
 actual class VertexStateDescriptor actual constructor(
         indexFormat: IndexFormat,
-        val vertexBuffers: Array<VertexBufferLayoutDescriptor>){
+        vararg val vertexBuffers: VertexBufferLayoutDescriptor){
 
     val indexFormat = indexFormat.jsType
 }
@@ -407,7 +406,7 @@ external class GPUBindGroupLayout{
 
 }
 
-actual class PipelineLayoutDescriptor actual constructor(bindGroupLayouts: Array<BindGroupLayout>){
+actual class PipelineLayoutDescriptor actual constructor(vararg bindGroupLayouts: BindGroupLayout){
     val bindGroupLayouts = bindGroupLayouts.map { it.jsType }.toTypedArray()
 }
 
@@ -493,20 +492,16 @@ actual class SwapChainDescriptor actual constructor(
 
 actual class RenderPassColorAttachmentDescriptor actual constructor(
     attachment: TextureView,
-    loadValue: Pair<LoadOp, Color>,
+    clearColor: Color?,
     storeOp: StoreOp
 ){
     val attachment = attachment.jsType
     val storeOp = storeOp.jsType
-    val loadValue = if(loadValue.first == LoadOp.CLEAR) {
-        loadValue.second.asDynamic()
-    } else {
-        loadValue.first.jsType.asDynamic()
-    }
+    val loadValue = clearColor ?: LoadOp.LOAD
 }
 
 actual class RenderPassDescriptor actual constructor(
-    val colorAttachments: Array<RenderPassColorAttachmentDescriptor>
+    vararg val colorAttachments: RenderPassColorAttachmentDescriptor
 )
 
 actual class CommandBuffer(val jsType: GPUCommandBuffer)
@@ -514,7 +509,7 @@ external class GPUCommandBuffer
 
 actual class Queue(val jsType: GPUQueue){
 
-    actual fun submit(cmdBuffers: Array<CommandBuffer>) {
+    actual fun submit(vararg cmdBuffers: CommandBuffer) {
         jsType.submit(cmdBuffers.map { it.jsType }.toTypedArray())
     }
 
@@ -531,7 +526,7 @@ actual class BufferDescriptor actual constructor(
     val mappedAtCreation: Boolean
 )
 
-actual class Buffer(val jsType: GPUBuffer){
+actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingResource{
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
         val data = jsType.getMappedRange(start, size)
@@ -542,6 +537,15 @@ actual class Buffer(val jsType: GPUBuffer){
 
     actual fun unmap() {
         jsType.unmap()
+    }
+
+    override fun intoBindingResource(): dynamic {
+        val binding = asDynamic()
+        binding.buffer = jsType
+        binding.offset = 0
+        binding.size = size
+
+        return binding
     }
 
 }
@@ -562,26 +566,18 @@ actual class BufferData(val data: Uint8Array) {
 
 }
 
-actual class BindGroupLayoutDescriptor actual constructor(
-    val entries: Array<BindGroupLayoutEntry>)
+actual class BindGroupLayoutDescriptor actual constructor(vararg val entries: BindGroupLayoutEntry){
+}
 
-actual class BindGroupEntry actual constructor(val binding: Long, bindingResource: Any){
+actual class BindGroupEntry actual constructor(val binding: Long, resource: IntoBindingResource){
 
-    val resource = asDynamic()
-
-    init {
-        if(bindingResource is Buffer){
-            resource.buffer = bindingResource.jsType
-        }else{
-            throw RuntimeException("Unknown binding resource!")
-        }
-    }
+    val resource = resource.intoBindingResource()
 
 }
 
 actual class BindGroupDescriptor actual constructor(
     layout: BindGroupLayout,
-    val entries: Array<BindGroupEntry>
+    vararg val entries: BindGroupEntry
 ){
     val layout = layout.jsType
 }
@@ -589,6 +585,12 @@ actual class BindGroupDescriptor actual constructor(
 actual class BindGroup(val jsType: GPUBindGroup)
 
 external class GPUBindGroup
+
+actual interface IntoBindingResource{
+
+    fun intoBindingResource() : dynamic
+
+}
 
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,

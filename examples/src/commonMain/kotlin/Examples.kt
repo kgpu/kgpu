@@ -1,43 +1,14 @@
 import io.github.kgpu.*
 
-fun toByteArray(floatArray: FloatArray): ByteArray {
-    val bytes = ByteArray(floatArray.size * 4)
-    floatArray.forEachIndexed { index, float ->
-        run {
-            val i = index * 4
-            val bits = float.toRawBits()
 
-            bytes[i + 3] = (bits shr 24).toByte()
-            bytes[i + 2] = (bits shr 16).toByte()
-            bytes[i + 1] = (bits shr 8).toByte()
-            bytes[i + 0] = bits.toByte()
-        }
-    }
 
-    return bytes
-}
-
-fun toByteArray(shortArray: ShortArray): ByteArray {
-    val bytes = ByteArray(shortArray.size * 2)
-    shortArray.forEachIndexed { index, value ->
-        run {
-            val i = index * 2
-
-            bytes[i + 1] = (value.toInt() shr 8).toByte()
-            bytes[i + 0] = value.toByte()
-        }
-    }
-
-    return bytes
-}
-
-fun mathTest(){
+fun mathTest() {
     val matrix = Matrix4f().translate(1f, 2f, 3f)
 
     println("Op0 = ${matrix.toFloats().joinToString()}")
 }
 
-suspend fun runCubeExample(window: Window){
+suspend fun runCubeExample(window: Window) {
     val vertices = floatArrayOf(
         -1f, -1f, 1f, 1f, 0f, 0f,
         1f, -1f, 1f, 1f, 0f, 0f,
@@ -93,156 +64,44 @@ suspend fun runCubeExample(window: Window){
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
     val device = adapter.requestDeviceAsync();
 
-    val vertexShaderSrc = KgpuFiles.loadInternalUtf8("cube.vert")
-    val vertexShader = ShaderCompiler.compile("vertex", vertexShaderSrc, ShaderType.VERTEX)
-    val vertexModule = device.createShaderModule(vertexShader)
-    val fragShaderSrc = KgpuFiles.loadInternalUtf8("shared.frag")
-    val fragShader = ShaderCompiler.compile("frag", fragShaderSrc, ShaderType.FRAGMENT)
-    val fragModule = device.createShaderModule(fragShader)
+    val vertexShader = ShaderUtils.fromInternalTextFile(device, "cube.vert", ShaderType.VERTEX)
+    val fragShader = ShaderUtils.fromInternalTextFile(device, "shared.frag", ShaderType.FRAGMENT)
 
-    val vertexBufferSize = vertices.size * Primitives.FLOAT_BYTES
-    val vertexBuffer = device.createBufferWithData(
-        BufferDescriptor(
-            vertexBufferSize,
-            BufferUsage.VERTEX,
-            true
-        ),
-        toByteArray(vertices)
-    )
+    val vertexBuffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
+    val indexBuffer = BufferUtils.createShortBuffer(device, indices, BufferUsage.INDEX)
+    val matrixBuffer = BufferUtils.createMatrixBuffer(device, transMatrix, BufferUsage.UNIFORM)
 
-    val indexBufferSize = indices.size * Primitives.FLOAT_BYTES
-    val indexBuffer = device.createBufferWithData(
-        BufferDescriptor(
-            vertexBufferSize,
-            BufferUsage.INDEX,
-            true
-        ),
-        toByteArray(indices)
-    )
-
-    val matrixBufferSize = transMatrix.toFloats().size * Primitives.FLOAT_BYTES
-    val matrixBuffer = device.createBufferWithData(
-        BufferDescriptor(
-            matrixBufferSize,
-            BufferUsage.UNIFORM,
-            true
-        ),
-        toByteArray(transMatrix.toFloats())
-    )
-
-    val descriptor = BindGroupLayoutDescriptor(
-        arrayOf(
-            BindGroupLayoutEntry(0, ShaderStage.VERTEX, BindingType.UNIFORM_BUFFER)
-        )
-    )
+    val descriptor = BindGroupLayoutDescriptor(BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER))
     val bindGroupLayout = device.createBindGroupLayout(descriptor);
-    val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(arrayOf(bindGroupLayout)))
-    val bindGroup = device.createBindGroup(BindGroupDescriptor(
-        bindGroupLayout,
-        arrayOf(
-            BindGroupEntry(0, matrixBuffer)
-        )
-    ))
+    val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
+    val bindGroup = device.createBindGroup(BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, matrixBuffer)))
 
-    val pipelineDesc = RenderPipelineDescriptor(
-        pipelineLayout,
-        ProgrammableStageDescriptor(vertexModule, "main"),
-        ProgrammableStageDescriptor(fragModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(
-            FrontFace.CCW,
-            CullMode.BACK,
-            false,
-            0,
-            0f,
-            0f
-        ),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(
-                    BlendFactor.ONE,
-                    BlendFactor.ZERO,
-                    BlendOperation.ADD
-                ),
-                BlendDescriptor(
-                    BlendFactor.ONE,
-                    BlendFactor.ZERO,
-                    BlendOperation.ADD
-                ),
-                0xF
-            )
-        ),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            IndexFormat.UINT16, arrayOf(
-                VertexBufferLayoutDescriptor(
-                    6 * Primitives.FLOAT_BYTES,
-                    InputStepMode.VERTEX,
-                    arrayOf(
-                        VertexAttributeDescriptor(
-                            VertexFormat.FLOAT3,
-                            0,
-                            0
-                        ),
-                        VertexAttributeDescriptor(
-                            VertexFormat.FLOAT3,
-                            3 * Primitives.FLOAT_BYTES,
-                            1
-                        )
-                    )
-                )
-            )
-        ),
-        1,
-        0xFFFFFFFF,
-        false
-    )
+    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.BACK)
     val pipeline = device.createRenderPipeline(pipelineDesc)
-    println("test5")
+    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
-    var swapChain = window.configureSwapChain(
-        SwapChainDescriptor(
-            device,
-            TextureFormat.BGRA8_UNORM,
-            TextureUsage.OUTPUT_ATTACHMENT
-        )
-    )
+    var swapChain = window.configureSwapChain(swapChainDescriptor)
 
     Kgpu.runLoop(window) {
         if (swapChain.isOutOfDate()) {
-            swapChain = window.configureSwapChain(
-                SwapChainDescriptor(
-                    device,
-                    TextureFormat.BGRA8_UNORM,
-                    TextureUsage.OUTPUT_ATTACHMENT
-                )
-            )
+            swapChain = window.configureSwapChain(swapChainDescriptor)
         }
 
         val swapChainTexture = swapChain.getCurrentTextureView();
         val cmdEncoder = device.createCommandEncoder();
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(
-            swapChainTexture,
-            Pair(LoadOp.CLEAR, Color.WHITE),
-            StoreOp.STORE
-        )
-        val renderPassEncoder = cmdEncoder.beginRenderPass(
-            RenderPassDescriptor(
-                arrayOf(colorAttachment)
-            )
-        )
+        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
+        val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
-        renderPassEncoder.setVertexBuffer(0, vertexBuffer, 0, vertexBufferSize)
-        renderPassEncoder.setIndexBuffer(indexBuffer, 0, indexBufferSize)
-        renderPassEncoder.drawIndexed(indices.size, 1, 0, 0, 0)
+        renderPassEncoder.setVertexBuffer(0, vertexBuffer)
+        renderPassEncoder.setIndexBuffer(indexBuffer)
+        renderPassEncoder.drawIndexed(indices.size, 1)
         renderPassEncoder.endPass()
 
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
-        queue.submit(arrayOf(cmdBuffer))
+        queue.submit(cmdBuffer)
         swapChain.present();
     }
 }
@@ -252,128 +111,79 @@ suspend fun runTriangleExample(window: Window) {
 
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
     val device = adapter.requestDeviceAsync();
+    val vertexShader = ShaderUtils.fromInternalTextFile(device, "triangle.vert", ShaderType.VERTEX)
+    val fragShader = ShaderUtils.fromInternalTextFile(device, "shared.frag", ShaderType.FRAGMENT)
 
-    val vertexShaderSrc = KgpuFiles.loadInternalUtf8("triangle.vert")
-    val vertexShader = ShaderCompiler.compile("vertex", vertexShaderSrc, ShaderType.VERTEX)
-    val vertexModule = device.createShaderModule(vertexShader)
-    val fragShaderSrc = KgpuFiles.loadInternalUtf8("shared.frag")
-    val fragShader = ShaderCompiler.compile("frag", fragShaderSrc, ShaderType.FRAGMENT)
-    val fragModule = device.createShaderModule(fragShader)
-
-    val positions = floatArrayOf(
+    val vertices = floatArrayOf(
         -.5f, .5f, 0f, 1f, 0f, 0f,
         .5f, .5f, 0f, 0f, 1f, 0f,
         0f, -.5f, 0f, 0f, 0f, 1f
     )
-    val bufferSize = positions.size * Primitives.FLOAT_BYTES
-    val buffer = device.createBufferWithData(
-        BufferDescriptor(
-            bufferSize,
-            BufferUsage.VERTEX,
-            true
-        ),
-        toByteArray(positions)
-    )
+    val buffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
+    val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
 
-    val layouts = emptyArray<BindGroupLayout>()
-    val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(layouts))
+    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE)
+    val pipeline = device.createRenderPipeline(pipelineDesc)
+    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
-    val pipelineDesc = RenderPipelineDescriptor(
+    var swapChain = window.configureSwapChain(swapChainDescriptor)
+
+    Kgpu.runLoop(window) {
+        if (swapChain.isOutOfDate()) {
+            swapChain = window.configureSwapChain(swapChainDescriptor)
+        }
+
+        val swapChainTexture = swapChain.getCurrentTextureView();
+        val cmdEncoder = device.createCommandEncoder();
+
+        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
+        val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
+        renderPassEncoder.setPipeline(pipeline)
+        renderPassEncoder.setVertexBuffer(0, buffer)
+        renderPassEncoder.draw(3, 1)
+        renderPassEncoder.endPass()
+
+        val cmdBuffer = cmdEncoder.finish()
+        val queue = device.getDefaultQueue()
+        queue.submit(cmdBuffer)
+        swapChain.present();
+    }
+}
+
+private fun createRenderPipeline(
+    pipelineLayout: PipelineLayout,
+    vertexModule: ShaderModule,
+    fragModule: ShaderModule,
+    cullMode: CullMode
+): RenderPipelineDescriptor {
+    return RenderPipelineDescriptor(
         pipelineLayout,
         ProgrammableStageDescriptor(vertexModule, "main"),
         ProgrammableStageDescriptor(fragModule, "main"),
         PrimitiveTopology.TRIANGLE_LIST,
         RasterizationStateDescriptor(
             FrontFace.CCW,
-            CullMode.NONE,
-            false,
-            0,
-            0f,
-            0f
+            cullMode
         ),
         arrayOf(
             ColorStateDescriptor(
                 TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(
-                    BlendFactor.ONE,
-                    BlendFactor.ZERO,
-                    BlendOperation.ADD
-                ),
-                BlendDescriptor(
-                    BlendFactor.ONE,
-                    BlendFactor.ZERO,
-                    BlendOperation.ADD
-                ),
+                BlendDescriptor(),
+                BlendDescriptor(),
                 0xF
             )
         ),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16, arrayOf(
-                VertexBufferLayoutDescriptor(
-                    6 * Primitives.FLOAT_BYTES,
-                    InputStepMode.VERTEX,
-                    arrayOf(
-                        VertexAttributeDescriptor(
-                            VertexFormat.FLOAT3,
-                            0,
-                            0
-                        ),
-                        VertexAttributeDescriptor(
-                            VertexFormat.FLOAT3,
-                            3 * Primitives.FLOAT_BYTES,
-                            1
-                        )
-                    )
-                )
+            IndexFormat.UINT16, VertexBufferLayoutDescriptor(
+                6 * Primitives.FLOAT_BYTES,
+                InputStepMode.VERTEX,
+                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
+                VertexAttributeDescriptor(VertexFormat.FLOAT3, 3 * Primitives.FLOAT_BYTES, 1)
             )
         ),
         1,
         0xFFFFFFFF,
         false
     )
-    val pipeline = device.createRenderPipeline(pipelineDesc)
-
-    var swapChain = window.configureSwapChain(
-        SwapChainDescriptor(
-            device,
-            TextureFormat.BGRA8_UNORM,
-            TextureUsage.OUTPUT_ATTACHMENT
-        )
-    )
-
-    Kgpu.runLoop(window) {
-        if (swapChain.isOutOfDate()) {
-            swapChain = window.configureSwapChain(
-                SwapChainDescriptor(
-                    device,
-                    TextureFormat.BGRA8_UNORM,
-                    TextureUsage.OUTPUT_ATTACHMENT
-                )
-            )
-        }
-
-        val swapChainTexture = swapChain.getCurrentTextureView();
-        val cmdEncoder = device.createCommandEncoder();
-
-        val colorAttachment = RenderPassColorAttachmentDescriptor(
-            swapChainTexture,
-            Pair(LoadOp.CLEAR, Color.WHITE),
-            StoreOp.STORE
-        )
-        val renderPassEncoder = cmdEncoder.beginRenderPass(
-            RenderPassDescriptor(
-                arrayOf(colorAttachment)
-            )
-        )
-        renderPassEncoder.setPipeline(pipeline)
-        renderPassEncoder.setVertexBuffer(0, buffer, 0, bufferSize)
-        renderPassEncoder.draw(3, 1, 0, 0)
-        renderPassEncoder.endPass()
-
-        val cmdBuffer = cmdEncoder.finish()
-        val queue = device.getDefaultQueue()
-        queue.submit(arrayOf(cmdBuffer))
-        swapChain.present();
-    }
 }

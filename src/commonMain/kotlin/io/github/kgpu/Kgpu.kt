@@ -9,32 +9,32 @@ expect object Kgpu {
     fun runLoop(window: Window, func: () -> Unit)
 }
 
-object Primitives{
-    const val FLOAT_BYTES : Long = 4
+object Primitives {
+    const val FLOAT_BYTES: Long = 4
 }
 
 expect class Device {
 
     fun createShaderModule(data: ByteArray): ShaderModule
 
-    fun createRenderPipeline(desc: RenderPipelineDescriptor) : RenderPipeline
+    fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline
 
-    fun createPipelineLayout(desc: PipelineLayoutDescriptor) : PipelineLayout
+    fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout
 
-    fun createTexture(desc: TextureDescriptor) : Texture
+    fun createTexture(desc: TextureDescriptor): Texture
 
-    fun createCommandEncoder() : CommandEncoder
+    fun createCommandEncoder(): CommandEncoder
 
-    fun getDefaultQueue() : Queue
+    fun getDefaultQueue(): Queue
 
-    fun createBuffer(desc: BufferDescriptor) : Buffer
+    fun createBuffer(desc: BufferDescriptor): Buffer
 
-    fun createBindGroupLayout(desc: BindGroupLayoutDescriptor) : BindGroupLayout
+    fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout
 
     @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
-    fun createBufferWithData(desc: BufferDescriptor, data: ByteArray) : Buffer
+    fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer
 
-    fun createBindGroup(desc: BindGroupDescriptor) : BindGroup
+    fun createBindGroup(desc: BindGroupDescriptor): BindGroup
 }
 
 expect class Adapter {
@@ -57,14 +57,14 @@ expect class Window() {
 
     suspend fun requestAdapterAsync(preference: PowerPreference): Adapter
 
-    fun getWindowSize() : WindowSize
+    fun getWindowSize(): WindowSize
 
-    fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain
+    fun configureSwapChain(desc: SwapChainDescriptor): SwapChain
 }
 
-class Color(val r: Double, val g: Double, val b: Double, val a: Double){
+class Color(val r: Double, val g: Double, val b: Double, val a: Double) {
 
-    companion object{
+    companion object {
         val BLACK = Color(0.0, 0.0, 0.0, 1.0)
         val WHITE = Color(1.0, 1.0, 1.0, 1.0)
         val RED = Color(1.0, 0.0, 0.0, 1.0)
@@ -74,86 +74,89 @@ class Color(val r: Double, val g: Double, val b: Double, val a: Double){
     }
 
 }
-class WindowSize(val width: Int, val height: Int){
+
+class WindowSize(val width: Int, val height: Int) {
     override fun toString(): String {
         return "WindowSize($width, $height)"
     }
 }
 
-expect class CommandEncoder{
+expect class CommandEncoder {
 
-    fun beginRenderPass(desc: RenderPassDescriptor) : RenderPassEncoder
+    fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder
 
-    fun finish() : CommandBuffer
+    fun finish(): CommandBuffer
 }
 
-expect class RenderPassEncoder{
+expect class RenderPassEncoder {
 
     fun setPipeline(pipeline: RenderPipeline)
 
-    fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int)
+    fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int = 0, firstInstance: Int = 0)
 
     fun endPass()
 
-    fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long)
+    fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
 
-    fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int)
+    fun drawIndexed(
+        indexCount: Int, instanceCount: Int, firstVertex: Int = 0, baseVertex: Int = 0, firstInstance: Int = 0
+    )
 
-    fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long)
+    fun setIndexBuffer(buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
 
     fun setBindGroup(index: Int, bindGroup: BindGroup)
 }
 
 expect class Queue {
 
-    fun submit(cmdBuffers: Array<CommandBuffer>)
+    fun submit(vararg cmdBuffers: CommandBuffer)
 
 }
-
+expect interface IntoBindingResource
 expect class TextureView
 expect class ShaderModule
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
 expect class PipelineLayout
 expect class BindGroupLayout
-expect class PipelineLayoutDescriptor(bindGroupLayouts: Array<BindGroupLayout>)
+expect class PipelineLayoutDescriptor(vararg bindGroupLayouts: BindGroupLayout)
 expect class RenderPipeline
 expect class CommandBuffer
 expect class BindGroup
 
-expect class Extent3D (width: Long, height: Long, depth: Long)
+expect class Extent3D(width: Long, height: Long, depth: Long)
 
 object TextureUsage {
-    const val COPY_SRC : Long = 1
-    const val COPY_DST : Long = 2
-    const val SAMPLED : Long = 4
-    const val STORAGE : Long = 8
-    const val OUTPUT_ATTACHMENT : Long = 16
+    const val COPY_SRC: Long = 1
+    const val COPY_DST: Long = 2
+    const val SAMPLED: Long = 4
+    const val STORAGE: Long = 8
+    const val OUTPUT_ATTACHMENT: Long = 16
 }
 
 expect class RenderPassColorAttachmentDescriptor(
     attachment: TextureView,
-    loadValue: Pair<LoadOp, Color>,
-    storeOp: StoreOp
+    clearColor: Color?,
+    storeOp: StoreOp = StoreOp.STORE
 )
 
 expect class RenderPassDescriptor(
-    colorAttachments: Array<RenderPassColorAttachmentDescriptor>
+    vararg colorAttachments: RenderPassColorAttachmentDescriptor
 )
 
-expect class SwapChain{
+expect class SwapChain {
 
-    fun getCurrentTextureView() : TextureView
+    fun getCurrentTextureView(): TextureView
 
     fun present()
 
-    fun isOutOfDate() : Boolean
+    fun isOutOfDate(): Boolean
 }
 
-expect class BindGroupEntry(binding: Long, bindingResource: Any)
+expect class BindGroupEntry(binding: Long, resource: IntoBindingResource)
 
-expect class BindGroupDescriptor(layout: BindGroupLayout, entries: Array<BindGroupEntry>)
+expect class BindGroupDescriptor(layout: BindGroupLayout, vararg entries: BindGroupEntry)
 
-object ShaderStage{
+object ShaderVisibility {
 
     const val VERTEX: Long = 1
     const val FRAGMENT: Long = 2
@@ -167,29 +170,29 @@ expect class BindGroupLayoutEntry(
     type: BindingType
 )
 
-expect class BindGroupLayoutDescriptor(entries: Array<BindGroupLayoutEntry>)
+expect class BindGroupLayoutDescriptor(vararg entries: BindGroupLayoutEntry)
 
 expect class SwapChainDescriptor(
     device: Device,
     format: TextureFormat,
-    usage: Long
+    usage: Long = TextureUsage.OUTPUT_ATTACHMENT
 )
 
 expect class Texture {
-    fun createView(desc: TextureViewDescriptor?) : TextureView
+    fun createView(desc: TextureViewDescriptor?): TextureView
 }
 
-object BufferUsage{
-    const val MAP_READ : Long = 1
-    const val MAP_WRITE : Long =  2
-    const val COPY_SRC : Long =  4
-    const val COPY_DST : Long =  8
-    const val INDEX : Long =  16
-    const val VERTEX : Long =  32
-    const val UNIFORM : Long =  64
-    const val STORAGE : Long =  128
-    const val INDIRECT : Long =  256
-    const val QUERY_RESOLVE : Long =  512
+object BufferUsage {
+    const val MAP_READ: Long = 1
+    const val MAP_WRITE: Long = 2
+    const val COPY_SRC: Long = 4
+    const val COPY_DST: Long = 8
+    const val INDEX: Long = 16
+    const val VERTEX: Long = 32
+    const val UNIFORM: Long = 64
+    const val STORAGE: Long = 128
+    const val INDIRECT: Long = 256
+    const val QUERY_RESOLVE: Long = 512
 }
 
 expect class BufferDescriptor(
@@ -198,14 +201,16 @@ expect class BufferDescriptor(
     mappedAtCreation: Boolean
 )
 
-expect class Buffer{
+expect class Buffer : IntoBindingResource{
 
-    fun getMappedData(start: Long, size: Long) : BufferData
+    val size: Long
+
+    fun getMappedData(start: Long, size: Long): BufferData
 
     fun unmap();
 }
 
-expect class BufferData{
+expect class BufferData {
 
     fun putBytes(bytes: ByteArray, offset: Int = 0)
 
@@ -241,7 +246,8 @@ expect class RenderPipelineDescriptor(
     vertexState: VertexStateDescriptor,
     sampleCount: Int,
     sampleMask: Long,
-    alphaToCoverage: Boolean);
+    alphaToCoverage: Boolean
+);
 
 
 expect enum class PrimitiveTopology {
@@ -264,41 +270,45 @@ expect enum class CullMode {
 }
 
 expect class RasterizationStateDescriptor(
-        frontFace: FrontFace,
-        cullMode: CullMode,
-        clampDepth: Boolean,
-        depthBias: Long,
-        depthBiasSlopeScale: Float,
-        depthBiasClamp: Float
+    frontFace: FrontFace = FrontFace.CCW,
+    cullMode: CullMode = CullMode.NONE,
+    clampDepth: Boolean = false,
+    depthBias: Long = 0,
+    depthBiasSlopeScale: Float = 0f,
+    depthBiasClamp: Float = 0f
 )
 
 expect class ColorStateDescriptor(
-        format: TextureFormat,
-        alphaBlend: BlendDescriptor,
-        colorBlend: BlendDescriptor,
-        writeMask: Long
+    format: TextureFormat,
+    alphaBlend: BlendDescriptor,
+    colorBlend: BlendDescriptor,
+    writeMask: Long
 )
 
 expect class VertexAttributeDescriptor(
-        format: VertexFormat,
-        offset: Long,
-        shaderLocation: Int
+    format: VertexFormat,
+    offset: Long,
+    shaderLocation: Int
 )
 
 expect class VertexBufferLayoutDescriptor(
     arrayStride: Long,
     stepMode: InputStepMode,
-    attributes: Array<VertexAttributeDescriptor>
+    vararg attributes: VertexAttributeDescriptor
 )
 
 expect class VertexStateDescriptor(
-        indexFormat: IndexFormat,
-        vertexBuffers: Array<VertexBufferLayoutDescriptor>
+    indexFormat: IndexFormat,
+    vararg vertexBuffers: VertexBufferLayoutDescriptor
 )
 
-expect class BlendDescriptor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation)
+expect class BlendDescriptor(
+    srcFactor: BlendFactor = BlendFactor.ONE,
+    dstFactor: BlendFactor = BlendFactor.ZERO,
+    operation: BlendOperation = BlendOperation.ADD
+)
 
-expect enum class TextureViewDimension{
+expect enum class TextureViewDimension {
     D1,
     D2,
     D2_ARRAY,
@@ -436,17 +446,17 @@ expect enum class InputStepMode {
     INSTANCE,
 }
 
-expect enum class LoadOp{
+expect enum class LoadOp {
     CLEAR,
     LOAD,
 }
 
-expect enum class StoreOp{
+expect enum class StoreOp {
     CLEAR,
     STORE,
 }
 
-expect enum class BindingType{
+expect enum class BindingType {
     UNIFORM_BUFFER,
     STORAGE_BUFFER,
     READONLY_STORAGE_BUFFER,
