@@ -1,7 +1,6 @@
 import io.github.kgpu.*
 
 
-
 fun mathTest() {
     val matrix = Matrix4f().translate(1f, 2f, 3f)
 
@@ -50,10 +49,14 @@ suspend fun runCubeExample(window: Window) {
         20, 21, 22, 22, 23, 20
     )
 
-    val windowSize = window.getWindowSize()
-    val aspectRatio = windowSize.width.toFloat() / windowSize.height
-    val projMatrix = Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
+    fun getProjectionMatrix(): Matrix4f {
+        val windowSize = window.getWindowSize()
+        val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
+        return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
+    }
+
+    val projMatrix = getProjectionMatrix()
     val viewMatrix = Matrix4f().lookAt(
         Vec3f(3.5f, 5f, 3f),
         Vec3f(0f, 0f, 0f),
@@ -69,9 +72,14 @@ suspend fun runCubeExample(window: Window) {
 
     val vertexBuffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
     val indexBuffer = BufferUtils.createShortBuffer(device, indices, BufferUsage.INDEX)
-    val matrixBuffer = BufferUtils.createMatrixBuffer(device, transMatrix, BufferUsage.UNIFORM)
+    val matrixBuffer = BufferUtils.createFloatBuffer(
+        device, transMatrix.toFloats(),
+        BufferUsage.UNIFORM or BufferUsage.COPY_DST
+    )
 
-    val descriptor = BindGroupLayoutDescriptor(BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER))
+    val descriptor = BindGroupLayoutDescriptor(
+        BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
+    )
     val bindGroupLayout = device.createBindGroupLayout(descriptor);
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
     val bindGroup = device.createBindGroup(BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, matrixBuffer)))
@@ -101,6 +109,9 @@ suspend fun runCubeExample(window: Window) {
 
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
+
+        viewMatrix.rotateZ(.01f)
+        queue.writeBuffer(matrixBuffer, getProjectionMatrix().mul(viewMatrix).toBytes())
         queue.submit(cmdBuffer)
         swapChain.present();
     }

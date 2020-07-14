@@ -111,7 +111,15 @@ expect class Queue {
 
     fun submit(vararg cmdBuffers: CommandBuffer)
 
+    fun writeBuffer(
+        buffer: Buffer,
+        data: ByteArray,
+        offset: Long = 0,
+        dataOffset: Long = 0,
+        size: Long = data.size.toLong()
+    )
 }
+
 expect interface IntoBindingResource
 expect class TextureView
 expect class ShaderModule
@@ -201,7 +209,7 @@ expect class BufferDescriptor(
     mappedAtCreation: Boolean
 )
 
-expect class Buffer : IntoBindingResource{
+expect class Buffer : IntoBindingResource {
 
     val size: Long
 

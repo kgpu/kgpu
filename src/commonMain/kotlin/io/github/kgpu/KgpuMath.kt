@@ -19,6 +19,8 @@ expect class Matrix4f(){
 
     fun toFloats() : FloatArray
 
+    fun toBytes() : ByteArray
+
     fun translate(x: Float, y: Float, z: Float) : Matrix4f
 
     fun ortho(left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float) : Matrix4f
@@ -26,6 +28,12 @@ expect class Matrix4f(){
     fun lookAt(eye: Vec3f, center: Vec3f, up: Vec3f) : Matrix4f
 
     fun mul(other: Matrix4f) : Matrix4f
+
+    fun rotateX(angle: Float) : Matrix4f
+
+    fun rotateY(angle: Float) : Matrix4f
+
+    fun rotateZ(angle: Float) : Matrix4f
 
     fun perspective(fov: Float, aspect: Float, near: Float, far: Float) : Matrix4f
 }

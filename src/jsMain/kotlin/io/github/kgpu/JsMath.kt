@@ -27,6 +27,10 @@ actual class Matrix4f actual constructor(){
         return out
     }
 
+    actual fun toBytes(): ByteArray {
+        return ByteUtils.toByteArray(toFloats())
+    }
+
     actual fun ortho(left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float): Matrix4f {
         mat4.ortho(mat, left, right, bottom, top, near, far)
 
@@ -47,6 +51,24 @@ actual class Matrix4f actual constructor(){
 
     actual fun perspective(fov: Float, aspect: Float, near: Float, far: Float): Matrix4f {
         mat4.perspective(mat, fov, aspect, near, far)
+
+        return this
+    }
+
+    actual fun rotateX(angle: Float): Matrix4f {
+        mat4.rotateX(mat, mat, angle)
+
+        return this
+    }
+
+    actual fun rotateY(angle: Float): Matrix4f {
+        mat4.rotateY(mat, mat, angle)
+
+        return this
+    }
+
+    actual fun rotateZ(angle: Float): Matrix4f {
+        mat4.rotateZ(mat, mat, angle)
 
         return this
     }

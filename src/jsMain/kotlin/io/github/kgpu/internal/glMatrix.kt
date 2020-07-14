@@ -23,6 +23,13 @@ external object mat4{
     fun mul(out: Mat4, a: Mat4, b: Mat4)
 
     fun perspective(out: Mat4, fov: Float, aspect: Float, near: Float, far: Float)
+
+    fun rotateX(out: Mat4, a: Mat4, rad: Float)
+
+    fun rotateY(out: Mat4, a: Mat4, rad: Float)
+
+    fun rotateZ(out: Mat4, a: Mat4, rad: Float)
+
 }
 
 external object vec3{

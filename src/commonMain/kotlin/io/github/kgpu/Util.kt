@@ -24,10 +24,6 @@ object BufferUtils{
         )
     }
 
-    fun createMatrixBuffer(device: Device, matrix: Matrix4f, usage: Long) : Buffer{
-        return createBufferFromData(device, ByteUtils.toByteArray(matrix.toFloats()), usage)
-    }
-
     fun createFloatBuffer(device: Device, data: FloatArray, usage: Long) : Buffer{
         return createBufferFromData(device, ByteUtils.toByteArray(data), usage)
     }
@@ -35,7 +31,6 @@ object BufferUtils{
     fun createShortBuffer(device: Device, data: ShortArray, usage: Long) : Buffer{
         return createBufferFromData(device, ByteUtils.toByteArray(data), usage)
     }
-
 }
 
 object ByteUtils{

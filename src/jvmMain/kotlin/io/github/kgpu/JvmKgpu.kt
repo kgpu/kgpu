@@ -688,6 +688,13 @@ actual class Queue(val id: Long){
         WgpuJava.wgpuNative.wgpu_queue_submit(id, ptr, cmdBuffers.size)
     }
 
+    actual fun writeBuffer(buffer: Buffer,  data: ByteArray, offset: Long, dataOffset: Long, size: Long) {
+        val ptr = WgpuJava.createDirectPointer(size.toInt())!!
+        ptr.put(0, data, dataOffset.toInt(), size.toInt())
+
+        WgpuJava.wgpuNative.wgpu_queue_write_buffer(id, buffer.id, offset, ptr, size.toInt())
+    }
+
 }
 
 actual class BufferDescriptor actual constructor(
