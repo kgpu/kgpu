@@ -28,8 +28,7 @@ public class OutputHandler {
             "WgpuBindingResource_WgpuSampler_Body",
             "WgpuBindingResource_WgpuTextureView_Body",
             "WgpuRenderPassDepthStencilAttachmentDescriptorBase_TextureViewId",
-            "WgpuRenderPassDescriptor",
-            "WgpuSamplerDescriptor");
+            "WgpuRenderPassDescriptor");
 
     private static final Map<String, String> exportNames = Map.of(
             "SURFACE_DESCRIPTOR_FROM_WINDOWS_H_W_N_D", "SURFACE_DESCRIPTOR_FROM_WINDOWS_HWND",

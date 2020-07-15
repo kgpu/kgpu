@@ -8,11 +8,7 @@ import java.nio.charset.StandardCharsets
 actual object KgpuFiles {
 
     actual suspend fun loadInternal(path: String): ByteArray {
-        var jarPath = if (!path.startsWith("/")) {
-            "/$path"
-        } else {
-            path
-        }
+        val jarPath = toJvmJarPath(path)
 
         val inputStream: InputStream = KgpuFiles::class.java.getResourceAsStream(jarPath)
             ?: throw RuntimeException("Failed to find file: $path")
@@ -21,6 +17,14 @@ actual object KgpuFiles {
             inputStream.readAllBytes()
         } catch (e: IOException) {
             throw RuntimeException("Failed to read file $path", e)
+        }
+    }
+
+    fun toJvmJarPath(path: String): String {
+        return if (!path.startsWith("/")) {
+            "/$path"
+        } else {
+            path
         }
     }
 

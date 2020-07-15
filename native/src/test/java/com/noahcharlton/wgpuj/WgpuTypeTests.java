@@ -353,7 +353,7 @@ public class WgpuTypeTests extends WgpuNativeTest {
     @Test
     void samplerDescriptorTest() {
         var descriptor = WgpuSamplerDescriptor.createDirect();
-        descriptor.setNextInChain(WgpuChainedStruct.createDirect().getPointerTo());
+        descriptor.setNextInChain(WgpuChainedStruct.createDirect());
         descriptor.setLabel("OtterSampler");
         descriptor.setAddressModeU(WgpuAddressMode.REPEAT);
         descriptor.setAddressModeV(WgpuAddressMode.CLAMP_TO_EDGE);

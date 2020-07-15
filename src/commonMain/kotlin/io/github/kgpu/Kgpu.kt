@@ -35,6 +35,8 @@ expect class Device {
     fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer
 
     fun createBindGroup(desc: BindGroupDescriptor): BindGroup
+
+    fun createSampler(desc: SamplerDescriptor) : Sampler
 }
 
 expect class Adapter {
@@ -86,6 +88,8 @@ expect class CommandEncoder {
     fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder
 
     fun finish(): CommandBuffer
+
+    fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
 }
 
 expect class RenderPassEncoder {
@@ -121,7 +125,7 @@ expect class Queue {
 }
 
 expect interface IntoBindingResource
-expect class TextureView
+expect class TextureView : IntoBindingResource
 expect class ShaderModule
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
 expect class PipelineLayout
@@ -130,8 +134,10 @@ expect class PipelineLayoutDescriptor(vararg bindGroupLayouts: BindGroupLayout)
 expect class RenderPipeline
 expect class CommandBuffer
 expect class BindGroup
+expect class Sampler : IntoBindingResource
 
 expect class Extent3D(width: Long, height: Long, depth: Long)
+expect class Origin3D(x: Long, y: Long, z: Long)
 
 object TextureUsage {
     const val COPY_SRC: Long = 1
@@ -175,8 +181,33 @@ object ShaderVisibility {
 expect class BindGroupLayoutEntry(
     binding: Long,
     visibility: Long,
-    type: BindingType
-)
+    type: BindingType,
+    hasDynamicOffset: Boolean,
+    viewDimension: TextureViewDimension?,
+    textureComponentType: TextureComponentType?,
+    multisampled: Boolean,
+    storageTextureFormat: TextureFormat?
+){
+    constructor(binding: Long,
+                 visibility: Long,
+                 type: BindingType)
+
+    constructor(
+        binding: Long,
+        visibility: Long,
+        type: BindingType,
+        multisampled: Boolean
+    )
+
+    constructor(
+        binding: Long,
+        visibility: Long,
+        type: BindingType,
+        multisampled: Boolean,
+        dimension: TextureViewDimension,
+        textureComponentType: TextureComponentType
+    )
+}
 
 expect class BindGroupLayoutDescriptor(vararg entries: BindGroupLayoutEntry)
 
@@ -187,7 +218,7 @@ expect class SwapChainDescriptor(
 )
 
 expect class Texture {
-    fun createView(desc: TextureViewDescriptor?): TextureView
+    fun createView(desc: TextureViewDescriptor? = null): TextureView
 }
 
 object BufferUsage {
@@ -227,11 +258,11 @@ expect class BufferData {
 expect class TextureViewDescriptor(
     format: TextureFormat,
     dimension: TextureViewDimension,
-    aspect: TextureAspect,
-    baseMipLevel: Long,
-    mipLevelCount: Long,
-    baseArrayLayer: Long,
-    arrayLayerCount: Long
+    aspect: TextureAspect = TextureAspect.ALL,
+    baseMipLevel: Long = 0,
+    mipLevelCount: Long = 0,
+    baseArrayLayer: Long = 0,
+    arrayLayerCount: Long = 0
 )
 
 expect class TextureDescriptor(
@@ -240,7 +271,7 @@ expect class TextureDescriptor(
     sampleCount: Int,
     dimension: TextureDimension,
     format: TextureFormat,
-    textureUsage: Long
+    usage: Long
 )
 
 expect class RenderPipelineDescriptor(
@@ -314,6 +345,29 @@ expect class BlendDescriptor(
     srcFactor: BlendFactor = BlendFactor.ONE,
     dstFactor: BlendFactor = BlendFactor.ZERO,
     operation: BlendOperation = BlendOperation.ADD
+)
+
+expect class TextureCopyView(
+    texture: Texture,
+    mipLevel: Long = 0,
+    origin: Origin3D = Origin3D(0, 0, 0)
+)
+
+expect class BufferCopyView(buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long = 0) {
+
+}
+
+expect class SamplerDescriptor(
+    compare: CompareFunction? = null,
+    addressModeU: AddressMode = AddressMode.CLAMP_TO_EDGE,
+    addressModeV: AddressMode = AddressMode.CLAMP_TO_EDGE,
+    addressModeW: AddressMode = AddressMode.CLAMP_TO_EDGE,
+    magFilter: FilterMode = FilterMode.NEAREST,
+    minFilter: FilterMode = FilterMode.NEAREST,
+    mipmapFilter: FilterMode = FilterMode.NEAREST,
+    lodMinClamp: Float = 0f,
+    lodMaxClamp: Float = 100000000f,
+    maxAnisotrophy: Short = 1
 )
 
 expect enum class TextureViewDimension {
@@ -473,4 +527,31 @@ expect enum class BindingType {
     SAMPLED_TEXTURE,
     READONLY_STORAGE_TEXTURE,
     WRITEONLY_STORAGE_TEXTURE,
+}
+
+expect enum class AddressMode{
+    CLAMP_TO_EDGE,
+    REPEAT,
+    MIRROR_REPEAT,
+}
+
+expect enum class FilterMode{
+    NEAREST,
+    LINEAR,
+}
+
+expect enum class CompareFunction{
+    UNDEFINED,
+    NEVER,
+    LESS,
+    EQUAL,
+    LESS_EQUAL,
+    GREATER,
+    NOT_EQUAL,
+    GREATER_EQUAL,
+    ALWAYS,
+}
+
+expect enum class TextureComponentType{
+    FLOAT, SINT, UINT
 }

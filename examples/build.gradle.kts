@@ -83,4 +83,11 @@ tasks {
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-cube")
     }
+
+    register("runTextureExample", Exec::class){
+        dependsOn("jvmFatJar")
+
+        workingDir("$projectDir")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-texture")
+    }
 }

@@ -2,8 +2,9 @@ package io.github.kgpu
 
 import org.joml.Vector3f
 
-actual class Matrix4f actual constructor(){
-    val mat = org.joml.Matrix4f()
+actual class Matrix4f constructor(val mat: org.joml.Matrix4f){
+
+    actual constructor() : this(org.joml.Matrix4f())
 
     actual fun toFloats(): FloatArray {
         return mat.get(FloatArray(16))

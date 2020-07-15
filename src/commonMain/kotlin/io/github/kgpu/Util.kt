@@ -4,7 +4,12 @@ object ShaderUtils{
 
     suspend fun fromInternalTextFile(device: Device, file: String, type: ShaderType) : ShaderModule{
         val shaderSrc = KgpuFiles.loadInternalUtf8(file)
-        val vertexShader = ShaderCompiler.compile(file, shaderSrc, type)
+
+        return fromSource(device, file, shaderSrc, type)
+    }
+
+    suspend fun fromSource(device: Device, name: String, src: String, type: ShaderType) : ShaderModule {
+        val vertexShader = ShaderCompiler.compile(name, src, type)
 
         return device.createShaderModule(vertexShader)
     }

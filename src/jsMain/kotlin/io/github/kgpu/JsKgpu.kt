@@ -174,6 +174,10 @@ actual class Device(val jsType: GPUDevice) {
         return BindGroup(jsType.createBindGroup(desc))
     }
 
+    actual fun createSampler(desc: SamplerDescriptor): Sampler {
+        return Sampler(jsType.createSampler(desc))
+    }
+
 }
 
 external class GPUDevice {
@@ -200,6 +204,8 @@ external class GPUDevice {
     fun createBufferMapped(desc: BufferDescriptor): Array<dynamic>
 
     fun createBindGroup(desc: BindGroupDescriptor): GPUBindGroup
+
+    fun createSampler(desc: SamplerDescriptor): GPUSampler
 }
 
 actual class CommandEncoder(val jsType: GPUCommandEncoder) {
@@ -212,6 +218,9 @@ actual class CommandEncoder(val jsType: GPUCommandEncoder) {
         return CommandBuffer(jsType.finish())
     }
 
+    actual fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D) {
+       jsType.copyBufferToTexture(source, destination, copySize)
+    }
 }
 
 external class GPUCommandEncoder {
@@ -220,6 +229,7 @@ external class GPUCommandEncoder {
 
     fun finish(): GPUCommandBuffer
 
+    fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
 }
 
 actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
@@ -398,9 +408,33 @@ actual class VertexStateDescriptor actual constructor(
 actual class BindGroupLayoutEntry actual constructor(
     val binding: Long,
     val visibility: Long,
-    type: BindingType
+    type: BindingType,
+    val hasDynamicOffset: Boolean,
+    viewDimension: TextureViewDimension?,
+    textureComponentType: TextureComponentType?,
+    val multisampled: Boolean,
+    storageTextureFormat: TextureFormat?
 ) {
     val type = type.jsType
+    val viewDimension = viewDimension?.jsType ?: undefined
+    val textureComponentType = textureComponentType?.jsType ?: undefined
+    val storageTextureFormat = storageTextureFormat?.jsType ?: undefined
+
+    actual constructor(binding: Long, visibility: Long, type: BindingType) :
+            this(binding, visibility, type, false, null, null, false, null)
+
+    actual constructor(binding: Long, visibility: Long, type: BindingType, multisampled: kotlin.Boolean) :
+            this(binding, visibility, type, false, null, null, multisampled, null)
+
+
+    actual constructor(
+        binding: Long,
+        visibility: Long,
+        type: BindingType,
+        multisampled: kotlin.Boolean,
+        dimension: TextureViewDimension,
+        textureComponentType: TextureComponentType
+    ) : this(binding, visibility, type, false, dimension, textureComponentType, multisampled, null)
 }
 
 actual class BindGroupLayout(val jsType: GPUBindGroupLayout) {
@@ -443,7 +477,7 @@ actual class TextureDescriptor actual constructor(
     val sampleCount: Int,
     dimension: TextureDimension,
     format: TextureFormat,
-    val textureUsage: Long
+    val usage: Long
 ) {
 
     val dimension = dimension.jsType
@@ -465,7 +499,13 @@ actual class TextureViewDescriptor actual constructor(
     val aspect = aspect.jsType
 }
 
-actual class TextureView(val jsType: GPUTextureView)
+actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource{
+
+    override fun intoBindingResource(): dynamic {
+        return jsType
+    }
+
+}
 external class GPUTextureView
 
 actual class SwapChain(val jsType: GPUSwapChain) {
@@ -608,6 +648,61 @@ actual interface IntoBindingResource {
 
 }
 
+actual class Origin3D actual constructor(val x: Long, val y: Long, val z: Long)
+
+actual class TextureCopyView actual constructor(
+    texture: Texture,
+    val mipLevel: Long,
+    val origin: Origin3D
+){
+    val texture = texture.jsType
+}
+
+actual class BufferCopyView actual constructor(
+    buffer: Buffer,
+    val bytesPerRow: Int,
+    val rowsPerImage: Int,
+    val offset: Long
+) {
+
+    val buffer = buffer.jsType
+
+}
+
+actual class SamplerDescriptor actual constructor(
+    compare: CompareFunction?,
+    addressModeU: AddressMode,
+    addressModeV: AddressMode,
+    addressModeW: AddressMode,
+    magFilter: FilterMode,
+    minFilter: FilterMode,
+    mipmapFilter: FilterMode,
+    val lodMinClamp: Float,
+    val lodMaxClamp: Float,
+    val maxAnisotrophy: Short
+){
+
+    // compare not needed on web because its not a comparison sampler
+    val compare = compare?.jsType ?: undefined
+    val addressModeU = addressModeU.jsType
+    val addressModeV = addressModeV.jsType
+    val addressModeW = addressModeW.jsType
+    val magFilter = magFilter.jsType
+    val minFilter = minFilter.jsType
+    val mipmapFilter = mipmapFilter.jsType
+
+}
+
+actual class Sampler(val jsType: GPUSampler) : IntoBindingResource{
+
+    override fun intoBindingResource(): dynamic {
+        return jsType
+    }
+
+}
+
+external class GPUSampler
+
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,
     R8_SNORM,
@@ -627,12 +722,12 @@ actual enum class TextureFormat(val jsType: String = "") {
     RG16_SINT,
     RG16_FLOAT,
     RGBA8_UNORM,
-    RGBA8_UNORM_SRGB,
+    RGBA8_UNORM_SRGB("rgba8unorm-srgb"),
     RGBA8_SNORM,
     RGBA8_UINT,
     RGBA8_SINT,
     BGRA8_UNORM("bgra8unorm"),
-    BGRA8_UNORM_SRGB,
+    BGRA8_UNORM_SRGB("bgra8unorm-srgb"),
     RGB10A2_UNORM,
     RG11B10_FLOAT,
     RG32_UINT,
@@ -756,4 +851,33 @@ actual enum class BindingType(val jsType: String) {
     SAMPLED_TEXTURE("sampled-texture"),
     READONLY_STORAGE_TEXTURE("readonly-storage-texture"),
     WRITEONLY_STORAGE_TEXTURE("writeonly-storage-texture"),
+}
+
+actual enum class AddressMode(val jsType: String) {
+    CLAMP_TO_EDGE("clamp-to-edge"),
+    REPEAT("repeat"),
+    MIRROR_REPEAT("mirror-repeat"),
+}
+
+actual enum class FilterMode(val jsType: String) {
+    NEAREST("nearest"),
+    LINEAR("linear"),
+}
+
+actual enum class CompareFunction(val jsType: String) {
+    UNDEFINED("undefined"),
+    NEVER("never"),
+    LESS("less"),
+    EQUAL("equal"),
+    LESS_EQUAL("less-equal"),
+    GREATER("greater"),
+    NOT_EQUAL("not-equal"),
+    GREATER_EQUAL("greater-equal"),
+    ALWAYS("always"),
+}
+
+actual enum class TextureComponentType(val jsType: String) {
+    FLOAT("float"),
+    SINT("sint"),
+    UINT("uint")
 }

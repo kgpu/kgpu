@@ -20,6 +20,7 @@ fun main(args: Array<String>) {
         when(arg){
             "-triangle" -> runTriangleExample(window)
             "-cube" -> runCubeExample(window)
+            "-texture" -> runTextureExample(window)
             else -> throw RuntimeException("Unknown example: $arg");
         }
     }

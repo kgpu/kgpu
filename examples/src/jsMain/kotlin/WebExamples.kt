@@ -16,6 +16,7 @@ fun main(){
     GlobalScope.launch {
         when(params.get("example")){
             "1" -> runCubeExample(kgpuWindow)
+            "2" -> runTextureExample(kgpuWindow)
             else -> runTriangleExample(kgpuWindow)
         }
     }

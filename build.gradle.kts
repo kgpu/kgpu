@@ -55,7 +55,7 @@ kotlin {
             dependencies{
                 implementation(kotlin("stdlib-js"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
-                api(npm("gl-matrix"))
+                api(npm("gl-matrix", "3.3.0"))
             }
         }
     }

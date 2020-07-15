@@ -21,7 +21,7 @@ actual object Kgpu {
     actual val backendName: String = "Desktop"
     actual val undefined = null
 
-    actual fun init(){
+    actual fun init() {
         val libraryFile = SharedLibraryLoader().load("wgpu_native")
         WgpuJava.init(libraryFile)
 
@@ -33,7 +33,7 @@ actual object Kgpu {
     }
 
     actual fun runLoop(window: Window, func: () -> Unit) {
-        while(!window.isCloseRequested()){
+        while (!window.isCloseRequested()) {
             window.update()
             func()
         }
@@ -43,7 +43,7 @@ actual object Kgpu {
 }
 
 actual class Window actual constructor() {
-    private val handle : Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
+    private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
     private val surface: Long
 
     init {
@@ -53,14 +53,14 @@ actual class Window actual constructor() {
         } else if (Platform.isLinux) {
             val display = GLFWNativeX11.glfwGetX11Display()
             WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-        }else throw UnsupportedOperationException(
+        } else throw UnsupportedOperationException(
             "Platform not supported. See " +
                     "https://github.com/DevOrc/wgpu-java/issues/4"
         )
     }
 
     init {
-        if(handle == MemoryUtil.NULL)
+        if (handle == MemoryUtil.NULL)
             throw java.lang.RuntimeException("Failed to create the window!")
 
         GlfwHandler.centerWindow(handle)
@@ -80,7 +80,7 @@ actual class Window actual constructor() {
 
     actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
         val adapter = AtomicLong(0)
-        val defaultBackend : Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
+        val defaultBackend: Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
         val options = WgpuRequestAdapterOptions.createDirect()
         options.compatibleSurface = surface
         options.powerPreference = preference
@@ -96,13 +96,13 @@ actual class Window actual constructor() {
         return Adapter(adapter.get())
     }
 
-    actual fun getWindowSize() : WindowSize {
+    actual fun getWindowSize(): WindowSize {
         val dimension = GlfwHandler.getWindowDimension(handle)
 
         return WindowSize(dimension.width, dimension.height)
     }
 
-    actual fun configureSwapChain(desc: SwapChainDescriptor) : SwapChain {
+    actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
         val size = getWindowSize()
         val nativeDesc = WgpuSwapChainDescriptor.createDirect();
         nativeDesc.format = desc.format
@@ -119,10 +119,10 @@ actual class Window actual constructor() {
 
 private object GlfwHandler {
 
-    fun glfwInit(){
+    fun glfwInit() {
         GLFWErrorCallback.createPrint(System.err).set()
 
-        if(!GLFW.glfwInit()){
+        if (!GLFW.glfwInit()) {
             throw RuntimeException("Failed to initialize GLFW!")
         }
 
@@ -185,8 +185,10 @@ actual class Adapter(val id: Long) {
     actual suspend fun requestDeviceAsync(): Device {
         val limits = WgpuCLimits.createDirect();
         limits.maxBindGroups = 4;
-        val deviceId = WgpuJava.wgpuNative.wgpu_adapter_request_device(id, 0,
-            limits.pointerTo, WgpuJava.createNullPointer());
+        val deviceId = WgpuJava.wgpuNative.wgpu_adapter_request_device(
+            id, 0,
+            limits.pointerTo, WgpuJava.createNullPointer()
+        );
 
         return Device(deviceId)
     }
@@ -211,7 +213,7 @@ actual class Device(val id: Long) {
         return ShaderModule(module)
     }
 
-    actual fun createRenderPipeline(desc: RenderPipelineDescriptor) : RenderPipeline {
+    actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {
         val id = WgpuJava.wgpuNative.wgpu_device_create_render_pipeline(id, desc.pointerTo);
 
         return RenderPipeline(id)
@@ -270,6 +272,12 @@ actual class Device(val id: Long) {
 
         return BindGroup(id)
     }
+
+    actual fun createSampler(desc: SamplerDescriptor): Sampler {
+        val id = WgpuJava.wgpuNative.wgpu_device_create_sampler(id, desc.pointerTo)
+
+        return Sampler(id)
+    }
 }
 
 actual class CommandEncoder(val id: Long) {
@@ -289,6 +297,12 @@ actual class CommandEncoder(val id: Long) {
 
         return CommandBuffer(id)
     }
+
+    actual fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D) {
+        WgpuJava.wgpuNative.wgpu_command_encoder_copy_buffer_to_texture(
+            id, source.pointerTo, destination.pointerTo, copySize.pointerTo
+        )
+    }
 }
 
 
@@ -303,8 +317,10 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
     }
 
     actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
-        WgpuJava.wgpuNative.wgpu_render_pass_draw(pass.pointerTo,
-            vertexCount, instanceCount, firstVertex, firstInstance)
+        WgpuJava.wgpuNative.wgpu_render_pass_draw(
+            pass.pointerTo,
+            vertexCount, instanceCount, firstVertex, firstInstance
+        )
     }
 
     actual fun endPass() {
@@ -316,8 +332,10 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
     }
 
     actual fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int) {
-        WgpuJava.wgpuNative.wgpu_render_pass_draw_indexed(pass.pointerTo, indexCount, instanceCount,
-            firstVertex, baseVertex, firstInstance)
+        WgpuJava.wgpuNative.wgpu_render_pass_draw_indexed(
+            pass.pointerTo, indexCount, instanceCount,
+            firstVertex, baseVertex, firstInstance
+        )
     }
 
     actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
@@ -325,8 +343,10 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
-        WgpuJava.wgpuNative.wgpu_render_pass_set_bind_group(pass.pointerTo, index, bindGroup.id,
-            WgpuJava.createNullPointer(), 0)
+        WgpuJava.wgpuNative.wgpu_render_pass_set_bind_group(
+            pass.pointerTo, index, bindGroup.id,
+            WgpuJava.createNullPointer(), 0
+        )
     }
 
 }
@@ -340,7 +360,7 @@ actual class ShaderModule(val moduleId: Long) {
 }
 
 actual class ProgrammableStageDescriptor actual
-    constructor(module: ShaderModule, entryPoint: kotlin.String) : WgpuProgrammableStageDescriptor(true) {
+constructor(module: ShaderModule, entryPoint: kotlin.String) : WgpuProgrammableStageDescriptor(true) {
 
     init {
         this.entryPoint = entryPoint
@@ -352,14 +372,40 @@ actual class ProgrammableStageDescriptor actual
 actual class BindGroupLayoutEntry actual constructor(
     binding: Long,
     visibility: Long,
-    type: BindingType
+    type: BindingType,
+    hasDynamicOffset: kotlin.Boolean,
+    viewDimension: TextureViewDimension?,
+    textureComponentType: TextureComponentType?,
+    multisampled: kotlin.Boolean,
+    storageTextureFormat: TextureFormat?
 ) : WgpuBindGroupLayoutEntry(true) {
 
     init {
         this.binding = binding
         this.visibility = visibility
         this.ty = type
+        this.hasDynamicOffset = hasDynamicOffset
+        this.viewDimension = viewDimension ?: WgpuTextureViewDimension.values()[0]
+        this.textureComponentType = textureComponentType ?: WgpuTextureComponentType.values()[0]
+        this.multisampled = multisampled
+        this.storageTextureFormat = storageTextureFormat ?: WgpuTextureFormat.values()[0]
     }
+
+    actual constructor(binding: Long, visibility: Long, type: BindingType) :
+            this(binding, visibility, type, false, null, null, false, null)
+
+    actual constructor(binding: Long, visibility: Long, type: BindingType, multisampled: kotlin.Boolean) :
+            this(binding, visibility, type, false, null, null, multisampled, null)
+
+
+    actual constructor(
+        binding: Long,
+        visibility: Long,
+        type: BindingType,
+        multisampled: kotlin.Boolean,
+        dimension: TextureViewDimension,
+        textureComponentType: TextureComponentType
+    ) : this(binding, visibility, type, false, dimension, textureComponentType, multisampled, null)
 
 }
 
@@ -379,14 +425,19 @@ actual typealias TextureViewDimension = WgpuTextureViewDimension
 actual typealias LoadOp = WgpuLoadOp
 actual typealias StoreOp = WgpuStoreOp
 actual typealias BindingType = WgpuBindingType
+actual typealias AddressMode = WgpuAddressMode
+actual typealias FilterMode = WgpuFilterMode
+actual typealias CompareFunction = WgpuCompareFunction
+actual typealias TextureComponentType = WgpuTextureComponentType
 
 actual class RasterizationStateDescriptor actual constructor(
-        frontFace: FrontFace,
-        cullMode: CullMode,
-        clampDepth: kotlin.Boolean,
-        depthBias:  Long,
-        depthBiasSlopeScale:  kotlin.Float,
-        depthBiasClamp:  kotlin.Float) : WgpuRasterizationStateDescriptor(true){
+    frontFace: FrontFace,
+    cullMode: CullMode,
+    clampDepth: kotlin.Boolean,
+    depthBias: Long,
+    depthBiasSlopeScale: kotlin.Float,
+    depthBiasClamp: kotlin.Float
+) : WgpuRasterizationStateDescriptor(true) {
 
     init {
         this.frontFace = frontFace
@@ -398,10 +449,11 @@ actual class RasterizationStateDescriptor actual constructor(
 }
 
 actual class ColorStateDescriptor actual constructor(
-        format: TextureFormat,
-        alphaBlend: BlendDescriptor,
-        colorBlend: BlendDescriptor,
-        writeMask: Long) : WgpuColorStateDescriptor(true) {
+    format: TextureFormat,
+    alphaBlend: BlendDescriptor,
+    colorBlend: BlendDescriptor,
+    writeMask: Long
+) : WgpuColorStateDescriptor(true) {
 
     init {
         this.format = format;
@@ -412,7 +464,7 @@ actual class ColorStateDescriptor actual constructor(
     }
 
     companion object {
-        private fun toWgpuBlend(src: BlendDescriptor, dst: WgpuBlendDescriptor){
+        private fun toWgpuBlend(src: BlendDescriptor, dst: WgpuBlendDescriptor) {
             dst.dstFactor = src.dstFactor
             dst.operation = src.operation
             dst.srcFactor = src.srcFactor
@@ -432,7 +484,8 @@ actual class RenderPipelineDescriptor actual constructor(
     vertexState: VertexStateDescriptor,
     sampleCount: Int,
     sampleMask: Long,
-    alphaToCoverage: kotlin.Boolean) : WgpuRenderPipelineDescriptor(true){
+    alphaToCoverage: kotlin.Boolean
+) : WgpuRenderPipelineDescriptor(true) {
 
     init {
         this.layout = layout.id;
@@ -455,9 +508,10 @@ actual class RenderPipelineDescriptor actual constructor(
 }
 
 actual class VertexAttributeDescriptor actual constructor(
-        format: VertexFormat,
-        offset: Long,
-        shaderLocation: Int) : WgpuVertexAttributeDescriptor(true) {
+    format: VertexFormat,
+    offset: Long,
+    shaderLocation: Int
+) : WgpuVertexAttributeDescriptor(true) {
 
     init {
         this.format = format
@@ -470,9 +524,10 @@ actual class VertexAttributeDescriptor actual constructor(
 actual class VertexBufferLayoutDescriptor actual constructor(
     arrayStride: Long,
     stepMode: InputStepMode,
-    vararg attributes: VertexAttributeDescriptor) : WgpuVertexBufferLayoutDescriptor(true) {
+    vararg attributes: VertexAttributeDescriptor
+) : WgpuVertexBufferLayoutDescriptor(true) {
 
-    init{
+    init {
         this.arrayStride = arrayStride
         this.stepMode = stepMode
         this.attributes.set(attributes)
@@ -482,8 +537,9 @@ actual class VertexBufferLayoutDescriptor actual constructor(
 }
 
 actual class VertexStateDescriptor actual constructor(
-        indexFormat: IndexFormat,
-        vararg vertexBuffers: VertexBufferLayoutDescriptor) : WgpuVertexStateDescriptor(true) {
+    indexFormat: IndexFormat,
+    vararg vertexBuffers: VertexBufferLayoutDescriptor
+) : WgpuVertexStateDescriptor(true) {
     init {
         this.indexFormat = indexFormat;
         this.vertexBuffers.set(vertexBuffers)
@@ -491,7 +547,7 @@ actual class VertexStateDescriptor actual constructor(
     }
 }
 
-actual class BindGroupLayout internal constructor(val id: Long){
+actual class BindGroupLayout internal constructor(val id: Long) {
 
     override fun toString(): String {
         return "BindGroupLayout${Id.fromLong(id)}"
@@ -500,7 +556,8 @@ actual class BindGroupLayout internal constructor(val id: Long){
 }
 
 actual class PipelineLayoutDescriptor actual constructor(
-        vararg bindGroupLayouts: BindGroupLayout) : WgpuPipelineLayoutDescriptor(true){
+    vararg bindGroupLayouts: BindGroupLayout
+) : WgpuPipelineLayoutDescriptor(true) {
 
     init {
         val ids = bindGroupLayouts.map { it.id }.toLongArray()
@@ -511,7 +568,7 @@ actual class PipelineLayoutDescriptor actual constructor(
 
 }
 
-actual class PipelineLayout(val id: Long){
+actual class PipelineLayout(val id: Long) {
 
     override fun toString(): String {
         return "PipelineLayout${Id.fromLong(id)}"
@@ -519,7 +576,7 @@ actual class PipelineLayout(val id: Long){
 
 }
 
-actual class RenderPipeline internal constructor(val id: Long){
+actual class RenderPipeline internal constructor(val id: Long) {
 
     override fun toString(): String {
         return "RenderPipeline${Id.fromLong(id)}"
@@ -536,7 +593,8 @@ actual class BlendDescriptor actual constructor(
 actual class Extent3D actual constructor(
     width: Long,
     height: Long,
-    depth: Long) : WgpuExtent3d(true) {
+    depth: Long
+) : WgpuExtent3d(true) {
 
     init {
         this.width = width
@@ -552,16 +610,18 @@ actual class TextureDescriptor actual constructor(
     sampleCount: Int,
     dimension: TextureDimension,
     format: TextureFormat,
-    textureUsage: Long)  : WgpuTextureDescriptor(true) {
+    usage: Long
+) : WgpuTextureDescriptor(true) {
 
     init {
         this.size.width = size.width
         this.size.height = size.height
         this.size.depth = size.depth
+        this.dimension = dimension
         this.mipLevelCount = mipLevelCount
         this.sampleCount = sampleCount.toLong();
         this.format = format;
-        this.usage = textureUsage;
+        this.usage = usage;
     }
 
 }
@@ -573,7 +633,8 @@ actual class TextureViewDescriptor actual constructor(
     baseMipLevel: Long,
     mipLevelCount: Long,
     baseArrayLayer: Long,
-    arrayLayerCount: Long) : WgpuTextureViewDescriptor(true){
+    arrayLayerCount: Long
+) : WgpuTextureViewDescriptor(true) {
 
     init {
         this.format = format
@@ -601,7 +662,12 @@ actual class Texture(val id: Long) {
 
 }
 
-actual class TextureView(val id: Long){
+actual class TextureView(val id: Long) : IntoBindingResource {
+
+    override fun intoBindingResource(resource: WgpuBindingResource) {
+        resource.setTag(WgpuBindingResourceTag.TEXTURE_VIEW)
+        resource.data.setTextureViewId(id)
+    }
 
     override fun toString(): String {
         return "TextureView${Id.fromLong(id)}"
@@ -611,9 +677,10 @@ actual class TextureView(val id: Long){
 actual class SwapChainDescriptor actual constructor(
     val device: Device,
     val format: TextureFormat,
-    val usage: Long)
+    val usage: Long
+)
 
-actual class SwapChain(val id: Long, private val window: Window){
+actual class SwapChain(val id: Long, private val window: Window) {
 
     private val size = window.getWindowSize()
 
@@ -632,7 +699,7 @@ actual class SwapChain(val id: Long, private val window: Window){
         WgpuJava.wgpuNative.wgpu_swap_chain_present(id)
     }
 
-    actual fun isOutOfDate() : Boolean {
+    actual fun isOutOfDate(): Boolean {
         return window.getWindowSize() != size
     }
 }
@@ -641,13 +708,13 @@ actual class RenderPassColorAttachmentDescriptor actual constructor(
     attachment: TextureView,
     clearColor: Color?,
     storeOp: StoreOp
-) : WgpuRenderPassColorDescriptor(true){
+) : WgpuRenderPassColorDescriptor(true) {
     init {
         this.attachment = attachment.id
         this.storeOp = storeOp
-        this.loadOp = if(clearColor == null){
+        this.loadOp = if (clearColor == null) {
             LoadOp.LOAD
-        }else{
+        } else {
             LoadOp.CLEAR
         }
 
@@ -655,7 +722,7 @@ actual class RenderPassColorAttachmentDescriptor actual constructor(
     }
 }
 
-fun copyToNativeColor(native: WgpuColor, color: Color){
+fun copyToNativeColor(native: WgpuColor, color: Color) {
     native.r = color.r
     native.g = color.g
     native.b = color.b
@@ -663,12 +730,13 @@ fun copyToNativeColor(native: WgpuColor, color: Color){
 }
 
 actual class RenderPassDescriptor actual constructor(
-    vararg colorAttachments: RenderPassColorAttachmentDescriptor) : WgpuRenderPassDescriptor(
+    vararg colorAttachments: RenderPassColorAttachmentDescriptor
+) : WgpuRenderPassDescriptor(
     null,
     *colorAttachments
 )
 
-actual class CommandBuffer(val id: Long){
+actual class CommandBuffer(val id: Long) {
 
     override fun toString(): String {
         return "CommandBuffer(${Id.fromLong(id)}"
@@ -676,7 +744,7 @@ actual class CommandBuffer(val id: Long){
 
 }
 
-actual class Queue(val id: Long){
+actual class Queue(val id: Long) {
 
     override fun toString(): String {
         return "Queue${Id.fromLong(id)}"
@@ -688,7 +756,7 @@ actual class Queue(val id: Long){
         WgpuJava.wgpuNative.wgpu_queue_submit(id, ptr, cmdBuffers.size)
     }
 
-    actual fun writeBuffer(buffer: Buffer,  data: ByteArray, offset: Long, dataOffset: Long, size: Long) {
+    actual fun writeBuffer(buffer: Buffer, data: ByteArray, offset: Long, dataOffset: Long, size: Long) {
         val ptr = WgpuJava.createDirectPointer(size.toInt())!!
         ptr.put(0, data, dataOffset.toInt(), size.toInt())
 
@@ -700,7 +768,8 @@ actual class Queue(val id: Long){
 actual class BufferDescriptor actual constructor(
     size: Long,
     usage: Long,
-    mappedAtCreation: kotlin.Boolean) : WgpuBufferDescriptor(true){
+    mappedAtCreation: kotlin.Boolean
+) : WgpuBufferDescriptor(true) {
 
     init {
         this.size = size
@@ -710,7 +779,7 @@ actual class BufferDescriptor actual constructor(
 
 }
 
-actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource{
+actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
 
     override fun intoBindingResource(resource: WgpuBindingResource) {
         resource.setTag(WgpuBindingResourceTag.BUFFER)
@@ -742,7 +811,8 @@ actual class BufferData(val data: Pointer) {
 }
 
 actual class BindGroupLayoutDescriptor actual constructor(
-    vararg entries: BindGroupLayoutEntry) : WgpuBindGroupLayoutDescriptor(true) {
+    vararg entries: BindGroupLayoutEntry
+) : WgpuBindGroupLayoutDescriptor(true) {
 
     init {
         this.entries.set(entries)
@@ -753,7 +823,8 @@ actual class BindGroupLayoutDescriptor actual constructor(
 
 actual class BindGroupEntry actual constructor(
     binding: Long,
-    resource: IntoBindingResource) : WgpuBindGroupEntry(true){
+    resource: IntoBindingResource
+) : WgpuBindGroupEntry(true) {
 
     init {
         this.binding = binding
@@ -764,7 +835,8 @@ actual class BindGroupEntry actual constructor(
 
 actual class BindGroupDescriptor actual constructor(
     layout: BindGroupLayout,
-    vararg entries: BindGroupEntry) : WgpuBindGroupDescriptor(true){
+    vararg entries: BindGroupEntry
+) : WgpuBindGroupDescriptor(true) {
 
     init {
         this.layout = layout.id
@@ -773,7 +845,7 @@ actual class BindGroupDescriptor actual constructor(
     }
 }
 
-actual class BindGroup(val id: Long){
+actual class BindGroup(val id: Long) {
 
     override fun toString(): String {
         return "BindGroup${Id.fromLong(id)}"
@@ -781,8 +853,89 @@ actual class BindGroup(val id: Long){
 
 }
 
-actual interface IntoBindingResource{
+actual interface IntoBindingResource {
 
     fun intoBindingResource(resource: WgpuBindingResource)
+
+}
+
+actual class Origin3D actual constructor(x: Long, y: Long, z: Long) : WgpuOrigin3d(true) {
+
+    init {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
+
+}
+
+actual class TextureCopyView actual constructor(
+    texture: Texture,
+    mipLevel: Long,
+    origin: Origin3D
+) : WgpuTextureCopyView(true) {
+
+    init {
+        this.texture = texture.id
+        this.mipLevel = mipLevel
+        this.origin.x = origin.x
+        this.origin.y = origin.y
+        this.origin.z = origin.z
+    }
+
+}
+
+actual class BufferCopyView actual constructor(
+    buffer: Buffer,
+    bytesPerRow: Int,
+    rowsPerImage: Int,
+    offset: Long
+) : WgpuBufferCopyView(true) {
+
+    init {
+        this.buffer = buffer.id
+        this.layout.bytesPerRow = bytesPerRow.toLong()
+        this.layout.rowsPerImage = rowsPerImage.toLong()
+        this.layout.offset = offset
+    }
+
+}
+
+actual class SamplerDescriptor actual constructor(
+    compare: CompareFunction?,
+    addressModeU: AddressMode,
+    addressModeV: AddressMode,
+    addressModeW: AddressMode,
+    magFilter: FilterMode,
+    minFilter: FilterMode,
+    mipmapFilter: FilterMode,
+    lodMinClamp: kotlin.Float,
+    lodMaxClamp: kotlin.Float,
+    maxAnisotrophy: Short
+) : WgpuSamplerDescriptor(true) {
+
+    init {
+        this.compare = compare ?: WgpuCompareFunction.values()[0]
+        this.addressModeU = addressModeU
+        this.addressModeV = addressModeV
+        this.addressModeW = addressModeV
+        this.magFilter = magFilter
+        this.minFilter = minFilter
+        this.mipmapFilter = mipmapFilter
+        this.lodMinClamp = lodMinClamp
+        this.lodMaxClamp = lodMaxClamp
+    }
+}
+
+actual class Sampler(val id: Long) : IntoBindingResource {
+
+    override fun intoBindingResource(resource: WgpuBindingResource) {
+        resource.setTag(WgpuBindingResourceTag.SAMPLER)
+        resource.data.setSamplerId(id)
+    }
+
+    override fun toString(): String {
+        return "Sampler(${Id.fromLong(id)}"
+    }
 
 }

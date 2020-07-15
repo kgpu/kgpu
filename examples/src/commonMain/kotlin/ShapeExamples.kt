@@ -1,7 +1,7 @@
 import io.github.kgpu.*
 
 
-fun mathTest() {
+private fun mathTest() {
     val matrix = Matrix4f().translate(1f, 2f, 3f)
 
     println("Op0 = ${matrix.toFloats().joinToString()}")
