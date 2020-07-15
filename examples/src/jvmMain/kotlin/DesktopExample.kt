@@ -21,6 +21,7 @@ fun main(args: Array<String>) {
             "-triangle" -> runTriangleExample(window)
             "-cube" -> runCubeExample(window)
             "-texture" -> runTextureExample(window)
+            "-earth" -> runEarthExample(window)
             else -> throw RuntimeException("Unknown example: $arg");
         }
     }

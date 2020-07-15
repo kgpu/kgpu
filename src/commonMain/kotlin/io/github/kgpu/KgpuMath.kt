@@ -17,6 +17,8 @@ object MathUtils{
 
 expect class Matrix4f(){
 
+    constructor(original: Matrix4f)
+
     fun toFloats() : FloatArray
 
     fun toBytes() : ByteArray
@@ -36,9 +38,21 @@ expect class Matrix4f(){
     fun rotateZ(angle: Float) : Matrix4f
 
     fun perspective(fov: Float, aspect: Float, near: Float, far: Float) : Matrix4f
+
+    fun invert() : Matrix4f
+
+    fun transpose() : Matrix4f
 }
 
 expect class Vec3f(x: Float, y: Float, z: Float){
+    var x : Float
+    var y : Float
+    var z : Float
+
     constructor()
+
+    fun mul(scalar: Float) : Vec3f
+
+    fun normalize() : Vec3f
 
 }

@@ -12,6 +12,8 @@ external object mat4{
 
     fun create() : Mat4
 
+    fun clone(a: Mat4) : Mat4
+
     fun multiplyScalar(out: Mat4, a: Mat4, scalar: Float)
 
     fun translate(out: Mat4, a: Mat4, vec: Vec3)
@@ -30,25 +32,22 @@ external object mat4{
 
     fun rotateZ(out: Mat4, a: Mat4, rad: Float)
 
+    fun transpose(out: Mat4, a: Mat4)
+
+    fun invert(out: Mat4, a: Mat4)
+
 }
 
 external object vec3{
     fun create() : Vec3
 
     fun fromValues(x: Float, y: Float, z: Float) : Vec3
+
+    fun normalize(out: Vec3, a: Vec3)
+
+    fun mul(out: Vec3, a: Vec3, b: Vec3)
 }
 
 external class Mat4
 
 external class Vec3
-
-/**
- * Generates a look-at matrix with the given eye position, focal point, and up axis.
- * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
- *
- * @param {mat4} out mat4 frustum matrix will be written into
- * @param {ReadonlyVec3} eye Position of the viewer
- * @param {ReadonlyVec3} center Point the viewer is looking at
- * @param {ReadonlyVec3} up vec3 pointing up
- * @returns {mat4} out
- */

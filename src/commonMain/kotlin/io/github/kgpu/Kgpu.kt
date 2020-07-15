@@ -77,7 +77,7 @@ class Color(val r: Double, val g: Double, val b: Double, val a: Double) {
 
 }
 
-class WindowSize(val width: Int, val height: Int) {
+data class WindowSize(val width: Int, val height: Int) {
     override fun toString(): String {
         return "WindowSize($width, $height)"
     }

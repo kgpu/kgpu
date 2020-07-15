@@ -17,6 +17,7 @@ fun main(){
         when(params.get("example")){
             "1" -> runCubeExample(kgpuWindow)
             "2" -> runTextureExample(kgpuWindow)
+            "3" -> runEarthExample(kgpuWindow)
             else -> runTriangleExample(kgpuWindow)
         }
     }

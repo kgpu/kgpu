@@ -1,6 +1,6 @@
 import io.github.kgpu.*
 
-private object ShaderSource {
+private object TextureShaderSource {
     val vertex = """
          #version 450
 
@@ -63,8 +63,8 @@ suspend fun runTextureExample(window: Window) {
     val matrixBuffer = BufferUtils.createBufferFromData(
         device, createTransformationMatrix().toBytes(), BufferUsage.UNIFORM or BufferUsage.COPY_DST
     )
-    val vertexShader = ShaderUtils.fromSource(device, "vertex", ShaderSource.vertex, ShaderType.VERTEX)
-    val fragShader = ShaderUtils.fromSource(device, "frag", ShaderSource.frag, ShaderType.FRAGMENT)
+    val vertexShader = ShaderUtils.fromSource(device, "vertex", TextureShaderSource.vertex, ShaderType.VERTEX)
+    val fragShader = ShaderUtils.fromSource(device, "frag", TextureShaderSource.frag, ShaderType.FRAGMENT)
 
     val textureDesc = TextureDescriptor(
         Extent3D(image.width.toLong(), image.height.toLong(), 1),
