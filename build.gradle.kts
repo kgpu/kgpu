@@ -67,7 +67,11 @@ tasks {
         outputFormat = "html"
 
         multiplatform {
-            val jvm by creating { // The same name as in Kotlin Multiplatform plugin, so the sources are fetched automatically
+            val global by creating {
+                includes = listOf("docs/packages.md")
+            }
+
+            val jvm by creating {
                 subProjects = listOf("native")
             }
 
