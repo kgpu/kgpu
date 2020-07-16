@@ -68,7 +68,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="homepage.html" class="active">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="homepage.html" class="active">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="structure/structure.html"><strong aria-hidden="true">2.</strong> Structure</a></li><li><ol class="section"><li><a href="structure/jnrgen.html"><strong aria-hidden="true">2.1.</strong> JNR Gen</a></li></ol></li><li><a href="resources.html"><strong aria-hidden="true">3.</strong> Additional Resources</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -119,6 +119,11 @@
                     <main>
                         <a class="header" href="homepage.html#kgpu" id="kgpu"><h1>Kgpu</h1></a>
 <p>A Cross Platform Graphics API For Kotlin JVM/JS</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>JDK 11</li>
+<li>Rust Stable (temporary, see <a href="https://github.com/kgpu/kgpu/issues/5">Issue #5</a>)</li>
+</ul>
 <p><strong>Supported Platforms:</strong></p>
 <ul>
 <li>Windows 10</li>
@@ -132,6 +137,17 @@
 <p><a href="examples/index.html"><strong>Live Example</strong></a></p>
 <a class="header" href="homepage.html#images" id="images"><h2>Images</h2></a>
 <p><img src="images/earth.png" alt="Earth Example" /></p>
+<a class="header" href="homepage.html#examples" id="examples"><h2>Examples</h2></a>
+<p>To run the examples on Desktop:</p>
+<pre><code class="language-bash">gradlew runTriangleExample
+gradlew runCubeExample
+gradlew runTextureExample
+gradlew runEarthExample
+</code></pre>
+<p>To run the examples on the Web:</p>
+<pre><code>gradlew buildWeb startWebServer
+</code></pre>
+<p>Then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
 
                     </main>
 
