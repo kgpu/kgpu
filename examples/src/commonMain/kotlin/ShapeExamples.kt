@@ -70,10 +70,12 @@ suspend fun runCubeExample(window: Window) {
     val vertexShader = ShaderUtils.fromInternalTextFile(device, "cube.vert", ShaderType.VERTEX)
     val fragShader = ShaderUtils.fromInternalTextFile(device, "shared.frag", ShaderType.FRAGMENT)
 
-    val vertexBuffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
-    val indexBuffer = BufferUtils.createShortBuffer(device, indices, BufferUsage.INDEX)
+    val vertexBuffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
+    val indexBuffer = BufferUtils.createShortBuffer(device, "indices", indices, BufferUsage.INDEX)
     val matrixBuffer = BufferUtils.createFloatBuffer(
-        device, transMatrix.toFloats(),
+        device,
+        "transformation matrix",
+        transMatrix.toFloats(),
         BufferUsage.UNIFORM or BufferUsage.COPY_DST
     )
 
@@ -130,7 +132,7 @@ suspend fun runTriangleExample(window: Window) {
         .5f, .5f, 0f, 0f, 1f, 0f,
         0f, -.5f, 0f, 0f, 0f, 1f
     )
-    val buffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
+    val buffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
 
     val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE)

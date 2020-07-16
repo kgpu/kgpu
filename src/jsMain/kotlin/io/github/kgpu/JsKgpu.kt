@@ -577,6 +577,7 @@ external class GPUQueue {
 }
 
 actual class BufferDescriptor actual constructor(
+    val label: String,
     val size: Long,
     val usage: Long,
     val mappedAtCreation: Boolean
@@ -604,6 +605,10 @@ actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingR
         return binding
     }
 
+    actual fun destroy() {
+        jsType.destroy()
+    }
+
 }
 
 external class GPUBuffer {
@@ -611,6 +616,8 @@ external class GPUBuffer {
     fun getMappedRange(start: Long, size: Long): ArrayBuffer
 
     fun unmap();
+
+    fun destroy()
 }
 
 

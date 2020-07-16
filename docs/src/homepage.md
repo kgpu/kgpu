@@ -1,6 +1,6 @@
 # Kgpu
 A Cross Platform Graphics API For Kotlin JVM/JS
-
+ 
  __Supported Platforms:__
 - Windows 10 
 - MacOS (See [Issue #1](https://github.com/kgpu/kgpu/issues/1))
@@ -8,10 +8,11 @@ A Cross Platform Graphics API For Kotlin JVM/JS
 - Chrome Canary
 - Firefox Nightly
 
-### Links
+## Links
 
-##### [Website (documentation)](https://kgpu.github.io/kgpu)
-##### [Live Examples](https://kgpu.github.io/kgpu/examples/index.html)
+[__Documentation__](kgpu/index.html)
 
-### Images
-![Earth Example](docs/src/images/earth.png)
+[__Live Example__](examples/index.html)
+
+## Images
+![Earth Example](images/earth.png)

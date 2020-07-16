@@ -58,10 +58,13 @@ suspend fun runTextureExample(window: Window) {
     val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
     val device = adapter.requestDeviceAsync()
 
-    val vertexBuffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
-    val indexBuffer = BufferUtils.createShortBuffer(device, indices, BufferUsage.INDEX)
+    val vertexBuffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
+    val indexBuffer = BufferUtils.createShortBuffer(device, "indices", indices, BufferUsage.INDEX)
     val matrixBuffer = BufferUtils.createBufferFromData(
-        device, createTransformationMatrix().toBytes(), BufferUsage.UNIFORM or BufferUsage.COPY_DST
+        device,
+        "transformation matrix",
+        createTransformationMatrix().toBytes(),
+        BufferUsage.UNIFORM or BufferUsage.COPY_DST
     )
     val vertexShader = ShaderUtils.fromSource(device, "vertex", TextureShaderSource.vertex, ShaderType.VERTEX)
     val fragShader = ShaderUtils.fromSource(device, "frag", TextureShaderSource.frag, ShaderType.FRAGMENT)
@@ -75,7 +78,7 @@ suspend fun runTextureExample(window: Window) {
         TextureUsage.COPY_DST or TextureUsage.SAMPLED
     )
     val texture = device.createTexture(textureDesc)
-    val textureBuffer = BufferUtils.createBufferFromData(device, image.bytes, BufferUsage.COPY_SRC)
+    val textureBuffer = BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
 
     var cmdEncoder = device.createCommandEncoder()
     cmdEncoder.copyBufferToTexture(
@@ -84,6 +87,7 @@ suspend fun runTextureExample(window: Window) {
         Extent3D(image.width.toLong(), image.height.toLong(), 1)
     )
     device.getDefaultQueue().submit(cmdEncoder.finish())
+    textureBuffer.destroy()
 
     val sampler = device.createSampler(SamplerDescriptor())
     val textureView = texture.createView()

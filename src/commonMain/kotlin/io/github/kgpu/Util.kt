@@ -18,9 +18,10 @@ object ShaderUtils{
 
 object BufferUtils{
 
-    fun createBufferFromData(device: Device, data: ByteArray, usage: Long) : Buffer{
+    fun createBufferFromData(device: Device, label: String, data: ByteArray, usage: Long) : Buffer{
         return device.createBufferWithData(
             BufferDescriptor(
+                label,
                 data.size.toLong(),
                 usage,
                 true
@@ -29,12 +30,12 @@ object BufferUtils{
         )
     }
 
-    fun createFloatBuffer(device: Device, data: FloatArray, usage: Long) : Buffer{
-        return createBufferFromData(device, ByteUtils.toByteArray(data), usage)
+    fun createFloatBuffer(device: Device, label: String, data: FloatArray, usage: Long) : Buffer{
+        return createBufferFromData(device, label, ByteUtils.toByteArray(data), usage)
     }
 
-    fun createShortBuffer(device: Device, data: ShortArray, usage: Long) : Buffer{
-        return createBufferFromData(device, ByteUtils.toByteArray(data), usage)
+    fun createShortBuffer(device: Device, label: String,data: ShortArray, usage: Long) : Buffer{
+        return createBufferFromData(device, label, ByteUtils.toByteArray(data), usage)
     }
 }
 

@@ -235,6 +235,7 @@ object BufferUsage {
 }
 
 expect class BufferDescriptor(
+    label: String,
     size: Long,
     usage: Long,
     mappedAtCreation: Boolean
@@ -246,7 +247,9 @@ expect class Buffer : IntoBindingResource {
 
     fun getMappedData(start: Long, size: Long): BufferData
 
-    fun unmap();
+    fun unmap()
+
+    fun destroy()
 }
 
 expect class BufferData {

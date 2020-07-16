@@ -246,7 +246,6 @@ actual class Device(val id: Long) {
     }
 
     actual fun createBuffer(desc: BufferDescriptor): Buffer {
-        desc.label = "Kgpu Buffer"
         val id = WgpuJava.wgpuNative.wgpu_device_create_buffer(id, desc.pointerTo)
 
         return Buffer(id, desc.size)
@@ -766,12 +765,14 @@ actual class Queue(val id: Long) {
 }
 
 actual class BufferDescriptor actual constructor(
+    label: kotlin.String,
     size: Long,
     usage: Long,
     mappedAtCreation: kotlin.Boolean
 ) : WgpuBufferDescriptor(true) {
 
     init {
+        this.label = label
         this.size = size
         this.usage = usage
         this.mappedAtCreation = mappedAtCreation
@@ -800,6 +801,9 @@ actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
         WgpuJava.wgpuNative.wgpu_buffer_unmap(id)
     }
 
+    actual fun destroy() {
+        WgpuJava.wgpuNative.wgpu_buffer_destroy(id)
+    }
 }
 
 actual class BufferData(val data: Pointer) {

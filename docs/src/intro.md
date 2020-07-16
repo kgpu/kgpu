@@ -1,5 +1,3 @@
-# Kgpu
-A Cross Platform Graphics API For Kotlin
+# Introduction
 
-### [Live Example](examples/index.html)
-### [Documentation](kgpu/index.html)
+TODO

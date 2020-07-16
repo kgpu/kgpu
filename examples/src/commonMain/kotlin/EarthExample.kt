@@ -74,9 +74,10 @@ suspend fun runEarthExample(window: Window) {
     }
 
 
-    fun createMatrixBuffer(device: Device, matrix: Matrix4f): Buffer {
+    fun createMatrixBuffer(device: Device, matrix: Matrix4f, label: String): Buffer {
         return BufferUtils.createBufferFromData(
             device,
+            label,
             createTransformationMatrix(matrix).toBytes(),
             BufferUsage.UNIFORM or BufferUsage.COPY_DST
         )
@@ -97,11 +98,11 @@ suspend fun runEarthExample(window: Window) {
 
     val vertexShader = ShaderUtils.fromSource(device, "vertex", EarthShaderSource.vertex, ShaderType.VERTEX)
     val fragShader = ShaderUtils.fromSource(device, "frag", EarthShaderSource.frag, ShaderType.FRAGMENT)
-    val vertexBuffer = BufferUtils.createFloatBuffer(device, vertices, BufferUsage.VERTEX)
-    val indexBuffer = BufferUtils.createShortBuffer(device, indices, BufferUsage.INDEX)
-    val modelMatrixBuffer = createMatrixBuffer(device, modelMatrix)
-    val normalMatrixBuffer = createMatrixBuffer(device, createNormalMatrix(modelMatrix, viewMatrix))
-    val transformationMatrixBuffer = createMatrixBuffer(device, createTransformationMatrix(viewMatrix))
+    val vertexBuffer = BufferUtils.createFloatBuffer(device, "indices", vertices, BufferUsage.VERTEX)
+    val indexBuffer = BufferUtils.createShortBuffer(device, "vertices", indices, BufferUsage.INDEX)
+    val modelMatrixBuffer = createMatrixBuffer(device, modelMatrix, "model matrix")
+    val normalMatrixBuffer = createMatrixBuffer(device, createNormalMatrix(modelMatrix, viewMatrix), "normal matrix")
+    val transformationMatrixBuffer = createMatrixBuffer(device, createTransformationMatrix(viewMatrix), "trans matrix")
 
     val textureDesc = TextureDescriptor(
         Extent3D(image.width.toLong(), image.height.toLong(), 1),
@@ -112,7 +113,7 @@ suspend fun runEarthExample(window: Window) {
         TextureUsage.COPY_DST or TextureUsage.SAMPLED
     )
     val texture = device.createTexture(textureDesc)
-    val textureBuffer = BufferUtils.createBufferFromData(device, image.bytes, BufferUsage.COPY_SRC)
+    val textureBuffer = BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
 
     var cmdEncoder = device.createCommandEncoder()
     cmdEncoder.copyBufferToTexture(
@@ -121,6 +122,7 @@ suspend fun runEarthExample(window: Window) {
         Extent3D(image.width.toLong(), image.height.toLong(), 1)
     )
     device.getDefaultQueue().submit(cmdEncoder.finish())
+    textureBuffer.destroy()
 
     val sampler = device.createSampler(SamplerDescriptor())
     val textureView = texture.createView()
