@@ -69,7 +69,8 @@
 <h4><a href="get-mapped-data.html">getMappedData</a></h4>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">getMappedData</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$getMappedData(kotlin.Long, kotlin.Long)/start">start</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Buffer$getMappedData(kotlin.Long, kotlin.Long)/size">size</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-buffer-data/index.html"><span class="identifier">BufferData</span></a></code></td>
+<p>JVM Only</p>
+<code><span class="keyword">fun </span><span class="identifier">getMappedData</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$getMappedData(kotlin.Long, kotlin.Long)/start">start</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a>&nbsp;<span class="symbol">=</span>&nbsp;0<span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Buffer$getMappedData(kotlin.Long, kotlin.Long)/size">size</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a>&nbsp;<span class="symbol">=</span>&nbsp;this.size<span class="symbol">)</span><span class="symbol">: </span><a href="../-buffer-data/index.html"><span class="identifier">BufferData</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -78,6 +79,14 @@
 <td>
 (js) <code><span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="keyword">dynamic</span></code><br/>
 (jvm) <code><span class="keyword">fun </span><span class="identifier">intoBindingResource</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$intoBindingResource(io.github.kgpu.wgpuj.jni.WgpuBindingResource)/resource">resource</span><span class="symbol">:</span>&nbsp;<a href="../../io.github.kgpu.wgpuj.jni/-wgpu-binding-resource/index.html"><span class="identifier">WgpuBindingResource</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="map-read-async.html">mapReadAsync</a></h4>
+</td>
+<td>
+<code><span class="keyword">suspend</span> <span class="keyword">fun </span><span class="identifier">mapReadAsync</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Buffer$mapReadAsync(io.github.kgpu.Device)/device">device</span><span class="symbol">:</span>&nbsp;<a href="../-device/index.html"><span class="identifier">Device</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-buffer-data/index.html"><span class="identifier">BufferData</span></a></code></td>
 </tr>
 <tr>
 <td>
