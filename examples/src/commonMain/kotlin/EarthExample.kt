@@ -86,7 +86,7 @@ suspend fun runEarthExample(window: Window) {
     val earth = Sphere(40, 40)
     val indices = earth.generateIndices()
     val vertices = earth.generateVertices()
-    val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
+    val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
     val image = ImageData.load("earth3D.png")
     val modelMatrix = Matrix4f().rotateY(.1f)

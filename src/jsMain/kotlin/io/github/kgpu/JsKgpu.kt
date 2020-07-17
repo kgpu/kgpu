@@ -1,5 +1,6 @@
 package io.github.kgpu
 
+import io.github.kgpu.internal.ArrayBufferUtils
 import io.github.kgpu.internal.GlslangLibrary
 import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
@@ -15,7 +16,7 @@ actual object Kgpu {
     actual val backendName: String = "Web"
     actual val undefined = kotlin.js.undefined
 
-    actual fun init() {
+    fun init() {
         GlslangLibrary.init()
     }
 
@@ -27,6 +28,9 @@ actual object Kgpu {
         };
     }
 
+    actual suspend fun requestAdapterAsync(window: Window?): Adapter {
+        return Adapter((js("navigator.gpu.requestAdapter()") as Promise<GPUAdapter>).await())
+    }
 }
 
 actual class Window actual constructor() {
@@ -45,10 +49,6 @@ actual class Window actual constructor() {
 
     actual fun update() {
 
-    }
-
-    actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
-        return Adapter((js("navigator.gpu.requestAdapter()") as Promise<GPUAdapter>).await())
     }
 
     actual fun getWindowSize(): WindowSize {
@@ -178,6 +178,10 @@ actual class Device(val jsType: GPUDevice) {
         return Sampler(jsType.createSampler(desc))
     }
 
+    actual fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline {
+        return jsType.createComputePipeline(desc)
+    }
+
 }
 
 external class GPUDevice {
@@ -206,6 +210,8 @@ external class GPUDevice {
     fun createBindGroup(desc: BindGroupDescriptor): GPUBindGroup
 
     fun createSampler(desc: SamplerDescriptor): GPUSampler
+
+    fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline
 }
 
 actual class CommandEncoder(val jsType: GPUCommandEncoder) {
@@ -219,7 +225,21 @@ actual class CommandEncoder(val jsType: GPUCommandEncoder) {
     }
 
     actual fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D) {
-       jsType.copyBufferToTexture(source, destination, copySize)
+        jsType.copyBufferToTexture(source, destination, copySize)
+    }
+
+    actual fun beginComputePass(): ComputePassEncoder {
+        return ComputePassEncoder(jsType.beginComputePass())
+    }
+
+    actual fun copyBufferToBuffer(
+        source: Buffer,
+        destination: Buffer,
+        size: Long,
+        sourceOffset: Int,
+        destinationOffset: Int
+    ) {
+        jsType.copyBufferToBuffer(source.jsType, sourceOffset, destination.jsType, destinationOffset, size)
     }
 }
 
@@ -230,6 +250,16 @@ external class GPUCommandEncoder {
     fun finish(): GPUCommandBuffer
 
     fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
+
+    fun beginComputePass(): GPUComputePassEncoder
+
+    fun copyBufferToBuffer(
+        source: GPUBuffer,
+        sourceOffset: Int,
+        destination: GPUBuffer,
+        destinationOffset: Int,
+        size: Long
+    )
 }
 
 actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
@@ -276,6 +306,36 @@ external class GPURenderPassEncoder {
     fun setIndexBuffer(buffer: GPUBuffer, offset: Long, size: Long)
 
     fun setBindGroup(index: Int, bindGroup: GPUBindGroup)
+}
+
+actual class ComputePassEncoder(val jsType: GPUComputePassEncoder) {
+
+    actual fun setPipeline(pipeline: ComputePipeline) {
+        jsType.setPipeline(pipeline)
+    }
+
+    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
+        jsType.setBindGroup(index, bindGroup.jsType)
+    }
+
+    actual fun dispatch(x: Int, y: Int, z: Int) {
+        jsType.dispatch(x, y, z)
+    }
+
+    actual fun endPass() {
+        jsType.endPass()
+    }
+
+}
+
+external class GPUComputePassEncoder {
+    fun setPipeline(pipeline: ComputePipeline)
+
+    fun setBindGroup(index: Int, bindGroup: GPUBindGroup)
+
+    fun dispatch(x: Int, y: Int, z: Int)
+
+    fun endPass()
 }
 
 actual class Texture(val jsType: GPUTexture) {
@@ -453,6 +513,7 @@ external class GPUPipelineLayout
 actual typealias PipelineLayout = GPUPipelineLayout
 
 actual class RenderPipeline
+actual class ComputePipeline
 
 actual enum class InputStepMode(val jsType: String) {
     VERTEX("vertex"),
@@ -499,13 +560,14 @@ actual class TextureViewDescriptor actual constructor(
     val aspect = aspect.jsType
 }
 
-actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource{
+actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource {
 
     override fun intoBindingResource(): dynamic {
         return jsType
     }
 
 }
+
 external class GPUTextureView
 
 actual class SwapChain(val jsType: GPUSwapChain) {
@@ -586,10 +648,7 @@ actual class BufferDescriptor actual constructor(
 actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingResource {
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
-        val data = jsType.getMappedRange(start, size)
-
-        TODO("Not implemented in browsers yet. Use old function Device.createBufferWithData() instead")
-//        return BufferData(Uint8Array(data))
+        TODO("Unsupported on the Web!")
     }
 
     actual fun unmap() {
@@ -609,11 +668,17 @@ actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingR
         jsType.destroy()
     }
 
+    actual suspend fun mapReadAsync(device: Device): BufferData {
+        val data = jsType.mapReadAsync().await()
+
+        return BufferData(Uint8Array(data))
+    }
+
 }
 
 external class GPUBuffer {
 
-    fun getMappedRange(start: Long, size: Long): ArrayBuffer
+    fun mapReadAsync(): Promise<ArrayBuffer>
 
     fun unmap();
 
@@ -624,7 +689,13 @@ external class GPUBuffer {
 actual class BufferData(val data: Uint8Array) {
 
     actual fun putBytes(bytes: ByteArray, offset: Int) {
-        data.set(bytes.toTypedArray(), offset)
+//        data.set(bytes.toTypedArray(), offset)
+
+        TODO("Unsupported on the Web!")
+    }
+
+    actual fun getBytes(): ByteArray {
+        return ArrayBufferUtils.toByteArray(data.buffer)
     }
 
 }
@@ -661,7 +732,7 @@ actual class TextureCopyView actual constructor(
     texture: Texture,
     val mipLevel: Long,
     val origin: Origin3D
-){
+) {
     val texture = texture.jsType
 }
 
@@ -687,7 +758,7 @@ actual class SamplerDescriptor actual constructor(
     val lodMinClamp: Float,
     val lodMaxClamp: Float,
     val maxAnisotrophy: Short
-){
+) {
 
     // compare not needed on web because its not a comparison sampler
     val compare = compare?.jsType ?: undefined
@@ -700,7 +771,7 @@ actual class SamplerDescriptor actual constructor(
 
 }
 
-actual class Sampler(val jsType: GPUSampler) : IntoBindingResource{
+actual class Sampler(val jsType: GPUSampler) : IntoBindingResource {
 
     override fun intoBindingResource(): dynamic {
         return jsType
@@ -709,6 +780,11 @@ actual class Sampler(val jsType: GPUSampler) : IntoBindingResource{
 }
 
 external class GPUSampler
+
+actual class ComputePipelineDescriptor actual constructor(
+    val layout: PipelineLayout,
+    val computeStage: ProgrammableStageDescriptor
+)
 
 actual enum class TextureFormat(val jsType: String = "") {
     R8_UNORM,

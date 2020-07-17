@@ -6,6 +6,7 @@ import io.github.kgpu.wgpuj.util.Platform
 import io.github.kgpu.wgpuj.util.SharedLibraryLoader
 import io.github.kgpu.GlfwHandler.getOsWindowHandle
 import jnr.ffi.Pointer
+import kotlinx.coroutines.runBlocking
 import org.lwjgl.Version
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -21,15 +22,17 @@ actual object Kgpu {
     actual val backendName: String = "Desktop"
     actual val undefined = null
 
-    actual fun init() {
+    fun init(initGlfw: Boolean) {
         val libraryFile = SharedLibraryLoader().load("wgpu_native")
         WgpuJava.init(libraryFile)
 
-        GlfwHandler.glfwInit()
+        if(initGlfw){
+            GlfwHandler.glfwInit()
+            println("GLFW Version: ${GLFW.GLFW_VERSION_MAJOR}.${GLFW.GLFW_VERSION_MINOR}")
+        }
 
         println("Wgpu Version: " + WgpuJava.getWgpuNativeVersion())
         println("LWJGL Version: " + Version.getVersion())
-        println("GLFW Version: ${GLFW.GLFW_VERSION_MAJOR}.${GLFW.GLFW_VERSION_MINOR}")
     }
 
     actual fun runLoop(window: Window, func: () -> Unit) {
@@ -40,11 +43,29 @@ actual object Kgpu {
 
         GlfwHandler.terminate();
     }
+
+    actual suspend fun requestAdapterAsync(window: Window?): Adapter {
+        val adapter = AtomicLong(0)
+        val defaultBackend: Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
+        val options = WgpuRequestAdapterOptions.createDirect()
+        options.compatibleSurface = window?.surface ?: 0
+        options.powerPreference = WgpuPowerPreference.DEFAULT
+
+        WgpuJava.wgpuNative.wgpu_request_adapter_async(
+            options.pointerTo,
+            defaultBackend,
+            false,
+            { received: Long, userData: Pointer? -> adapter.set(received) },
+            WgpuJava.createNullPointer()
+        )
+
+        return Adapter(adapter.get())
+    }
 }
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
-    private val surface: Long
+    internal val surface: Long
 
     init {
         val osHandle = getOsWindowHandle(handle)
@@ -53,10 +74,11 @@ actual class Window actual constructor() {
         } else if (Platform.isLinux) {
             val display = GLFWNativeX11.glfwGetX11Display()
             WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-        } else throw UnsupportedOperationException(
-            "Platform not supported. See " +
-                    "https://github.com/DevOrc/wgpu-java/issues/4"
-        )
+        } else {
+            println("[WARNING] Platform not tested. See " +
+                    "https://github.com/DevOrc/wgpu-java/issues/4")
+            0
+        }
     }
 
     init {
@@ -76,24 +98,6 @@ actual class Window actual constructor() {
 
     actual fun update() {
         GLFW.glfwPollEvents();
-    }
-
-    actual suspend fun requestAdapterAsync(preference: PowerPreference): Adapter {
-        val adapter = AtomicLong(0)
-        val defaultBackend: Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
-        val options = WgpuRequestAdapterOptions.createDirect()
-        options.compatibleSurface = surface
-        options.powerPreference = preference
-
-        WgpuJava.wgpuNative.wgpu_request_adapter_async(
-            options.pointerTo,
-            defaultBackend,
-            false,
-            { received: Long, userData: Pointer? -> adapter.set(received) },
-            WgpuJava.createNullPointer()
-        )
-
-        return Adapter(adapter.get())
     }
 
     actual fun getWindowSize(): WindowSize {
@@ -168,9 +172,7 @@ private object GlfwHandler {
                 GLFWNativeX11.glfwGetX11Window(handle)
             }
             else -> {
-                throw UnsupportedOperationException(
-                    "Platform not supported. See https://github.com/DevOrc/wgpu-java/issues/4"
-                )
+                0
             }
         }
     }
@@ -260,7 +262,10 @@ actual class Device(val id: Long) {
     actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
         val buffer = createBuffer(desc)
 
-        buffer.getMappedData(0, data.size.toLong()).putBytes(data, 0)
+        runBlocking {
+            buffer.getMappedData().putBytes(data, 0)
+        }
+
         buffer.unmap()
 
         return buffer
@@ -276,6 +281,12 @@ actual class Device(val id: Long) {
         val id = WgpuJava.wgpuNative.wgpu_device_create_sampler(id, desc.pointerTo)
 
         return Sampler(id)
+    }
+
+    actual fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline {
+        val id = WgpuJava.wgpuNative.wgpu_device_create_compute_pipeline(id, desc.pointerTo)
+
+        return ComputePipeline(id)
     }
 }
 
@@ -300,6 +311,29 @@ actual class CommandEncoder(val id: Long) {
     actual fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D) {
         WgpuJava.wgpuNative.wgpu_command_encoder_copy_buffer_to_texture(
             id, source.pointerTo, destination.pointerTo, copySize.pointerTo
+        )
+    }
+
+    actual fun beginComputePass(): ComputePassEncoder {
+        val id = WgpuJava.wgpuNative.wgpu_command_encoder_begin_compute_pass(id, WgpuJava.createNullPointer())
+
+        return ComputePassEncoder(id)
+    }
+
+    actual fun copyBufferToBuffer(
+        source: Buffer,
+        destination: Buffer,
+        size: Long,
+        sourceOffset: Int,
+        destinationOffset: Int
+    ) {
+        WgpuJava.wgpuNative.wgpu_command_encoder_copy_buffer_to_buffer(
+            id,
+            source.id,
+            sourceOffset.toLong(),
+            destination.id,
+            destinationOffset.toLong(),
+            Pointer.wrap(WgpuJava.getRuntime(), size)
         )
     }
 }
@@ -346,6 +380,33 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
             pass.pointerTo, index, bindGroup.id,
             WgpuJava.createNullPointer(), 0
         )
+    }
+
+}
+
+actual class ComputePassEncoder(val pass: WgpuRawPass) {
+
+    override fun toString(): String {
+        return "ComputePassEncoder"
+    }
+
+    actual fun setPipeline(pipeline: ComputePipeline) {
+        WgpuJava.wgpuNative.wgpu_compute_pass_set_pipeline(pass.pointerTo, pipeline.id)
+    }
+
+    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
+         WgpuJava.wgpuNative.wgpu_compute_pass_set_bind_group(
+            pass.pointerTo, index, bindGroup.id,
+            WgpuJava.createNullPointer(), 0
+        )
+    }
+
+    actual fun dispatch(x: Int, y: Int, z: Int) {
+        WgpuJava.wgpuNative.wgpu_compute_pass_dispatch(pass.pointerTo, x, y, z)
+    }
+
+    actual fun endPass() {
+        WgpuJava.wgpuNative.wgpu_compute_pass_end_pass(pass.pointerTo)
     }
 
 }
@@ -583,6 +644,14 @@ actual class RenderPipeline internal constructor(val id: Long) {
 
 }
 
+actual class ComputePipeline internal constructor(val id: Long) {
+
+    override fun toString(): String {
+        return "ComputePipeline${Id.fromLong(id)}"
+    }
+
+}
+
 actual class BlendDescriptor actual constructor(
     val srcFactor: BlendFactor,
     val dstFactor: BlendFactor,
@@ -794,7 +863,7 @@ actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
     }
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
-        return BufferData(WgpuJava.wgpuNative.wgpu_buffer_get_mapped_range(id, start, size))
+        return BufferData(WgpuJava.wgpuNative.wgpu_buffer_get_mapped_range(id, start, size), size.toInt())
     }
 
     actual fun unmap() {
@@ -804,12 +873,33 @@ actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
     actual fun destroy() {
         WgpuJava.wgpuNative.wgpu_buffer_destroy(id)
     }
+
+    actual suspend fun mapReadAsync(device: Device): BufferData {
+        WgpuJava.wgpuNative.wgpu_buffer_map_read_async(
+            id,
+            0,
+            size,
+            { _: WgpuBufferMapAsyncStatus, _: Pointer? -> },
+            WgpuJava.createNullPointer()
+        )
+
+        WgpuJava.wgpuNative.wgpu_device_poll(device.id, true)
+
+        return getMappedData(0, size);
+    }
 }
 
-actual class BufferData(val data: Pointer) {
+actual class BufferData(val data: Pointer, val size: Int) {
 
     actual fun putBytes(bytes: ByteArray, offset: Int) {
         data.put(offset.toLong(), bytes, 0, bytes.size)
+    }
+
+    actual fun getBytes(): ByteArray {
+        val bytes = ByteArray(size)
+        data.get(0, bytes, 0, size)
+
+        return bytes
     }
 
 }
@@ -940,6 +1030,18 @@ actual class Sampler(val id: Long) : IntoBindingResource {
 
     override fun toString(): String {
         return "Sampler(${Id.fromLong(id)}"
+    }
+
+}
+
+actual class ComputePipelineDescriptor actual constructor(
+    layout: PipelineLayout,
+    computeStage: ProgrammableStageDescriptor) : WgpuComputePipelineDescriptor(true){
+
+    init {
+        this.layout = layout.id
+        this.computeStage.module = computeStage.module
+        this.computeStage.entryPoint = computeStage.entryPoint
     }
 
 }

@@ -3,6 +3,7 @@ import io.github.kgpu.Window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.url.URL
+import kotlin.browser.document
 import kotlin.browser.window
 
 fun main(){
@@ -18,7 +19,19 @@ fun main(){
             "1" -> runCubeExample(kgpuWindow)
             "2" -> runTextureExample(kgpuWindow)
             "3" -> runEarthExample(kgpuWindow)
+            "4" -> {
+                hideCanvas()
+                runComputeExample()
+            }
             else -> runTriangleExample(kgpuWindow)
         }
     }
+}
+
+actual fun showComputeExampleResults(output: String){
+    window.alert(output)
+}
+
+fun hideCanvas(){
+    document.getElementById("kgpuCanvas")?.setAttribute("hidden", "true")
 }

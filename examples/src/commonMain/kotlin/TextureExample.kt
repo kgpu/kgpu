@@ -55,7 +55,7 @@ suspend fun runTextureExample(window: Window) {
 
     val image = ImageData.load("earth2D.png")
 
-    val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
+    val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
 
     val vertexBuffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)

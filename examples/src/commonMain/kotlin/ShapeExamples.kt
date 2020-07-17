@@ -64,7 +64,7 @@ suspend fun runCubeExample(window: Window) {
     )
     val transMatrix = projMatrix.mul(viewMatrix)
 
-    val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
+    val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync();
 
     val vertexShader = ShaderUtils.fromInternalTextFile(device, "cube.vert", ShaderType.VERTEX)
@@ -122,7 +122,7 @@ suspend fun runCubeExample(window: Window) {
 suspend fun runTriangleExample(window: Window) {
     mathTest()
 
-    val adapter = window.requestAdapterAsync(PowerPreference.DEFAULT)
+    val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync();
     val vertexShader = ShaderUtils.fromInternalTextFile(device, "triangle.vert", ShaderType.VERTEX)
     val fragShader = ShaderUtils.fromInternalTextFile(device, "shared.frag", ShaderType.FRAGMENT)

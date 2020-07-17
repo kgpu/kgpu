@@ -4,13 +4,20 @@ expect object Kgpu {
     val backendName: String
     val undefined: Nothing?
 
-    fun init()
-
     fun runLoop(window: Window, func: () -> Unit)
+
+    /**
+     * Requests an adapter
+     *
+     * @param window the window to create the adapter for. This parameter
+     * is only needed for graphics applications
+     */
+    suspend fun requestAdapterAsync(window: Window? = null) : Adapter
 }
 
 object Primitives {
     const val FLOAT_BYTES: Long = 4
+    const val INT_BYTES: Long = 4
 }
 
 expect class Device {
@@ -37,6 +44,8 @@ expect class Device {
     fun createBindGroup(desc: BindGroupDescriptor): BindGroup
 
     fun createSampler(desc: SamplerDescriptor) : Sampler
+
+    fun createComputePipeline(desc: ComputePipelineDescriptor) : ComputePipeline
 }
 
 expect class Adapter {
@@ -56,8 +65,6 @@ expect class Window() {
     fun isCloseRequested(): Boolean
 
     fun update()
-
-    suspend fun requestAdapterAsync(preference: PowerPreference): Adapter
 
     fun getWindowSize(): WindowSize
 
@@ -90,6 +97,11 @@ expect class CommandEncoder {
     fun finish(): CommandBuffer
 
     fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
+
+    fun beginComputePass() : ComputePassEncoder
+
+    fun copyBufferToBuffer(source: Buffer, destination: Buffer, size: Long = destination.size,
+                           sourceOffset: Int = 0, destinationOffset: Int = 0)
 }
 
 expect class RenderPassEncoder {
@@ -109,6 +121,18 @@ expect class RenderPassEncoder {
     fun setIndexBuffer(buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
 
     fun setBindGroup(index: Int, bindGroup: BindGroup)
+}
+
+expect class ComputePassEncoder{
+
+    fun setPipeline(pipeline: ComputePipeline)
+
+    fun setBindGroup(index: Int, bindGroup: BindGroup)
+
+    fun dispatch(x: Int, y: Int = 1, z: Int = 1)
+
+    fun endPass()
+
 }
 
 expect class Queue {
@@ -132,6 +156,7 @@ expect class PipelineLayout
 expect class BindGroupLayout
 expect class PipelineLayoutDescriptor(vararg bindGroupLayouts: BindGroupLayout)
 expect class RenderPipeline
+expect class ComputePipeline
 expect class CommandBuffer
 expect class BindGroup
 expect class Sampler : IntoBindingResource
@@ -209,6 +234,8 @@ expect class BindGroupLayoutEntry(
     )
 }
 
+expect class ComputePipelineDescriptor(layout: PipelineLayout, computeStage: ProgrammableStageDescriptor)
+
 expect class BindGroupLayoutDescriptor(vararg entries: BindGroupLayoutEntry)
 
 expect class SwapChainDescriptor(
@@ -245,7 +272,12 @@ expect class Buffer : IntoBindingResource {
 
     val size: Long
 
-    fun getMappedData(start: Long, size: Long): BufferData
+    /**
+     * JVM Only
+     */
+    fun getMappedData(start: Long = 0, size: Long = this.size): BufferData
+
+    suspend fun mapReadAsync(device: Device) : BufferData
 
     fun unmap()
 
@@ -255,6 +287,8 @@ expect class Buffer : IntoBindingResource {
 expect class BufferData {
 
     fun putBytes(bytes: ByteArray, offset: Int = 0)
+
+    fun getBytes() : ByteArray
 
 }
 
