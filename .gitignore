@@ -6,7 +6,7 @@
 docs/book
 
 ## Rust
-native/wgpu-test/target/**
+wgpuj/wgpu-test/target/**
 
 ## Wgpu artifacts
 data1.bin

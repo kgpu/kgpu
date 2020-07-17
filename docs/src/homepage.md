@@ -3,7 +3,6 @@ A Cross Platform Graphics API For Kotlin JVM/JS
  
  __Requirements:__
  - JDK 11 
- - Rust Stable (temporary, see [Issue #5](https://github.com/kgpu/kgpu/issues/5))
  
  __Supported Platforms:__
 - Windows 10 

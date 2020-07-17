@@ -12,5 +12,5 @@ According to the W3C website, WebGPU is,
 > cross-platform solution.
 
 ### What is Wgpu?
-Wgpu is Mozilla's Rust implementation of the WebGPU specification. It is similar to Dawn, Google's implementation 
+Wgpu is Mozilla's Rust implementation of the WebGPU specification. It is similar to Dawn, Google's WebGOU implementation 
 for Chromium. 

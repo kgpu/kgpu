@@ -1,9 +1,9 @@
 package io.github.kgpu
 
-import com.noahcharlton.wgpuj.WgpuJava
-import com.noahcharlton.wgpuj.jni.*
-import com.noahcharlton.wgpuj.util.Platform
-import com.noahcharlton.wgpuj.util.SharedLibraryLoader
+import io.github.kgpu.wgpuj.WgpuJava
+import io.github.kgpu.wgpuj.jni.*
+import io.github.kgpu.wgpuj.util.Platform
+import io.github.kgpu.wgpuj.util.SharedLibraryLoader
 import io.github.kgpu.GlfwHandler.getOsWindowHandle
 import jnr.ffi.Pointer
 import org.lwjgl.Version

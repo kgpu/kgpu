@@ -37,7 +37,7 @@ kotlin {
         jvm().compilations["main"].defaultSourceSet{
             dependencies{
                 implementation(kotlin("stdlib-jdk8"))
-                api(project(":native"))
+                api(project(":wgpuj"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
                 api("org.joml:joml:1.9.25")
 
@@ -72,7 +72,7 @@ tasks {
             }
 
             val jvm by creating {
-                subProjects = listOf("native")
+                subProjects = listOf("wgpuj")
             }
 
             val js by creating{
