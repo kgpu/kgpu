@@ -1,8 +1,8 @@
 $dokka.format:html
 $dokka.linkExtension:html
 
-com.noahcharlton.wgpuj
-com.noahcharlton.wgpuj.jni
-com.noahcharlton.wgpuj.util
 io.github.kgpu
 io.github.kgpu.internal
+io.github.kgpu.wgpuj
+io.github.kgpu.wgpuj.jni
+io.github.kgpu.wgpuj.util

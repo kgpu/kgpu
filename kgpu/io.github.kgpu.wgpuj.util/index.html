@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>io.github.kgpu.wgpuj.util - kgpu</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">kgpu</a>&nbsp;/&nbsp;<a href="./index.html">io.github.kgpu.wgpuj.util</a><br/>
+<br/>
+<h2>Package io.github.kgpu.wgpuj.util</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(jvm) 
+<h4><a href="-platform/index.html">Platform</a></h4>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">Platform</span></code></td>
+</tr>
+<tr>
+<td>
+(jvm) 
+<h4><a href="-rust-c-string/index.html">RustCString</a></h4>
+</td>
+<td>
+<p>Utilities for converting between Rust CString and Java Strings.</p>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">RustCString</span></code></td>
+</tr>
+<tr>
+<td>
+(jvm) 
+<h4><a href="-shared-library-loader/index.html">SharedLibraryLoader</a></h4>
+</td>
+<td>
+<p>Extracts native libraries from the classpath and stores them temporarily.</p>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SharedLibraryLoader</span></code></td>
+</tr>
+<tr>
+<td>
+(jvm) 
+<h4><a href="-wgpu-java-struct/index.html">WgpuJavaStruct</a></h4>
+</td>
+<td>
+<p>The base class for all wgpuj structs.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">WgpuJavaStruct</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Struct</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Annotations</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(jvm) 
+<h4><a href="-c-str-pointer/index.html">CStrPointer</a></h4>
+</td>
+<td>
+<p>This is simply a marker used by JNR-Gen to mark a pointer as a string pointer. When a field is marked with this, JNR-Gen will make the setters/getters automatically convert from java strings to rust strings.</p>
+<code><span class="keyword">class </span><span class="identifier">CStrPointer</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
