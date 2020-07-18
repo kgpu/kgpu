@@ -2,6 +2,7 @@
 import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.runBlocking
+import msaa.*
 
 fun main(args: Array<String>) {
     println("Args: ${args.joinToString()}")
@@ -18,6 +19,7 @@ fun main(args: Array<String>) {
             "-cube" -> runCubeExample(createWindow())
             "-texture" -> runTextureExample(createWindow())
             "-earth" -> runEarthExample(createWindow())
+            "-msaa" -> runMsaaTriangle(createWindow())
             "-compute" -> {
                 Kgpu.init(false)
                 runComputeExample()

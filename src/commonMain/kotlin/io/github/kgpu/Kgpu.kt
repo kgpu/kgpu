@@ -149,7 +149,6 @@ expect class Queue {
 }
 
 expect interface IntoBindingResource
-expect class TextureView : IntoBindingResource
 expect class ShaderModule
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
 expect class PipelineLayout
@@ -175,6 +174,7 @@ object TextureUsage {
 expect class RenderPassColorAttachmentDescriptor(
     attachment: TextureView,
     clearColor: Color?,
+    resolveTarget: TextureView? = null,
     storeOp: StoreOp = StoreOp.STORE
 )
 
@@ -246,6 +246,14 @@ expect class SwapChainDescriptor(
 
 expect class Texture {
     fun createView(desc: TextureViewDescriptor? = null): TextureView
+
+    fun destroy()
+}
+
+expect class TextureView : IntoBindingResource{
+
+    fun destroy()
+
 }
 
 object BufferUsage {

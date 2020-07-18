@@ -2,6 +2,7 @@ import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import msaa.runMsaaTriangle
 import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
@@ -23,6 +24,7 @@ fun main(){
                 hideCanvas()
                 runComputeExample()
             }
+            "5" -> runMsaaTriangle(kgpuWindow)
             else -> runTriangleExample(kgpuWindow)
         }
     }

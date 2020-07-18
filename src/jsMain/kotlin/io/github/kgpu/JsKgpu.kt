@@ -344,12 +344,16 @@ actual class Texture(val jsType: GPUTexture) {
         return TextureView(jsType.createView(desc))
     }
 
+    actual fun destroy(){
+        jsType.destroy()
+    }
 }
 
 external class GPUTexture {
 
     fun createView(desc: TextureViewDescriptor?): GPUTextureView
 
+    fun destroy()
 }
 
 external class GPUShaderModule : GPUObjectBase {
@@ -566,9 +570,15 @@ actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource {
         return jsType
     }
 
+    actual fun destroy() {
+        jsType.destroy()
+    }
+
 }
 
-external class GPUTextureView
+external class GPUTextureView{
+    fun destroy()
+}
 
 actual class SwapChain(val jsType: GPUSwapChain) {
 
@@ -603,11 +613,13 @@ actual class SwapChainDescriptor actual constructor(
 actual class RenderPassColorAttachmentDescriptor actual constructor(
     attachment: TextureView,
     clearColor: Color?,
+    resolveTarget: TextureView?,
     storeOp: StoreOp
 ) {
     val attachment = attachment.jsType
     val storeOp = storeOp.jsType
     val loadValue = clearColor ?: LoadOp.LOAD
+    val resolveTarget = resolveTarget?.jsType ?: undefined
 }
 
 actual class RenderPassDescriptor actual constructor(

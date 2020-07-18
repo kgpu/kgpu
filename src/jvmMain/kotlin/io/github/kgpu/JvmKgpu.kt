@@ -724,6 +724,10 @@ actual class Texture(val id: Long) {
         return TextureView(WgpuJava.wgpuNative.wgpu_texture_create_view(id, ptr))
     }
 
+    actual fun destroy(){
+        WgpuJava.wgpuNative.wgpu_texture_destroy(id)
+    }
+
     override fun toString(): String {
         return "Texture${Id.fromLong(id)}"
     }
@@ -735,6 +739,10 @@ actual class TextureView(val id: Long) : IntoBindingResource {
     override fun intoBindingResource(resource: WgpuBindingResource) {
         resource.setTag(WgpuBindingResourceTag.TEXTURE_VIEW)
         resource.data.setTextureViewId(id)
+    }
+
+    actual fun destroy(){
+        WgpuJava.wgpuNative.wgpu_texture_view_destroy(id)
     }
 
     override fun toString(): String {
@@ -775,11 +783,13 @@ actual class SwapChain(val id: Long, private val window: Window) {
 actual class RenderPassColorAttachmentDescriptor actual constructor(
     attachment: TextureView,
     clearColor: Color?,
+    resolveTarget: TextureView?,
     storeOp: StoreOp
 ) : WgpuRenderPassColorDescriptor(true) {
     init {
         this.attachment = attachment.id
         this.storeOp = storeOp
+        this.resolveTarget = resolveTarget?.id ?: 0
         this.loadOp = if (clearColor == null) {
             LoadOp.LOAD
         } else {

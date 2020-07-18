@@ -104,4 +104,11 @@ tasks {
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-compute")
     }
+
+    register("runMsaaExample", Exec::class){
+        dependsOn("jvmFatJar")
+
+        workingDir("$projectDir")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-msaa")
+    }
 }
