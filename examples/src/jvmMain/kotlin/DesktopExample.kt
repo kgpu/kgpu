@@ -1,4 +1,5 @@
 
+import compute.runComputeCompareExample
 import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,10 @@ fun main(args: Array<String>) {
             "-compute" -> {
                 Kgpu.init(false)
                 runComputeExample()
+            }
+            "-computeCompare" -> {
+                Kgpu.init(false)
+                runComputeCompareExample()
             }
             else -> throw RuntimeException("Unknown example: $arg");
         }

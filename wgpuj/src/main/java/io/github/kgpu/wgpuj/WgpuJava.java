@@ -29,7 +29,7 @@ public class WgpuJava {
         runtime = Runtime.getRuntime(wgpuNative);
 
         wgpuNative.wgpu_set_log_callback(LogCallback.createDefault());
-        wgpuNative.wgpu_set_log_level(WgpuLogLevel.WARN);
+        wgpuNative.wgpu_set_log_level(WgpuLogLevel.OFF);
     }
 
     /**

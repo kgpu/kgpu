@@ -6,6 +6,7 @@ import msaa.runMsaaTriangle
 import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
+import compute.runComputeCompareExample
 
 fun main(){
     Kgpu.init()
@@ -25,6 +26,10 @@ fun main(){
                 runComputeExample()
             }
             "5" -> runMsaaTriangle(kgpuWindow)
+            "6" -> {
+                hideCanvas()
+                runComputeCompareExample()
+            }
             else -> runTriangleExample(kgpuWindow)
         }
     }

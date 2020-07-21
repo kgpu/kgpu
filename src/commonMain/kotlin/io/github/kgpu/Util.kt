@@ -61,6 +61,22 @@ object ByteUtils {
         return bytes
     }
 
+    fun toFloatArray(byteArray: ByteArray): FloatArray {
+        val floats = FloatArray(byteArray.size / 4)
+
+        for (i in floats.indices) {
+            val byteI = i * 4
+            val bits = (byteArray[byteI].toInt() and 0xFF) or
+                    ((byteArray[byteI + 1].toInt() and 0xFF) shl 8) or
+                    ((byteArray[byteI + 2].toInt() and 0xFF) shl 16) or
+                    ((byteArray[byteI + 3].toInt() and 0xFF) shl 24)
+
+            floats[i] = Float.fromBits(bits)
+        }
+
+        return floats
+    }
+
     fun toIntArray(byteArray: ByteArray): IntArray {
         val ints = IntArray(byteArray.size / 4)
 
