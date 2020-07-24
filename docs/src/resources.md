@@ -15,7 +15,7 @@
 
 
 ### Wgpu:
-[__Wgpu-native Github Repo__][]
+[__Wgpu-native Github Repo__](https://github.com/gfx-rs/wgpu-native)
 
 [__Wgpu Github Repo__](https://github.com/gfx-rs/wgpu)
 
@@ -28,7 +28,3 @@
 [__LWJGL Javadoc__](https://javadoc.lwjgl.org/overview-summary.html)
 
 [__LWJGL Website__](https://www.lwjgl.org/)
-
-
-
-[]: https://github.com/gfx-rs/wgpu-native
