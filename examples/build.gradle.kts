@@ -9,8 +9,10 @@ repositories {
     mavenCentral()
 }
 
-group "io.github.kgpu"
-version "0.1.0"
+val projectVersion: String by rootProject.extra
+val projectGroup: String by rootProject.extra
+group = projectGroup
+version = projectVersion
 
 kotlin {
     jvm(){

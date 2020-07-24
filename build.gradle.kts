@@ -1,10 +1,10 @@
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
 
 plugins {
     kotlin("multiplatform") version "1.3.72"
     id("org.jetbrains.dokka") version "0.10.1"
+    id("maven-publish")
 }
 
 repositories {
@@ -12,15 +12,10 @@ repositories {
     jcenter()
 }
 
-group "io.github.kgpu"
-version "0.1.0"
-
-val natives = when(OperatingSystem.current()){
-    OperatingSystem.LINUX -> "natives-linux"
-    OperatingSystem.MAC_OS -> "natives-macos"
-    OperatingSystem.WINDOWS -> "natives-windows"
-    else -> throw RuntimeException("Unsupported operating system.")
-}
+val projectVersion: String by extra
+val projectGroup: String by extra
+group = projectGroup
+version = projectVersion
 
 kotlin {
     jvm()
@@ -45,10 +40,18 @@ kotlin {
                 implementation("org.lwjgl:lwjgl:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-shaderc:$lwjglVersion")
-                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:$natives")
-                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:$natives")
-                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:$natives")
-            }
+
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-windows")
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-macos")
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-linux")
+
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows")
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos")
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux")
+
+                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-windows")
+                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-macos")
+                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-linux")            }
         }
 
         js().compilations["main"].defaultSourceSet{
@@ -102,5 +105,20 @@ tasks {
     register("generateBook", Exec::class){
         workingDir("${rootDir}/docs")
         commandLine("mdbook", "build")
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+
+            credentials {
+                username = "DevOrc"
+                password = System.getenv("sonatypePassword")!!
+            }
+        }
     }
 }

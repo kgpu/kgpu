@@ -2,8 +2,10 @@ plugins {
     id("java")
 }
 
-group "com.noahcharlton.wgpuj"
-version "0.1.0"
+val projectVersion: String by rootProject.extra
+val projectGroup: String by rootProject.extra
+group = projectGroup
+version = projectVersion
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
