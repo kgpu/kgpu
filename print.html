@@ -148,6 +148,23 @@ gradlew runEarthExample
 <pre><code>gradlew buildWeb startWebServer
 </code></pre>
 <p>Then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
+<a class="header" href="print.html#how-to-add-to-gradle-kotlin-dsl" id="how-to-add-to-gradle-kotlin-dsl"><h3>How to add to Gradle (Kotlin DSL)</h3></a>
+<p>First you need to add the snapshots repository:</p>
+<pre><code class="language-kotlin">repositories {
+    maven(url = &quot;https://oss.sonatype.org/content/repositories/snapshots/&quot;)
+}
+</code></pre>
+<p>Then you can add the dependency:</p>
+<pre><code class="language-kotlin">dependencies {
+    //Add it to a kotlin multiplatform project
+    implementation(&quot;io.github.kgpu:kgpu:0.1.0-SNAPSHOT&quot;)
+
+    //Or you can add a specific platform
+    implementation(&quot;io.github.kgpu:kgpu-common:0.1.0-SNAPSHOT&quot;)
+    implementation(&quot;io.github.kgpu:kgpu-js:0.1.0-SNAPSHOT&quot;)
+    implementation(&quot;io.github.kgpu:kgpu-jvm:0.1.0-SNAPSHOT&quot;)
+}
+</code></pre>
 <a class="header" href="print.html#introduction" id="introduction"><h1>Introduction</h1></a>
 <p>Kgpu is cross platform library that exposes the WebGPU api for Kotlin Javascript, and for Kotlin on the JVM.
 This allows users to write code that can be run on both web browsers and natively on their computers.</p>
