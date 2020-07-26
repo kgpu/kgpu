@@ -40,3 +40,24 @@ Then navigate to [http://localhost:8080/index.html](http://localhost:8080/index.
 ### Getting Started
 To get started, see the [Getting Started Page](https://kgpu.github.io/kgpu/getting_started.html)
 in the Kgpu book
+
+### How to add to Gradle (Kotlin DSL)
+First you need to add the snapshots repository:
+```kotlin
+repositories {
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
+}
+```
+
+Then you can add the dependency:
+```kotlin
+dependencies {
+    //Add it to a kotlin multiplatform project
+    implementation("io.github.kgpu:kgpu:0.1.0-SNAPSHOT")
+
+    //Or you can add a specific platform
+    implementation("io.github.kgpu:kgpu-common:0.1.0-SNAPSHOT")
+    implementation("io.github.kgpu:kgpu-js:0.1.0-SNAPSHOT")
+    implementation("io.github.kgpu:kgpu-jvm:0.1.0-SNAPSHOT")
+}
+```
