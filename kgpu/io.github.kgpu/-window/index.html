@@ -10,6 +10,8 @@
 <h1>Window</h1>
 <a name="io.github.kgpu.Window"></a>
 (js, jvm) <code><span class="keyword">class </span><span class="identifier">Window</span></code>
+<p>Represents a cross platform window. On the JVM, this window is managed by the
+GLFW windowing library. On the web, this window represents a canvas.</p>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -19,6 +21,8 @@
 <h4><a href="-init-.html">&lt;init&gt;</a></h4>
 </td>
 <td>
+<p>Represents a cross platform window. On the JVM, this window is managed by the
+GLFW windowing library. On the web, this window represents a canvas.</p>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
 </tr>
 </tbody>
@@ -48,6 +52,8 @@
 <h4><a href="is-close-requested.html">isCloseRequested</a></h4>
 </td>
 <td>
+<p>On the desktop, this returns true when the close button has been pressed. On
+the web, this always returns false.</p>
 <code><span class="keyword">fun </span><span class="identifier">isCloseRequested</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 <tr>
@@ -64,6 +70,8 @@
 <h4><a href="update.html">update</a></h4>
 </td>
 <td>
+<p>On the desktop, it will poll the events for the window. On the web,
+this does nothing. Is automatically called when using Kgpu.runLoop {}</p>
 <code><span class="keyword">fun </span><span class="identifier">update</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 </tbody>
