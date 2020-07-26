@@ -13,14 +13,16 @@ A Cross Platform Graphics API For Kotlin JVM/JS
 
 ### Links
 
-[__Documentation__](https://kgpu.github.io/kgpu)
+[__Kgpu Book__](https://kgpu.github.io/kgpu)
+
+[__Documentation__](https://kgpu.github.io/kgpu/kgpu/index.html)
 
 [__Live Example__](https://kgpu.github.io/kgpu/examples/index.html)
 
-## Images
+### Images
 ![Earth Example](docs/src/images/earth.png)
 
-## Examples
+### Examples
 To run the examples on Desktop: 
 ```bash
 gradlew runTriangleExample
@@ -34,3 +36,7 @@ To run the examples on the Web:
 gradlew buildWeb startWebServer
 ```
 Then navigate to [http://localhost:8080/index.html](http://localhost:8080/index.html)
+
+### Getting Started
+To get started, see the [Getting Started Page](https://kgpu.github.io/kgpu/getting_started.html)
+in the Kgpu book

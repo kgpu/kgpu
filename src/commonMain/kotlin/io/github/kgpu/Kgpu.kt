@@ -2,8 +2,18 @@ package io.github.kgpu
 
 expect object Kgpu {
     val backendName: String
+
+    /**
+     * A cross platform version of undefined. On the JVM, this value is equal to null, 
+     * and on the web, this is equal to undefined 
+     */
     val undefined: Nothing?
 
+    /**
+    * Runs a loop while the window is open. This loop will automatically update 
+    * the window while the loop is running. The loop will stop when the window 
+    * is requested to be closed.
+    */
     fun runLoop(window: Window, func: () -> Unit)
 
     /**
@@ -58,12 +68,24 @@ expect enum class PowerPreference {
     LOW_POWER, DEFAULT, HIGH_PERFORMANCE
 }
 
+/**
+ * Represents a cross platform window. On the JVM, this window is managed by the 
+ * GLFW windowing library. On the web, this window represents a canvas.
+ */
 expect class Window() {
 
     fun setTitle(title: String)
 
+    /**
+     * On the desktop, this returns true when the close button has been pressed. On 
+     * the web, this always returns false. 
+     */
     fun isCloseRequested(): Boolean
 
+    /**
+     * On the desktop, it will poll the events for the window. On the web, 
+     * this does nothing. Is automatically called when using Kgpu.runLoop {}
+     */
     fun update()
 
     fun getWindowSize(): WindowSize
@@ -148,6 +170,12 @@ expect class Queue {
     )
 }
 
+/**
+ * Represents something that is a binding resource. Examples
+ * include buffer, samplers, and texture views.
+ * 
+ * __See:__ [Binding Resource Spec](https://gpuweb.github.io/gpuweb/#typedefdef-gpubindingresource)
+ */
 expect interface IntoBindingResource
 expect class ShaderModule
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
