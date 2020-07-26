@@ -2,10 +2,8 @@ plugins {
     id("java")
 }
 
-val projectVersion: String by rootProject.extra
-val projectGroup: String by rootProject.extra
-group = projectGroup
-version = projectVersion
+group = rootProject.extra["projectGroup"]
+version = rootProject.extra["projectVersion"]
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

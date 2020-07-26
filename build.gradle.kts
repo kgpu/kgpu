@@ -12,10 +12,8 @@ repositories {
     jcenter()
 }
 
-val projectVersion: String by extra
-val projectGroup: String by extra
-group = projectGroup
-version = projectVersion
+group = rootProject.extra["projectGroup"]
+version = rootProject.extra["projectVersion"]
 
 kotlin {
     jvm()
@@ -36,7 +34,7 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
                 api("org.joml:joml:1.9.25")
 
-                val lwjglVersion: String by extra
+                val lwjglVersion = rootProject.extra["lwjglVersion"]
                 implementation("org.lwjgl:lwjgl:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-shaderc:$lwjglVersion")
@@ -117,7 +115,7 @@ publishing {
 
             credentials {
                 username = "DevOrc"
-                password = System.getenv("sonatypePassword")!!
+                password = System.getenv("sonatypePassword") ?: ""
             }
         }
     }

@@ -7,16 +7,16 @@ plugins {
     id("kotlin")
     id("com.diffplug.gradle.spotless") version "4.4.0"
     id("de.undercouch.download")
+    id("maven-publish")
 }
 
-val projectVersion: String by rootProject.extra
-val projectGroup: String by rootProject.extra
-group = projectGroup
-version = projectVersion
+group = rootProject.extra["projectGroup"]
+version = rootProject.extra["projectVersion"]
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    withSourcesJar()
 }
 
 repositories {
@@ -141,5 +141,30 @@ tasks{
 
     val compileJava by getting{
         dependsOn("installWgpuNative")
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+
+            credentials {
+                username = "DevOrc"
+                password = System.getenv("sonatypePassword") ?: ""
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = rootProject.extra["projectGroup"] as String
+            artifactId = "wgpuj"
+            version = rootProject.extra["projectVersion"] as String
+
+            from(components["java"])
+        }
     }
 }
