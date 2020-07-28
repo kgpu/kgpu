@@ -73,6 +73,8 @@ expect enum class PowerPreference {
  * GLFW windowing library. On the web, this window represents a canvas.
  */
 expect class Window() {
+    var windowSize: WindowSize
+    var onResize: (size: WindowSize) -> Unit
 
     fun setTitle(title: String)
 
@@ -84,11 +86,9 @@ expect class Window() {
 
     /**
      * On the desktop, it will poll the events for the window. On the web, 
-     * this does nothing. Is automatically called when using Kgpu.runLoop {}
+     * it will update the window size. This function is automatically called by Kgpu.runLoop {}
      */
     fun update()
-
-    fun getWindowSize(): WindowSize
 
     fun configureSwapChain(desc: SwapChainDescriptor): SwapChain
 }
@@ -216,6 +216,7 @@ expect class SwapChain {
 
     fun present()
 
+    @Deprecated("Old API. Instead use Window#onResize")
     fun isOutOfDate(): Boolean
 }
 

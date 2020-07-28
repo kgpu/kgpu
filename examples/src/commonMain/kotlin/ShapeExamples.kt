@@ -50,7 +50,7 @@ suspend fun runCubeExample(window: Window) {
     )
 
     fun getProjectionMatrix(): Matrix4f {
-        val windowSize = window.getWindowSize()
+        val windowSize = window.windowSize
         val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
         return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
@@ -91,12 +91,11 @@ suspend fun runCubeExample(window: Window) {
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
+    window.onResize = { size : WindowSize -> 
+        swapChain = window.configureSwapChain(swapChainDescriptor)
+    }
 
     Kgpu.runLoop(window) {
-        if (swapChain.isOutOfDate()) {
-            swapChain = window.configureSwapChain(swapChainDescriptor)
-        }
-
         val swapChainTexture = swapChain.getCurrentTextureView();
         val cmdEncoder = device.createCommandEncoder();
 
@@ -140,12 +139,11 @@ suspend fun runTriangleExample(window: Window) {
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
+    window.onResize = { size : WindowSize -> 
+        swapChain = window.configureSwapChain(swapChainDescriptor)
+    }
 
     Kgpu.runLoop(window) {
-        if (swapChain.isOutOfDate()) {
-            swapChain = window.configureSwapChain(swapChainDescriptor)
-        }
-
         val swapChainTexture = swapChain.getCurrentTextureView();
         val cmdEncoder = device.createCommandEncoder();
 

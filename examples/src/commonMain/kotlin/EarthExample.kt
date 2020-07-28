@@ -63,7 +63,7 @@ private object EarthShaderSource {
 
 suspend fun runEarthExample(window: Window) {
     fun createTransformationMatrix(viewMatrix: Matrix4f): Matrix4f {
-        val windowSize = window.getWindowSize()
+        val windowSize = window.windowSize
         val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
         return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f).mul(viewMatrix)

@@ -38,6 +38,9 @@ actual class Window actual constructor() {
     private val canvas = kotlin.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
     private val context = canvas.getContext("gpupresent")
     private var canvasHackRan = false
+    actual var windowSize: WindowSize = WindowSize(canvas.width, canvas.height)
+        private set
+    actual var onResize: (size: WindowSize) -> Unit = {}
 
     actual fun setTitle(title: String) {
         jsDocument.title = title
@@ -48,11 +51,10 @@ actual class Window actual constructor() {
     }
 
     actual fun update() {
-
-    }
-
-    actual fun getWindowSize(): WindowSize {
-        return WindowSize(canvas.width, canvas.height)
+        if(canvas.width != windowSize.width || canvas.height != windowSize.height){
+            windowSize = WindowSize(canvas.width, canvas.height)
+            onResize(windowSize)
+        }
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {

@@ -74,48 +74,48 @@ tasks {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-triangle")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle")
     }
 
     register("runCubeExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-cube")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-cube")
     }
 
     register("runTextureExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-texture")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-texture")
     }
 
     register("runEarthExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-earth")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-earth")
     }
 
     register("runComputeExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-compute")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-compute")
     }
 
     register("runMsaaExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-msaa")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-msaa")
     }
 
     register("runCompareExample", Exec::class){
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat.jar", "-computeCompare")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-computeCompare")
     }
 }

@@ -36,8 +36,8 @@ private object TextureShaderSource {
 
 suspend fun runTextureExample(window: Window) {
     fun createTransformationMatrix(): Matrix4f {
-        val width = window.getWindowSize().width  / 2f
-        val height = window.getWindowSize().height / 2f
+        val width = window.windowSize.width  / 2f
+        val height = window.windowSize.height / 2f
 
         return Matrix4f().ortho(-width, width, -height, height, 10f, -10f)
     }
@@ -130,12 +130,11 @@ suspend fun runTextureExample(window: Window) {
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
+    window.onResize = { size -> 
+        swapChain = window.configureSwapChain(swapChainDescriptor)
+    }
 
     Kgpu.runLoop(window) {
-        if (swapChain.isOutOfDate()) {
-            swapChain = window.configureSwapChain(swapChainDescriptor)
-        }
-
         val swapChainTexture = swapChain.getCurrentTextureView();
         cmdEncoder = device.createCommandEncoder();
 

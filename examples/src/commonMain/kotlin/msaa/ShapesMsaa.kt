@@ -23,18 +23,17 @@ suspend fun runMsaaTriangle(window: Window) {
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
-    var texture = createAttachmentTexture(device, window.getWindowSize())
+    var texture = createAttachmentTexture(device, window.windowSize)
     var textureView = texture.createView()
+    window.onResize = { size : WindowSize ->
+        texture.destroy()
+        textureView.destroy()
+        texture = createAttachmentTexture(device, size)
+        textureView = texture.createView()
+        swapChain = window.configureSwapChain(swapChainDescriptor)
+    }
 
     Kgpu.runLoop(window) {
-        if (swapChain.isOutOfDate()) {
-            texture.destroy()
-            textureView.destroy()
-            texture = createAttachmentTexture(device, window.getWindowSize())
-            textureView = texture.createView()
-            swapChain = window.configureSwapChain(swapChainDescriptor)
-        }
-
         val swapChainTexture = swapChain.getCurrentTextureView();
         val cmdEncoder = device.createCommandEncoder();
 

@@ -12,6 +12,7 @@ import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWNativeWin32
 import org.lwjgl.glfw.GLFWNativeX11
+import org.lwjgl.glfw.GLFWWindowSizeCallbackI
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.awt.Dimension
@@ -66,6 +67,9 @@ actual object Kgpu {
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
     internal val surface: Long
+    actual var windowSize: WindowSize = WindowSize(0, 0)
+        private set
+    actual var onResize: (size: WindowSize) -> Unit = {}
 
     init {
         val osHandle = getOsWindowHandle(handle)
@@ -79,13 +83,17 @@ actual class Window actual constructor() {
                     "https://github.com/DevOrc/wgpu-java/issues/4")
             0
         }
-    }
 
-    init {
         if (handle == MemoryUtil.NULL)
             throw java.lang.RuntimeException("Failed to create the window!")
 
+        windowSize = GlfwHandler.getWindowDimension(handle) 
         GlfwHandler.centerWindow(handle)
+
+        GLFW.glfwSetWindowSizeCallback(handle, GLFWWindowSizeCallbackI { window, width, height ->
+            windowSize = WindowSize(width, height)
+            onResize(windowSize)
+        })
     }
 
     actual fun setTitle(title: String) {
@@ -100,20 +108,13 @@ actual class Window actual constructor() {
         GLFW.glfwPollEvents();
     }
 
-    actual fun getWindowSize(): WindowSize {
-        val dimension = GlfwHandler.getWindowDimension(handle)
-
-        return WindowSize(dimension.width, dimension.height)
-    }
-
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        val size = getWindowSize()
         val nativeDesc = WgpuSwapChainDescriptor.createDirect();
         nativeDesc.format = desc.format
         nativeDesc.usage = desc.usage
         nativeDesc.presentMode = WgpuPresentMode.FIFO
-        nativeDesc.width = size.width.toLong()
-        nativeDesc.height = size.height.toLong()
+        nativeDesc.width = windowSize.width.toLong()
+        nativeDesc.height = windowSize.height.toLong()
 
         val id = WgpuJava.wgpuNative.wgpu_device_create_swap_chain(desc.device.id, surface, nativeDesc.pointerTo)
 
@@ -141,18 +142,18 @@ private object GlfwHandler {
         // Center the window
         GLFW.glfwSetWindowPos(
             handle,
-            ((vidmode!!.width() - currentDimension.getWidth()) / 2).toInt(),
-            ((vidmode.height() - currentDimension.getHeight()) / 2).toInt()
+            ((vidmode!!.width() - currentDimension.width) / 2).toInt(),
+            ((vidmode.height() - currentDimension.height) / 2).toInt()
         )
     }
 
-    fun getWindowDimension(handle: Long): Dimension {
+    fun getWindowDimension(handle: Long): WindowSize {
         MemoryStack.stackPush().use { stack ->
             val width = stack.mallocInt(1)
             val height = stack.mallocInt(1)
             GLFW.glfwGetWindowSize(handle, width, height)
 
-            return Dimension(width.get(), height.get())
+            return WindowSize(width.get(), height.get())
         }
     }
 
@@ -758,7 +759,7 @@ actual class SwapChainDescriptor actual constructor(
 
 actual class SwapChain(val id: Long, private val window: Window) {
 
-    private val size = window.getWindowSize()
+    private val size = window.windowSize
 
     override fun toString(): String {
         return "SwapChain${Id.fromLong(id)}"
@@ -776,7 +777,7 @@ actual class SwapChain(val id: Long, private val window: Window) {
     }
 
     actual fun isOutOfDate(): Boolean {
-        return window.getWindowSize() != size
+        return window.windowSize != size
     }
 }
 
