@@ -30,6 +30,7 @@ fun main(){
                 hideCanvas()
                 runComputeCompareExample()
             }
+            "7" -> runWindowEventExample(kgpuWindow)
             else -> runTriangleExample(kgpuWindow)
         }
     }

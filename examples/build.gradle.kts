@@ -118,4 +118,11 @@ tasks {
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-computeCompare")
     }
+
+    register("runWindowExample", Exec::class){
+        dependsOn("jvmFatJar")
+
+        workingDir("$projectDir")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-window")
+    }
 }

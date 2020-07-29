@@ -21,6 +21,7 @@ fun main(args: Array<String>) {
             "-texture" -> runTextureExample(createWindow())
             "-earth" -> runEarthExample(createWindow())
             "-msaa" -> runMsaaTriangle(createWindow())
+            "-window" -> runWindowEventExample(createWindow())
             "-compute" -> {
                 Kgpu.init(false)
                 runComputeExample()

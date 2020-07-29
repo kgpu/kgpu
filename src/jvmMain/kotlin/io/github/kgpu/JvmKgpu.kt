@@ -4,20 +4,11 @@ import io.github.kgpu.wgpuj.WgpuJava
 import io.github.kgpu.wgpuj.jni.*
 import io.github.kgpu.wgpuj.util.Platform
 import io.github.kgpu.wgpuj.util.SharedLibraryLoader
-import io.github.kgpu.GlfwHandler.getOsWindowHandle
 import jnr.ffi.Pointer
 import kotlinx.coroutines.runBlocking
 import org.lwjgl.Version
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFWErrorCallback
-import org.lwjgl.glfw.GLFWNativeWin32
-import org.lwjgl.glfw.GLFWNativeX11
-import org.lwjgl.glfw.GLFWWindowSizeCallbackI
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.MemoryUtil
-import java.awt.Dimension
 import java.util.concurrent.atomic.AtomicLong
-
 
 actual object Kgpu {
     actual val backendName: String = "Desktop"
@@ -61,121 +52,6 @@ actual object Kgpu {
         )
 
         return Adapter(adapter.get())
-    }
-}
-
-actual class Window actual constructor() {
-    private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
-    internal val surface: Long
-    actual var windowSize: WindowSize = WindowSize(0, 0)
-        private set
-    actual var onResize: (size: WindowSize) -> Unit = {}
-
-    init {
-        val osHandle = getOsWindowHandle(handle)
-        surface = if (Platform.isWindows) {
-            WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(WgpuJava.createNullPointer(), osHandle)
-        } else if (Platform.isLinux) {
-            val display = GLFWNativeX11.glfwGetX11Display()
-            WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-        } else {
-            println("[WARNING] Platform not tested. See " +
-                    "https://github.com/DevOrc/wgpu-java/issues/4")
-            0
-        }
-
-        if (handle == MemoryUtil.NULL)
-            throw java.lang.RuntimeException("Failed to create the window!")
-
-        windowSize = GlfwHandler.getWindowDimension(handle) 
-        GlfwHandler.centerWindow(handle)
-
-        GLFW.glfwSetWindowSizeCallback(handle, GLFWWindowSizeCallbackI { window, width, height ->
-            windowSize = WindowSize(width, height)
-            onResize(windowSize)
-        })
-    }
-
-    actual fun setTitle(title: String) {
-        GLFW.glfwSetWindowTitle(handle, title)
-    }
-
-    actual fun isCloseRequested(): Boolean {
-        return GLFW.glfwWindowShouldClose(handle)
-    }
-
-    actual fun update() {
-        GLFW.glfwPollEvents();
-    }
-
-    actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        val nativeDesc = WgpuSwapChainDescriptor.createDirect();
-        nativeDesc.format = desc.format
-        nativeDesc.usage = desc.usage
-        nativeDesc.presentMode = WgpuPresentMode.FIFO
-        nativeDesc.width = windowSize.width.toLong()
-        nativeDesc.height = windowSize.height.toLong()
-
-        val id = WgpuJava.wgpuNative.wgpu_device_create_swap_chain(desc.device.id, surface, nativeDesc.pointerTo)
-
-        return SwapChain(id, this)
-    }
-}
-
-private object GlfwHandler {
-
-    fun glfwInit() {
-        GLFWErrorCallback.createPrint(System.err).set()
-
-        if (!GLFW.glfwInit()) {
-            throw RuntimeException("Failed to initialize GLFW!")
-        }
-
-        //Do not use opengl
-        GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API)
-    }
-
-    fun centerWindow(handle: Long) {
-        val currentDimension = getWindowDimension(handle);
-        val vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor())
-
-        // Center the window
-        GLFW.glfwSetWindowPos(
-            handle,
-            ((vidmode!!.width() - currentDimension.width) / 2).toInt(),
-            ((vidmode.height() - currentDimension.height) / 2).toInt()
-        )
-    }
-
-    fun getWindowDimension(handle: Long): WindowSize {
-        MemoryStack.stackPush().use { stack ->
-            val width = stack.mallocInt(1)
-            val height = stack.mallocInt(1)
-            GLFW.glfwGetWindowSize(handle, width, height)
-
-            return WindowSize(width.get(), height.get())
-        }
-    }
-
-    fun terminate() {
-        GLFW.glfwTerminate()
-
-        val callback = GLFW.glfwSetErrorCallback(null)
-        callback?.free()
-    }
-
-    fun getOsWindowHandle(handle: Long): Long {
-        return when {
-            Platform.isWindows -> {
-                GLFWNativeWin32.glfwGetWin32Window(handle)
-            }
-            Platform.isLinux -> {
-                GLFWNativeX11.glfwGetX11Window(handle)
-            }
-            else -> {
-                0
-            }
-        }
     }
 }
 
