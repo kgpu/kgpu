@@ -10,11 +10,18 @@ fun runWindowEventExample(window: Window){
             Key.DOWN_ARROW -> window.resize(size.width, size.height + 5)
             Key.UP_ARROW -> window.resize(size.width, size.height - 5)
         }
-
     }
 
     window.onKeyUp = {event: KeyEvent -> 
         println("Key Released: $event")
+    }
+
+    window.onMouseClick = { event: ClickEvent -> 
+        println("Mouse Click: $event")
+    }
+
+    window.onMouseRelease = { event: ClickEvent -> 
+        println("Mouse Release: $event")
     }
 
     Kgpu.runLoop(window) {

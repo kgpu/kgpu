@@ -6,6 +6,7 @@ import org.lwjgl.glfw.GLFWNativeWin32
 import org.lwjgl.glfw.GLFWNativeX11
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI
 import org.lwjgl.glfw.GLFWKeyCallbackI
+import org.lwjgl.glfw.GLFWMouseButtonCallbackI
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import io.github.kgpu.wgpuj.WgpuJava
@@ -20,6 +21,8 @@ actual class Window actual constructor() {
     actual var onResize: (size: WindowSize) -> Unit = {}
     actual var onKeyDown: (key: KeyEvent) -> Unit = {}
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
+    actual var onMouseClick: (event: ClickEvent) -> Unit = {}
+    actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
 
     init {
         val osHandle = GlfwHandler.getOsWindowHandle(handle)
@@ -55,6 +58,28 @@ actual class Window actual constructor() {
             when(action) {
                 GLFW.GLFW_PRESS, GLFW.GLFW_REPEAT -> onKeyDown(event)
                 GLFW.GLFW_RELEASE -> onKeyUp(event)
+            }
+        })
+
+        GLFW.glfwSetMouseButtonCallback(handle, GLFWMouseButtonCallbackI { window, button, action, mod ->  
+            val shift = (mod and 1) != 0
+            val ctrl = (mod and 2) != 0
+            val alt = (mod and 4) != 0
+
+            val event = ClickEvent(
+                when(button){
+                    0 -> MouseButton.LEFT
+                    1 -> MouseButton.RIGHT
+                    2 -> MouseButton.MIDDLE
+                    else -> MouseButton.UNKNOWN
+                }, 
+                shift, 
+                ctrl, 
+                alt
+            )
+            when(action){
+                GLFW.GLFW_PRESS -> onMouseClick(event)
+                GLFW.GLFW_RELEASE -> onMouseRelease(event)
             }
         })
     }

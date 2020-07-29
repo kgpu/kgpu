@@ -3,6 +3,7 @@ package io.github.kgpu
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.KeyboardEvent
+import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document as jsDocument
 import kotlin.browser.window as jsWindow
 
@@ -16,6 +17,8 @@ actual class Window actual constructor() {
     actual var onResize: (size: WindowSize) -> Unit = {}
     actual var onKeyDown: (event: KeyEvent) -> Unit = {}
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
+    actual var onMouseClick: (event: ClickEvent) -> Unit = {}
+    actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
 
     init {
         jsWindow.addEventListener("keydown", EventListener { event ->
@@ -28,6 +31,18 @@ actual class Window actual constructor() {
             val keyEvent = event as KeyboardEvent
 
             onKeyUp(toKeyEvent(keyEvent))
+        })
+
+        jsWindow.addEventListener("mousedown", EventListener { event ->
+            val mouseEvent = event as MouseEvent
+
+            onMouseClick(toClickEvent(mouseEvent))
+        })
+
+        jsWindow.addEventListener("mouseup", EventListener { event ->
+            val mouseEvent = event as MouseEvent
+
+            onMouseRelease(toClickEvent(mouseEvent))
         })
     }
 
@@ -61,6 +76,20 @@ actual class Window actual constructor() {
 
         update();
     }
+}
+
+private fun toClickEvent(event: MouseEvent) : ClickEvent{
+    return ClickEvent(
+        when(event.button.toInt()){
+            0 -> MouseButton.LEFT
+            1 -> MouseButton.MIDDLE
+            2 -> MouseButton.RIGHT
+            else -> MouseButton.UNKNOWN
+        }, 
+        event.shiftKey, 
+        event.ctrlKey, 
+        event.altKey
+    )
 }
 
 private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {

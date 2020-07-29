@@ -7,8 +7,10 @@ package io.github.kgpu
 expect class Window() {
     var windowSize: WindowSize
     var onResize: (size: WindowSize) -> Unit
-    var onKeyDown: (key: KeyEvent) -> Unit
-    var onKeyUp: (key: KeyEvent) -> Unit
+    var onKeyDown: (event: KeyEvent) -> Unit
+    var onKeyUp: (event: KeyEvent) -> Unit
+    var onMouseClick: (event: ClickEvent) -> Unit
+    var onMouseRelease: (event: ClickEvent) -> Unit
 
     fun setTitle(title: String)
 
@@ -42,6 +44,12 @@ data class KeyEvent(val key: Key, val shift: Boolean, val ctrl: Boolean, val alt
     override fun toString(): String {
         return "KeyEvent(key = $key, shift = $shift, ctrl = $ctrl, alt = $alt)"
     }
+}
+
+data class ClickEvent(val mouse: MouseButton, val shift: Boolean, val ctrl: Boolean, val alt: Boolean)
+
+enum class MouseButton {
+    LEFT, MIDDLE, RIGHT, UNKNOWN
 }
 
 enum class Key {
