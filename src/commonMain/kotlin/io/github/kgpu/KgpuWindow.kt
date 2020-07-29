@@ -25,6 +25,11 @@ expect class Window() {
     fun update()
 
     fun configureSwapChain(desc: SwapChainDescriptor): SwapChain
+
+    /**
+     * Sets the size and updates the window
+     */
+    fun resize(width: Int, height: Int)
 }
 
 data class WindowSize(val width: Int, val height: Int) {
@@ -66,5 +71,9 @@ enum class Key {
     X,
     Y,
     Z,
+    LEFT_ARROW,
+    UP_ARROW,
+    RIGHT_ARROW,
+    DOWN_ARROW,
     UNKNOWN
 }

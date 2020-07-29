@@ -54,10 +54,21 @@ actual class Window actual constructor() {
 
         return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
     }
+
+    actual fun resize(width: Int, height: Int){
+        canvas.width = width;
+        canvas.height = height;
+
+        update();
+    }
 }
 
 private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {
     val key = when(event.keyCode){
+        37 -> Key.LEFT_ARROW
+        38 -> Key.UP_ARROW
+        39 -> Key.RIGHT_ARROW
+        40 -> Key.DOWN_ARROW
         65 -> Key.A
         66 -> Key.B
         67 -> Key.C

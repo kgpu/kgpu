@@ -83,6 +83,12 @@ actual class Window actual constructor() {
 
         return SwapChain(id, this)
     }
+
+    actual fun resize(width: Int, height: Int){
+        GLFW.glfwSetWindowSize(handle, width, height)
+
+        update()
+    }
 }
 
 internal object GlfwHandler {
@@ -169,7 +175,11 @@ private fun glfwKeyToKgpuKey(glfwKey: Int) : Key {
         GLFW.GLFW_KEY_W -> Key.W 
         GLFW.GLFW_KEY_X -> Key.X 
         GLFW.GLFW_KEY_Y -> Key.Y 
-        GLFW.GLFW_KEY_Z -> Key.Z 
+        GLFW.GLFW_KEY_Z -> Key.Z
+        GLFW.GLFW_KEY_LEFT -> Key.LEFT_ARROW
+        GLFW.GLFW_KEY_RIGHT -> Key.RIGHT_ARROW
+        GLFW.GLFW_KEY_UP -> Key.UP_ARROW 
+        GLFW.GLFW_KEY_DOWN -> Key.DOWN_ARROW
         else -> Key.UNKNOWN
     }
 }

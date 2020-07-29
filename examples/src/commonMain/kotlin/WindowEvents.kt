@@ -1,12 +1,20 @@
 import io.github.kgpu.*;
 
 fun runWindowEventExample(window: Window){
-    window.onKeyDown = { key: KeyEvent ->
-        println("Key Down: $key")
+    window.onKeyDown = { event: KeyEvent ->
+        val size = window.windowSize
+
+        when(event.key){
+            Key.LEFT_ARROW -> window.resize(size.width - 5, size.height)
+            Key.RIGHT_ARROW -> window.resize(size.width + 5, size.height)
+            Key.DOWN_ARROW -> window.resize(size.width, size.height + 5)
+            Key.UP_ARROW -> window.resize(size.width, size.height - 5)
+        }
+
     }
 
-    window.onKeyUp = {key: KeyEvent -> 
-        println("Key Up: $key")
+    window.onKeyUp = {event: KeyEvent -> 
+        println("Key Released: $event")
     }
 
     Kgpu.runLoop(window) {
