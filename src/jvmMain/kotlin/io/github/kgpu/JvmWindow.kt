@@ -212,6 +212,47 @@ private fun glfwKeyToKgpuKey(glfwKey: Int) : Key {
         GLFW.GLFW_KEY_RIGHT -> Key.RIGHT_ARROW
         GLFW.GLFW_KEY_UP -> Key.UP_ARROW 
         GLFW.GLFW_KEY_DOWN -> Key.DOWN_ARROW
+        GLFW.GLFW_KEY_0 -> Key.DIGIT_0
+        GLFW.GLFW_KEY_1 -> Key.DIGIT_1
+        GLFW.GLFW_KEY_2 -> Key.DIGIT_2
+        GLFW.GLFW_KEY_3 -> Key.DIGIT_3
+        GLFW.GLFW_KEY_4 -> Key.DIGIT_4
+        GLFW.GLFW_KEY_5 -> Key.DIGIT_5
+        GLFW.GLFW_KEY_6 -> Key.DIGIT_6
+        GLFW.GLFW_KEY_7 -> Key.DIGIT_7
+        GLFW.GLFW_KEY_8 -> Key.DIGIT_8
+        GLFW.GLFW_KEY_9 -> Key.DIGIT_9
+        GLFW.GLFW_KEY_TAB -> Key.TAB
+        GLFW.GLFW_KEY_LEFT_SHIFT -> Key.SHIFT
+        GLFW.GLFW_KEY_LEFT_CONTROL -> Key.CTRL
+        GLFW.GLFW_KEY_LEFT_ALT -> Key.ALT
+        GLFW.GLFW_KEY_ESCAPE -> Key.ESCAPE
+        GLFW.GLFW_KEY_F1 -> Key.F1
+        GLFW.GLFW_KEY_F2 -> Key.F2
+        GLFW.GLFW_KEY_F3 -> Key.F3
+        GLFW.GLFW_KEY_F4 -> Key.F4
+        GLFW.GLFW_KEY_F5 -> Key.F5
+        GLFW.GLFW_KEY_F6 -> Key.F6
+        GLFW.GLFW_KEY_F7 -> Key.F7
+        GLFW.GLFW_KEY_F8 -> Key.F8
+        GLFW.GLFW_KEY_F9 -> Key.F9
+        GLFW.GLFW_KEY_F10 -> Key.F10
+        GLFW.GLFW_KEY_F11 -> Key.F11
+        GLFW.GLFW_KEY_F12 -> Key.F12
+        GLFW.GLFW_KEY_MINUS -> Key.MINUS
+        GLFW.GLFW_KEY_EQUAL -> Key.EQUAL
+        GLFW.GLFW_KEY_LEFT_BRACKET -> Key.LEFT_BRACKET
+        GLFW.GLFW_KEY_RIGHT_BRACKET -> Key.RIGHT_BRACKET
+        GLFW.GLFW_KEY_BACKSLASH -> Key.BACKSLASH
+        GLFW.GLFW_KEY_SEMICOLON -> Key.SEMICOLON
+        GLFW.GLFW_KEY_APOSTROPHE -> Key.APOSTROPHE
+        GLFW.GLFW_KEY_COMMA -> Key.COMMA
+        GLFW.GLFW_KEY_PERIOD -> Key.PERIOD
+        GLFW.GLFW_KEY_SLASH -> Key.SLASH
+        GLFW.GLFW_KEY_ENTER -> Key.ENTER
+        GLFW.GLFW_KEY_BACKSPACE -> Key.BACKSPACE
+        GLFW.GLFW_KEY_GRAVE_ACCENT -> Key.ACCENT_GRAVE
+        GLFW.GLFW_KEY_CAPS_LOCK -> Key.CAPS_LOCK
         else -> Key.UNKNOWN
     }
 }

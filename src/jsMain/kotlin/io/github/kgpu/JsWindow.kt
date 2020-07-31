@@ -121,10 +121,28 @@ private fun toClickEvent(event: MouseEvent) : ClickEvent{
 
 private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {
     val key = when(event.keyCode){
+        8 -> Key.BACKSPACE
+        9 -> Key.TAB
+        13 -> Key.ENTER
+        16 -> Key.SHIFT
+        17 -> Key.CTRL
+        18 -> Key.ALT
+        20 -> Key.CAPS_LOCK
+        27 -> Key.ESCAPE
         37 -> Key.LEFT_ARROW
         38 -> Key.UP_ARROW
         39 -> Key.RIGHT_ARROW
         40 -> Key.DOWN_ARROW
+        48 -> Key.DIGIT_0
+        49 -> Key.DIGIT_1
+        50 -> Key.DIGIT_2
+        51 -> Key.DIGIT_3
+        52 -> Key.DIGIT_4
+        53 -> Key.DIGIT_5
+        54 -> Key.DIGIT_6
+        55 -> Key.DIGIT_7
+        56 -> Key.DIGIT_8
+        57 -> Key.DIGIT_9
         65 -> Key.A
         66 -> Key.B
         67 -> Key.C
@@ -150,7 +168,30 @@ private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {
         87 -> Key.W 
         88 -> Key.X 
         89 -> Key.Y 
-        90 -> Key.Z 
+        90 -> Key.Z
+        112 -> Key.F1
+        113 -> Key.F2
+        114 -> Key.F3
+        115 -> Key.F4
+        116 -> Key.F5
+        117 -> Key.F6
+        118 -> Key.F7
+        119 -> Key.F8
+        120 -> Key.F9
+        121 -> Key.F10
+        122 -> Key.F11
+        123 -> Key.F12
+        186 -> Key.SEMICOLON
+        187 -> Key.EQUAL
+        188 -> Key.COMMA
+        189 -> Key.MINUS
+        190 -> Key.PERIOD
+        191 -> Key.SLASH
+        192 -> Key.ACCENT_GRAVE
+        219 -> Key.LEFT_BRACKET
+        220 -> Key.BACKSLASH
+        221 -> Key.RIGHT_BRACKET
+        222 -> Key.APOSTROPHE
         else -> Key.UNKNOWN
     }
 
