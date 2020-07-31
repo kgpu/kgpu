@@ -7,6 +7,7 @@ import org.lwjgl.glfw.GLFWNativeX11
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI
 import org.lwjgl.glfw.GLFWKeyCallbackI
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI
+import org.lwjgl.glfw.GLFWCursorPosCallbackI
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import io.github.kgpu.wgpuj.WgpuJava
@@ -23,6 +24,8 @@ actual class Window actual constructor() {
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
+    actual var mousePos: Point = Point(0, 0)
+        private set
 
     init {
         val osHandle = GlfwHandler.getOsWindowHandle(handle)
@@ -81,6 +84,10 @@ actual class Window actual constructor() {
                 GLFW.GLFW_PRESS -> onMouseClick(event)
                 GLFW.GLFW_RELEASE -> onMouseRelease(event)
             }
+        })
+
+        GLFW.glfwSetCursorPosCallback(handle, GLFWCursorPosCallbackI { window, x, y ->
+            mousePos = Point(x.toInt(), y.toInt())
         })
     }
 

@@ -2,6 +2,8 @@ package io.github.kgpu
 
 import kotlin.math.PI
 
+data class Point(val x: Int, val y: Int)
+
 object MathUtils{
 
     val UNIT_X = Vec3f(1f, 0f, 0f)

@@ -17,7 +17,7 @@ fun runWindowEventExample(window: Window){
     }
 
     window.onMouseClick = { event: ClickEvent -> 
-        println("Mouse Click: $event")
+        println("Mouse Click(${event.button}): ${window.mousePos}")
     }
 
     window.onMouseRelease = { event: ClickEvent -> 

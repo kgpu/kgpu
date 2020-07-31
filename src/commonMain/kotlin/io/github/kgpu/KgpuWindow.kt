@@ -11,6 +11,7 @@ expect class Window() {
     var onKeyUp: (event: KeyEvent) -> Unit
     var onMouseClick: (event: ClickEvent) -> Unit
     var onMouseRelease: (event: ClickEvent) -> Unit
+    var mousePos: Point
 
     fun setTitle(title: String)
 
@@ -46,7 +47,7 @@ data class KeyEvent(val key: Key, val shift: Boolean, val ctrl: Boolean, val alt
     }
 }
 
-data class ClickEvent(val mouse: MouseButton, val shift: Boolean, val ctrl: Boolean, val alt: Boolean)
+data class ClickEvent(val button: MouseButton, val shift: Boolean, val ctrl: Boolean, val alt: Boolean)
 
 enum class MouseButton {
     LEFT, MIDDLE, RIGHT, UNKNOWN

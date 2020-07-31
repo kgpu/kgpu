@@ -19,6 +19,8 @@ actual class Window actual constructor() {
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
+    actual var mousePos: Point = Point(0, 0)
+        private set
 
     init {
         jsWindow.addEventListener("keydown", EventListener { event ->
@@ -36,14 +38,30 @@ actual class Window actual constructor() {
         jsWindow.addEventListener("mousedown", EventListener { event ->
             val mouseEvent = event as MouseEvent
 
-            onMouseClick(toClickEvent(mouseEvent))
+            if(isEventOnCanvas(mouseEvent)) {
+                onMouseClick(toClickEvent(mouseEvent))
+            }
         })
 
         jsWindow.addEventListener("mouseup", EventListener { event ->
             val mouseEvent = event as MouseEvent
 
-            onMouseRelease(toClickEvent(mouseEvent))
+            if(isEventOnCanvas(mouseEvent)) {
+                onMouseRelease(toClickEvent(mouseEvent))
+            }
         })
+
+        canvas.onmousemove = { event: MouseEvent ->
+            val rect = canvas.getBoundingClientRect()
+
+            if(isEventOnCanvas(event)){
+                mousePos = Point(
+                    (event.clientX - rect.left).toInt(),
+                    (event.clientY - rect.top).toInt())
+            }
+
+            asDynamic() // On mouse move requires we return a dynamic
+        }
     }
 
     actual fun setTitle(title: String) {
@@ -76,8 +94,17 @@ actual class Window actual constructor() {
 
         update();
     }
-}
 
+    private fun isEventOnCanvas(event: MouseEvent) : Boolean {
+        val rect = canvas.getBoundingClientRect()
+        val x = event.pageX
+        val y = event.pageY
+
+        //Do not trigger if clicked on padding/border
+        return rect.left < x && rect.right > x && rect.top < y && rect.bottom > y
+    }
+
+}
 private fun toClickEvent(event: MouseEvent) : ClickEvent{
     return ClickEvent(
         when(event.button.toInt()){
