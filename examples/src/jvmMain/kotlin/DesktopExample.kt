@@ -3,6 +3,7 @@ import compute.runComputeCompareExample
 import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.runBlocking
+import model.runObjModelExample
 import msaa.*
 
 fun main(args: Array<String>) {
@@ -22,6 +23,7 @@ fun main(args: Array<String>) {
             "-earth" -> runEarthExample(createWindow())
             "-msaa" -> runMsaaTriangle(createWindow())
             "-window" -> runWindowEventExample(createWindow())
+            "-model" -> runObjModelExample(createWindow())
             "-compute" -> {
                 Kgpu.init(false)
                 runComputeExample()

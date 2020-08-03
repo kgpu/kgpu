@@ -110,4 +110,8 @@ actual class Vec3f actual constructor(x: Float, y: Float, z: Float) {
         return this
     }
 
+    override fun toString(): String {
+        return "Vec3f($x, $y, $z)"
+    }
+
 }
