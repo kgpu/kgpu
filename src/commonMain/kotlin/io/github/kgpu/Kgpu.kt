@@ -283,6 +283,7 @@ expect class Buffer : IntoBindingResource {
      */
     fun getMappedData(start: Long = 0, size: Long = this.size): BufferData
 
+    @Deprecated("Eventually will be replaced with mapAsync() and getMappedData() but waiting on Wgpu-native!")
     suspend fun mapReadAsync(device: Device) : BufferData
 
     fun unmap()

@@ -3,10 +3,7 @@ package io.github.kgpu
 import io.github.kgpu.internal.ArrayBufferUtils
 import io.github.kgpu.internal.GlslangLibrary
 import kotlinx.coroutines.await
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
-import org.khronos.webgl.Uint32Array
-import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.*
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Promise
 import kotlin.browser.document as jsDocument
@@ -129,10 +126,12 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
-        val values = jsType.createBufferMapped(desc)
-        val buffer = values[0] as GPUBuffer
-        val mapping = Int8Array(values[1] as ArrayBuffer)
-        mapping.set(data.toTypedArray(), 0)
+        if(!desc.mappedAtCreation){
+            throw IllegalArgumentException("Buffer descriptor must be mapped at creation!")
+        }
+
+        val buffer = jsType.createBuffer(desc)
+        Uint8Array(buffer.getMappedRange()).set(data.toTypedArray())
         buffer.unmap()
 
         return Buffer(buffer, desc.size)
@@ -171,9 +170,6 @@ external class GPUDevice {
     fun createBuffer(desc: BufferDescriptor): GPUBuffer
 
     fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): GPUBindGroupLayout
-
-    @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
-    fun createBufferMapped(desc: BufferDescriptor): Array<dynamic>
 
     fun createBindGroup(desc: BindGroupDescriptor): GPUBindGroup
 
@@ -628,7 +624,7 @@ actual class BufferDescriptor actual constructor(
 actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingResource {
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
-        TODO("Unsupported on the Web!")
+        return BufferData(Uint8Array(jsType.getMappedRange()))
     }
 
     actual fun unmap() {
@@ -649,18 +645,25 @@ actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingR
     }
 
     actual suspend fun mapReadAsync(device: Device): BufferData {
-        val data = jsType.mapReadAsync().await()
+        jsType.mapAsync(GPUMapMode.READ).await()
+        val data = jsType.getMappedRange()
 
         return BufferData(Uint8Array(data))
     }
+}
 
+external object GPUMapMode {
+    val READ: Long
+    val WRITE: Long
 }
 
 external class GPUBuffer {
 
-    fun mapReadAsync(): Promise<ArrayBuffer>
+    fun mapAsync(mode: Long): Promise<dynamic>
 
-    fun unmap();
+    fun getMappedRange() : ArrayBuffer
+
+    fun unmap()
 
     fun destroy()
 }

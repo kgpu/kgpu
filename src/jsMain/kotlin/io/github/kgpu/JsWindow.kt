@@ -83,6 +83,7 @@ actual class Window actual constructor() {
         if (!canvasHackRan) {
             canvas.width += 1 //Hack to get around chromium not showing canvas unless clicked/resized
             canvasHackRan = true
+            windowSize = WindowSize(canvas.width, canvas.height)
         }
 
         return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
