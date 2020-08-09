@@ -39,7 +39,7 @@ suspend fun runTextureExample(window: Window) {
         val width = window.windowSize.width  / 2f
         val height = window.windowSize.height / 2f
 
-        return Matrix4f().ortho(-width, width, -height, height, 10f, -10f)
+        return Matrix4f().ortho(-width, width, height, -height, 10f, -10f)
     }
 
     val vertices = floatArrayOf(

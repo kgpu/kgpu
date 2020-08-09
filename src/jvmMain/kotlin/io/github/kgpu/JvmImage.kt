@@ -20,7 +20,7 @@ actual class ImageData(
             val bytes = ByteArray(image.width * image.height * 4)
             for (x in 0 until image.width) {
                 for (y in 0 until image.height) {
-                    val argb = image.getRGB(x, image.height - y - 1)
+                    val argb = image.getRGB(x, y)
                     val index = (x + (y * image.width)) * 4
 
                     bytes[index + 0] = (argb and 0x00ff0000 ushr 16).toByte() //r

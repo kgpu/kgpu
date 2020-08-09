@@ -27,7 +27,6 @@ actual class ImageData(
 
             val context = canvas.getContext("2d") as CanvasRenderingContext2D
             context.translate(0.0, img.height.toDouble())
-            context.scale(1.0, -1.0)
             context.drawImage(img, 0.0, 0.0, img.width.toDouble(), img.height.toDouble())
             val pixels = context.getImageData(0.0, 0.0, img.width.toDouble(), img.height.toDouble())
 

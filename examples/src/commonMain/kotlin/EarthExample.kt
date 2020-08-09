@@ -258,7 +258,7 @@ private class Sphere(private val chunks: Int, private val slices: Int, val radiu
                 vertices[index + 1] = pos.y
                 vertices[index + 2] = pos.z
                 vertices[index + 3] = chunk.toFloat() / chunks
-                vertices[index + 4] = slice.toFloat() / slices
+                vertices[index + 4] = 1f - (slice.toFloat() / slices)
                 pos.normalize()
                 vertices[index + 5] = pos.x
                 vertices[index + 6] = pos.y
