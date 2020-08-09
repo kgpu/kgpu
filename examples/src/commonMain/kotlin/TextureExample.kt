@@ -138,7 +138,7 @@ suspend fun runTextureExample(window: Window) {
         val swapChainTexture = swapChain.getCurrentTextureView();
         cmdEncoder = device.createCommandEncoder();
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
+        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
@@ -172,8 +172,8 @@ private fun createRenderPipeline(
         arrayOf(
             ColorStateDescriptor(
                 TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(),
-                BlendDescriptor(),
+                BlendDescriptor(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA),
+                BlendDescriptor(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA),
                 0xF
             )
         ),

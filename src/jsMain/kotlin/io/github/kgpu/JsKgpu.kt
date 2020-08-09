@@ -18,7 +18,8 @@ actual object Kgpu {
     }
 
     actual fun runLoop(window: Window, func: () -> Unit) {
-        func();
+        window.update()
+        func()
 
         jsWindow.requestAnimationFrame {
             runLoop(window, func)
@@ -252,7 +253,7 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
-        jsType.setBindGroup(0, bindGroup.jsType)
+        jsType.setBindGroup(index, bindGroup.jsType)
     }
 }
 
@@ -769,80 +770,80 @@ actual class ComputePipelineDescriptor actual constructor(
     val computeStage: ProgrammableStageDescriptor
 )
 
-actual enum class TextureFormat(val jsType: String = "") {
-    R8_UNORM,
-    R8_SNORM,
-    R8_UINT,
-    R8_SINT,
-    R16_UINT,
-    R16_SINT,
-    R16_FLOAT,
-    RG8_UNORM,
-    RG8_SNORM,
-    RG8_UINT,
-    RG8_SINT,
-    R32_UINT,
-    R32_SINT,
-    R32_FLOAT,
-    RG16_UINT,
-    RG16_SINT,
-    RG16_FLOAT,
-    RGBA8_UNORM,
+actual enum class TextureFormat(val jsType: String) {
+    R8_UNORM("r8unorm"),
+    R8_SNORM("r8snorm"),
+    R8_UINT("r8uint"),
+    R8_SINT("r8sint"),
+    R16_UINT("r16uint"),
+    R16_SINT("r16sint"),
+    R16_FLOAT("r16float"),
+    RG8_UNORM("rg8unorm"),
+    RG8_SNORM("rg8snorm"),
+    RG8_UINT("rg8uint"),
+    RG8_SINT("rg8sint"),
+    R32_UINT("r32uint"),
+    R32_SINT("r32sint"),
+    R32_FLOAT("r32float"),
+    RG16_UINT("rg16uint"),
+    RG16_SINT("rg16sint"),
+    RG16_FLOAT("rg16float"),
+    RGBA8_UNORM("rgba8unorm"),
     RGBA8_UNORM_SRGB("rgba8unorm-srgb"),
-    RGBA8_SNORM,
-    RGBA8_UINT,
-    RGBA8_SINT,
+    RGBA8_SNORM("rgbasnorm"),
+    RGBA8_UINT("rgba8uint"),
+    RGBA8_SINT("rgba8sint"),
     BGRA8_UNORM("bgra8unorm"),
     BGRA8_UNORM_SRGB("bgra8unorm-srgb"),
-    RGB10A2_UNORM,
-    RG11B10_FLOAT,
-    RG32_UINT,
-    RG32_SINT,
-    RG32_FLOAT,
-    RGBA16_UINT,
-    RGBA16_SINT,
-    RGBA16_FLOAT,
-    RGBA32_UINT,
-    RGBA32_SINT,
-    RGBA32_FLOAT,
-    DEPTH32_FLOAT,
-    DEPTH24_PLUS,
-    DEPTH24_PLUS_STENCIL8,
+    RGB10A2_UNORM("rgb10a2unorm"),
+    RG11B10_FLOAT("rg11b10float"),
+    RG32_UINT("rg32uint"),
+    RG32_SINT("rg32sint"),
+    RG32_FLOAT("rg32float"),
+    RGBA16_UINT("rgba16uint"),
+    RGBA16_SINT("rgba16sint"),
+    RGBA16_FLOAT("rgba16float"),
+    RGBA32_UINT("rgba32uint"),
+    RGBA32_SINT("rgba32sint"),
+    RGBA32_FLOAT("rgba32float"),
+    DEPTH32_FLOAT("depth32float"),
+    DEPTH24_PLUS("depth24plus"),
+    DEPTH24_PLUS_STENCIL8("depth32plus-stencil8"),
 }
 
-actual enum class BlendOperation(val jsType: String = "") {
+actual enum class BlendOperation(val jsType: String) {
     ADD("add"),
-    SUBTRACT,
-    REVERSE_SUBTRACT,
-    MIN,
-    MAX,
+    SUBTRACT("subtract"),
+    REVERSE_SUBTRACT("reverse-subtract"),
+    MIN("min"),
+    MAX("max"),
 }
 
-actual enum class StencilOperation {
-    KEEP,
-    ZERO,
-    REPLACE,
-    INVERT,
-    INCREMENT_CLAMP,
-    DECREMENT_CLAMP,
-    INCREMENT_WRAP,
-    DECREMENT_WRAP,
+actual enum class StencilOperation(val jsType: String) {
+    KEEP("keep"),
+    ZERO("zero"),
+    REPLACE("replace"),
+    INVERT("invert"),
+    INCREMENT_CLAMP("increment-clamp"),
+    DECREMENT_CLAMP("decrement-clamp"),
+    INCREMENT_WRAP("increment-wrap"),
+    DECREMENT_WRAP("decrement-wrap"),
 }
 
-actual enum class BlendFactor(val jsType: String = "") {
+actual enum class BlendFactor(val jsType: String) {
     ZERO("zero"),
     ONE("one"),
-    SRC_COLOR,
-    ONE_MINUS_SRC_COLOR,
-    SRC_ALPHA,
-    ONE_MINUS_SRC_ALPHA,
-    DST_COLOR,
-    ONE_MINUS_DST_COLOR,
-    DST_ALPHA,
-    ONE_MINUS_DST_ALPHA,
-    SRC_ALPHA_SATURATED,
-    BLEND_COLOR,
-    ONE_MINUS_BLEND_COLOR,
+    SRC_COLOR("src-color"),
+    ONE_MINUS_SRC_COLOR("one-minus-src-color"),
+    SRC_ALPHA("src-alpha"),
+    ONE_MINUS_SRC_ALPHA("one-minus-src-alpha"),
+    DST_COLOR("dst-color"),
+    ONE_MINUS_DST_COLOR("one-minus-dst-color"),
+    DST_ALPHA("dst-alpha"),
+    ONE_MINUS_DST_ALPHA("one-minus-dst-alpha"),
+    SRC_ALPHA_SATURATED("src-alpha-saturated"),
+    BLEND_COLOR("blend-color"),
+    ONE_MINUS_BLEND_COLOR("one-minus-blend-color"),
 }
 
 actual enum class IndexFormat(val jsType: String) {
