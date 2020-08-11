@@ -87,7 +87,6 @@ suspend fun runComputeExample() {
 
     val times = ByteUtils.toIntArray(stagingBuffer.mapReadAsync(device).getBytes())
 
-    showComputeExampleResults("Expected = [1, 16, 20, 7]\nActual = [${times.joinToString()}]")
+    setExampleStatus("Expected", "1, 16, 20, 7")
+    setExampleStatus("Actual", times.joinToString())
 }
-
-expect fun showComputeExampleResults(output: String)

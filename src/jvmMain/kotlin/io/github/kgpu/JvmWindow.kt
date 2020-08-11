@@ -13,6 +13,7 @@ import org.lwjgl.system.MemoryUtil
 import io.github.kgpu.wgpuj.WgpuJava
 import io.github.kgpu.wgpuj.jni.*
 import io.github.kgpu.wgpuj.util.Platform
+import org.lwjgl.glfw.GLFWCharCallbackI
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
@@ -22,8 +23,10 @@ actual class Window actual constructor() {
     actual var onResize: (size: WindowSize) -> Unit = {}
     actual var onKeyDown: (key: KeyEvent) -> Unit = {}
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
+    actual var onKeyTyped: (c: Char) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
+    actual var onMouseMove: (pos: Point) -> Unit = {}
     actual var mousePos: Point = Point(0, 0)
         private set
 
@@ -46,12 +49,12 @@ actual class Window actual constructor() {
         windowSize = GlfwHandler.getWindowDimension(handle) 
         GlfwHandler.centerWindow(handle)
 
-        GLFW.glfwSetWindowSizeCallback(handle, GLFWWindowSizeCallbackI { window, width, height ->
+        GLFW.glfwSetWindowSizeCallback(handle) { _, width, height ->
             windowSize = WindowSize(width, height)
             onResize(windowSize)
-        })
+        }
 
-        GLFW.glfwSetKeyCallback(handle, GLFWKeyCallbackI { window, keyCode, scancode, action, mod ->
+        GLFW.glfwSetKeyCallback(handle) { _, keyCode, _, action, mod ->
             val kgpuKey = glfwKeyToKgpuKey(keyCode)
             val shift = (mod and 1) != 0
             val ctrl = (mod and 2) != 0
@@ -62,9 +65,9 @@ actual class Window actual constructor() {
                 GLFW.GLFW_PRESS, GLFW.GLFW_REPEAT -> onKeyDown(event)
                 GLFW.GLFW_RELEASE -> onKeyUp(event)
             }
-        })
+        }
 
-        GLFW.glfwSetMouseButtonCallback(handle, GLFWMouseButtonCallbackI { window, button, action, mod ->  
+        GLFW.glfwSetMouseButtonCallback(handle) { _, button, action, mod ->
             val shift = (mod and 1) != 0
             val ctrl = (mod and 2) != 0
             val alt = (mod and 4) != 0
@@ -75,20 +78,25 @@ actual class Window actual constructor() {
                     1 -> MouseButton.RIGHT
                     2 -> MouseButton.MIDDLE
                     else -> MouseButton.UNKNOWN
-                }, 
-                shift, 
-                ctrl, 
+                },
+                shift,
+                ctrl,
                 alt
             )
             when(action){
                 GLFW.GLFW_PRESS -> onMouseClick(event)
                 GLFW.GLFW_RELEASE -> onMouseRelease(event)
             }
-        })
+        }
 
-        GLFW.glfwSetCursorPosCallback(handle, GLFWCursorPosCallbackI { window, x, y ->
+        GLFW.glfwSetCharCallback(handle) { _, codepoint ->
+            onKeyTyped(codepoint.toChar())
+        }
+
+        GLFW.glfwSetCursorPosCallback(handle) { _, x, y ->
             mousePos = Point(x.toInt(), y.toInt())
-        })
+            onMouseMove(mousePos)
+        }
     }
 
     actual fun setTitle(title: String) {
@@ -253,6 +261,7 @@ private fun glfwKeyToKgpuKey(glfwKey: Int) : Key {
         GLFW.GLFW_KEY_BACKSPACE -> Key.BACKSPACE
         GLFW.GLFW_KEY_GRAVE_ACCENT -> Key.ACCENT_GRAVE
         GLFW.GLFW_KEY_CAPS_LOCK -> Key.CAPS_LOCK
+        GLFW.GLFW_KEY_SPACE -> Key.SPACE
         else -> Key.UNKNOWN
     }
 }

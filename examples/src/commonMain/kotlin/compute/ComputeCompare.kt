@@ -1,6 +1,9 @@
 package compute
 
+import flushExampleStatus
 import io.github.kgpu.*;
+import setExampleStatus
+import timeExecution
 import kotlin.random.Random;
 import kotlin.math.abs;
 
@@ -41,35 +44,31 @@ void main() {
 private data class ComputationResult(val time: Long, val result: FloatArray)
 
 suspend fun runComputeCompareExample(){
-    computeSetStatus("MatrixSize", "$MATRIX_SIZE")
-    computeSetStatus("Status", "Generating matrices")
+    setExampleStatus("MatrixSize", "$MATRIX_SIZE")
+    setExampleStatus("Status", "Generating matrices")
 
     val matrixA = generateMatrix(MATRIX_SIZE * MATRIX_SIZE)
     val matrixB = generateMatrix(MATRIX_SIZE * MATRIX_SIZE)
 
-    computeSetStatus("Status", "Starting CPU calculation")
+    setExampleStatus("Status", "Starting CPU calculation")
 
     val cpuResult = computeCPU(matrixA, matrixB)
 
-    computeSetStatus("CPU Time", "${cpuResult.time} ms")
-    computeSetStatus("Status", "Setting up GPU")
+    setExampleStatus("CPU Time", "${cpuResult.time} ms")
+    setExampleStatus("Status", "Setting up GPU")
 
     val gpuResult = computeGPU(matrixA, matrixB)
-    computeSetStatus("GPU Time", "${gpuResult.time} ms")
+    setExampleStatus("GPU Time", "${gpuResult.time} ms")
 
-    computeSetStatus("Status", "Checking correctness")
+    setExampleStatus("Status", "Checking correctness")
     compareResults(cpuResult.result, gpuResult.result)
 
-    computeSetStatus("Status", "Test Completed.")
+    setExampleStatus("Status", "Test Completed.")
 }
-
-suspend expect fun computeSetStatus(id: String, msg: String)
-
-suspend expect fun timeExecution(func: suspend () -> Unit)  : Long
 
 private suspend fun compareResults(cpuMatrix: FloatArray, gpuMatrix: FloatArray){
     if(cpuMatrix.size != gpuMatrix.size){
-        computeSetStatus("Result", "ERROR! Matrices don't have the same size!!!")
+        setExampleStatus("Result", "ERROR! Matrices don't have the same size!!!")
         return
     }
 
@@ -78,7 +77,7 @@ private suspend fun compareResults(cpuMatrix: FloatArray, gpuMatrix: FloatArray)
 
     println("CPU: ${cpuTotal}")
     println("GPU: ${gpuTotal}")
-    computeSetStatus("Result", "Matrix Difference = ${abs(cpuTotal - gpuTotal)}")
+    setExampleStatus("Result", "Matrix Difference = ${abs(cpuTotal - gpuTotal)}")
 }
 
 private suspend fun computeCPU(matrixA: FloatArray, matrixB: FloatArray) : ComputationResult{
@@ -100,12 +99,14 @@ private suspend fun computeCPU(matrixA: FloatArray, matrixB: FloatArray) : Compu
                 output[resultIndex] = sum
             }
 
-            if(resultX % 32 == 0)
-                computeSetStatus("Status", "Row $resultX / $MATRIX_SIZE")
+            if(resultX % 32 == 0){
+                setExampleStatus("Status", "Row $resultX / $MATRIX_SIZE")
+                flushExampleStatus()
+            }
         }
     }
     
-    computeSetStatus("Status", "Finished CPU Calculation")
+    setExampleStatus("Status", "Finished CPU Calculation")
 
     return ComputationResult(time, output)
 }
@@ -176,7 +177,8 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray) : Compu
         )
     )
 
-    computeSetStatus("Status", "Starting GPU calculation")
+    setExampleStatus("Status", "Starting GPU calculation")
+    flushExampleStatus()
     var times: FloatArray? = null
     val computationTime = timeExecution {
         cmdEncoder.copyBufferToBuffer(resultBuffer, readBuffer)
@@ -185,7 +187,7 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray) : Compu
         times = ByteUtils.toFloatArray(readBuffer.mapReadAsync(device).getBytes())
     }
 
-    computeSetStatus("Status", "Finished GPU Calculation")
+    setExampleStatus("Status", "Finished GPU Calculation")
     
     return ComputationResult(computationTime, times!!)
 }

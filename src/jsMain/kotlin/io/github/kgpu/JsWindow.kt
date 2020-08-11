@@ -17,15 +17,18 @@ actual class Window actual constructor() {
     actual var onResize: (size: WindowSize) -> Unit = {}
     actual var onKeyDown: (event: KeyEvent) -> Unit = {}
     actual var onKeyUp: (key: KeyEvent) -> Unit = {}
+    actual var onKeyTyped: (c: Char) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
+    actual var onMouseMove: (pos: Point) -> Unit = {}
     actual var mousePos: Point = Point(0, 0)
         private set
 
     init {
-        jsWindow.addEventListener("keydown", EventListener { event ->
+        jsWindow.addEventListener("keydown", { event ->
             val keyEvent = event as KeyboardEvent
 
+            onKeyTyped(event.key[0])
             onKeyDown(toKeyEvent(keyEvent))
         })
 
@@ -58,6 +61,8 @@ actual class Window actual constructor() {
                 mousePos = Point(
                     (event.clientX - rect.left).toInt(),
                     (event.clientY - rect.top).toInt())
+
+                onMouseMove(mousePos)
             }
 
             asDynamic() // On mouse move requires we return a dynamic
@@ -130,6 +135,7 @@ private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {
         18 -> Key.ALT
         20 -> Key.CAPS_LOCK
         27 -> Key.ESCAPE
+        32 -> Key.SPACE
         37 -> Key.LEFT_ARROW
         38 -> Key.UP_ARROW
         39 -> Key.RIGHT_ARROW

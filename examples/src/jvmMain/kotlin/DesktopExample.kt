@@ -46,6 +46,17 @@ private fun createWindow() : Window {
     return window
 }
 
-actual fun showComputeExampleResults(output: String) {
-    println(output)
+actual fun setExampleStatus(id: String, msg: String){
+    println("$id: $msg")
+}
+
+
+
+suspend actual fun timeExecution(func: suspend () -> Unit)  : Long{
+    return kotlin.system.measureTimeMillis {
+        func()
+    }
+}
+
+actual suspend fun flushExampleStatus() {
 }

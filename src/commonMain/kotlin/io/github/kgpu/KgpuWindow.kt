@@ -9,8 +9,10 @@ expect class Window() {
     var onResize: (size: WindowSize) -> Unit
     var onKeyDown: (event: KeyEvent) -> Unit
     var onKeyUp: (event: KeyEvent) -> Unit
+    var onKeyTyped: (c: Char) -> Unit
     var onMouseClick: (event: ClickEvent) -> Unit
     var onMouseRelease: (event: ClickEvent) -> Unit
+    var onMouseMove: (pos: Point) -> Unit
     var mousePos: Point
 
     fun setTitle(title: String)
@@ -125,5 +127,6 @@ enum class Key {
     BACKSPACE,
     ACCENT_GRAVE,
     CAPS_LOCK,
+    SPACE,
     UNKNOWN
 }

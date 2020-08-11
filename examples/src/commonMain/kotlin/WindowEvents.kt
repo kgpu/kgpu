@@ -1,27 +1,33 @@
 import io.github.kgpu.*;
 
 fun runWindowEventExample(window: Window){
+    setExampleStatus("Last Event", "None")
+    setExampleStatus("Mouse Pos", "(0, 0)")
+    setExampleStatus("Last Typed", "None")
+
     window.onKeyDown = { event: KeyEvent ->
-        val size = window.windowSize
-
-        when(event.key){
-            Key.LEFT_ARROW -> window.resize(size.width - 5, size.height)
-            Key.RIGHT_ARROW -> window.resize(size.width + 5, size.height)
-            Key.DOWN_ARROW -> window.resize(size.width, size.height + 5)
-            Key.UP_ARROW -> window.resize(size.width, size.height - 5)
-        }
+        setExampleStatus("Last Event", "Key Pressed ${event.key}")
     }
 
-    window.onKeyUp = {event: KeyEvent -> 
-        println("Key Released: $event")
+    window.onKeyUp = {event: KeyEvent ->
+        setExampleStatus("Last Event", "Key Released ${event.key}")
     }
 
-    window.onMouseClick = { event: ClickEvent -> 
-        println("Mouse Click(${event.button}): ${window.mousePos}")
+    window.onMouseClick = { event: ClickEvent ->
+        setExampleStatus("Last Event", "Mouse Click ${event.button}")
     }
 
-    window.onMouseRelease = { event: ClickEvent -> 
-        println("Mouse Release: $event")
+    window.onMouseRelease = { event: ClickEvent ->
+        setExampleStatus("Last Event", "Mouse Released ${event.button}")
+    }
+
+    window.onMouseMove = {pos: Point ->
+        setExampleStatus("Mouse Pos", "(${pos.x}, ${pos.y})")
+    }
+
+    window.onKeyTyped = {c: Char ->
+        println("type")
+        setExampleStatus("Last Typed", c.toString())
     }
 
     Kgpu.runLoop(window) {
