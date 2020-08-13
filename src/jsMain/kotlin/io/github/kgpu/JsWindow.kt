@@ -28,8 +28,13 @@ actual class Window actual constructor() {
         jsWindow.addEventListener("keydown", { event ->
             val keyEvent = event as KeyboardEvent
 
-            onKeyTyped(event.key[0])
             onKeyDown(toKeyEvent(keyEvent))
+        })
+
+        jsWindow.addEventListener("keypress", { event ->
+            val keyEvent = event as KeyboardEvent
+
+            onKeyTyped(keyEvent.key[0])
         })
 
         jsWindow.addEventListener("keyup", EventListener { event ->
@@ -140,6 +145,7 @@ private fun toKeyEvent(event: KeyboardEvent) : KeyEvent {
         38 -> Key.UP_ARROW
         39 -> Key.RIGHT_ARROW
         40 -> Key.DOWN_ARROW
+        46 -> Key.DELETE
         48 -> Key.DIGIT_0
         49 -> Key.DIGIT_1
         50 -> Key.DIGIT_2

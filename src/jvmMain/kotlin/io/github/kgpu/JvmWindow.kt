@@ -262,6 +262,7 @@ private fun glfwKeyToKgpuKey(glfwKey: Int) : Key {
         GLFW.GLFW_KEY_GRAVE_ACCENT -> Key.ACCENT_GRAVE
         GLFW.GLFW_KEY_CAPS_LOCK -> Key.CAPS_LOCK
         GLFW.GLFW_KEY_SPACE -> Key.SPACE
+        GLFW.GLFW_KEY_DELETE -> Key.DELETE
         else -> Key.UNKNOWN
     }
 }

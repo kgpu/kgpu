@@ -128,5 +128,6 @@ enum class Key {
     ACCENT_GRAVE,
     CAPS_LOCK,
     SPACE,
+    DELETE,
     UNKNOWN
 }
