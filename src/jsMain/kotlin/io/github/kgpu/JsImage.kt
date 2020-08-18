@@ -16,6 +16,8 @@ actual class ImageData(
 ) {
 
     actual companion object {
+        actual val FORMAT = TextureFormat.RGBA8_UNORM_SRGB
+
         actual suspend fun load(src: String): ImageData {
             val img = document.createElement("img") as HTMLImageElement
             img.src = src

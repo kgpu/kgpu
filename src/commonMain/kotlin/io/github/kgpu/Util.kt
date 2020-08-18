@@ -2,12 +2,22 @@ package io.github.kgpu
 
 object ShaderUtils {
 
+    /**
+     * Loads a text file, compiles the text and creates a corresponding shader module.
+     *
+     * @see [ShaderCompiler]
+     */
     suspend fun fromInternalTextFile(device: Device, file: String, type: ShaderType): ShaderModule {
         val shaderSrc = KgpuFiles.loadInternalUtf8(file)
 
         return fromSource(device, file, shaderSrc, type)
     }
 
+    /**
+     * Compiles the given shader code and creates a corresponding shader module.
+     *
+     * @see [ShaderCompiler]
+     */
     suspend fun fromSource(device: Device, name: String, src: String, type: ShaderType): ShaderModule {
         val vertexShader = ShaderCompiler.compile(name, src, type)
 

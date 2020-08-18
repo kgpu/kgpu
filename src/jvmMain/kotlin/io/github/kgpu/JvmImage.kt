@@ -11,6 +11,8 @@ actual class ImageData(
 ) {
 
     actual companion object {
+        actual val FORMAT = TextureFormat.RGBA8_UNORM_SRGB
+
         actual suspend fun load(src: String): ImageData {
             val inputStream = ImageData::class.java.getResourceAsStream(KgpuFiles.toJvmJarPath(src))
                 ?: throw FileNotFoundException("Failed to find image: $src")
@@ -26,6 +28,7 @@ actual class ImageData(
                     bytes[index + 0] = (argb and 0x00ff0000 ushr 16).toByte() //r
                     bytes[index + 1] = (argb and 0x0000ff00 ushr 8).toByte() //g
                     bytes[index + 2] = (argb and 0x000000ff).toByte() //b
+                    //Note: -0x1000000 is the Java int equivalent of 0xFF000000
                     bytes[index + 3] = (argb and -0x1000000 ushr 24).toByte() //a
                 }
             }

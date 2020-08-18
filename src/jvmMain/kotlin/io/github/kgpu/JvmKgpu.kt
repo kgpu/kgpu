@@ -677,7 +677,7 @@ actual class RenderPassColorAttachmentDescriptor actual constructor(
     }
 }
 
-fun copyToNativeColor(native: WgpuColor, color: Color) {
+internal fun copyToNativeColor(native: WgpuColor, color: Color) {
     native.r = color.r
     native.g = color.g
     native.b = color.b

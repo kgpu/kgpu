@@ -69,6 +69,7 @@ tasks {
 
         multiplatform {
             val global by creating {
+                includeNonPublic = false
                 includes = listOf("docs/packages.md")
             }
 
