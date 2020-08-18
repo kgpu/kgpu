@@ -130,6 +130,9 @@
 <h4><a href="-buffer-data/index.html">BufferData</a></h4>
 </td>
 <td>
+<p>A cross platform representation of mapped buffer data.
+On the desktop it is backed by a pointer, and on the
+web it is backed by an ArrayBuffer.</p>
 <code><span class="keyword">class </span><span class="identifier">BufferData</span></code></td>
 </tr>
 <tr>
@@ -146,6 +149,7 @@
 <h4><a href="-buffer-usage/index.html">BufferUsage</a></h4>
 </td>
 <td>
+<p>The usages determine what kind of memory the buffer is allocated from and what actions the buffer can partake in.</p>
 <code><span class="keyword">object </span><span class="identifier">BufferUsage</span></code></td>
 </tr>
 <tr>
@@ -695,6 +699,7 @@ include buffer, samplers, and texture views.</p>
 <h4><a href="-shader-compiler/index.html">ShaderCompiler</a></h4>
 </td>
 <td>
+<p>Compiles a GLSL shader into SPIR-V</p>
 <code><span class="keyword">object </span><span class="identifier">ShaderCompiler</span></code></td>
 </tr>
 <tr>
@@ -815,6 +820,7 @@ include buffer, samplers, and texture views.</p>
 <h4><a href="-texture-usage/index.html">TextureUsage</a></h4>
 </td>
 <td>
+<p>The usages determine what kind of memory the texture is allocated from and what actions the texture can partake in.</p>
 <code><span class="keyword">object </span><span class="identifier">TextureUsage</span></code></td>
 </tr>
 <tr>
@@ -898,19 +904,6 @@ GLFW windowing library. On the web, this window represents a canvas.</p>
 </td>
 <td>
 <code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">WindowSize</span></code></td>
-</tr>
-</tbody>
-</table>
-<h3>Functions</h3>
-<table>
-<tbody>
-<tr>
-<td>
-(jvm) 
-<h4><a href="copy-to-native-color.html">copyToNativeColor</a></h4>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="identifier">copyToNativeColor</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu$copyToNativeColor(io.github.kgpu.wgpuj.jni.WgpuColor, io.github.kgpu.Color)/native">native</span><span class="symbol">:</span>&nbsp;<a href="../io.github.kgpu.wgpuj.jni/-wgpu-color/index.html"><span class="identifier">WgpuColor</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu$copyToNativeColor(io.github.kgpu.wgpuj.jni.WgpuColor, io.github.kgpu.Color)/color">color</span><span class="symbol">:</span>&nbsp;<a href="-color/index.html"><span class="identifier">Color</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 </tbody>
 </table>

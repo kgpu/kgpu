@@ -10,6 +10,7 @@
 <h1>BufferUsage</h1>
 <a name="io.github.kgpu.BufferUsage"></a>
 (js, jvm) <code><span class="keyword">object </span><span class="identifier">BufferUsage</span></code>
+<p>The usages determine what kind of memory the buffer is allocated from and what actions the buffer can partake in.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
@@ -19,6 +20,7 @@
 <h4><a href="-c-o-p-y_-d-s-t.html">COPY_DST</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be the destination buffer for <a href="../-command-encoder/copy-buffer-to-buffer.html#io.github.kgpu.CommandEncoder$copyBufferToBuffer(io.github.kgpu.Buffer, io.github.kgpu.Buffer, kotlin.Long, kotlin.Int, kotlin.Int)">CommandEncoder.copyBufferToBuffer</a></p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COPY_DST</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -27,6 +29,8 @@
 <h4><a href="-c-o-p-y_-s-r-c.html">COPY_SRC</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be the source buffer for <a href="../-command-encoder/copy-buffer-to-buffer.html#io.github.kgpu.CommandEncoder$copyBufferToBuffer(io.github.kgpu.Buffer, io.github.kgpu.Buffer, kotlin.Long, kotlin.Int, kotlin.Int)">CommandEncoder.copyBufferToBuffer</a> or
+<a href="../-command-encoder/copy-buffer-to-texture.html#io.github.kgpu.CommandEncoder$copyBufferToTexture(io.github.kgpu.BufferCopyView, io.github.kgpu.TextureCopyView, io.github.kgpu.Extent3D)">CommandEncoder.copyBufferToTexture</a></p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COPY_SRC</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -35,6 +39,7 @@
 <h4><a href="-i-n-d-e-x.html">INDEX</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be used as index buffer for draw calls</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">INDEX</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -43,6 +48,7 @@
 <h4><a href="-i-n-d-i-r-e-c-t.html">INDIRECT</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be the indirect buffer in an indirect draw call.</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">INDIRECT</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -51,6 +57,7 @@
 <h4><a href="-m-a-p_-r-e-a-d.html">MAP_READ</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be mapped for reading. Does not need to be enabled for mapped_at_creation.</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">MAP_READ</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -59,6 +66,7 @@
 <h4><a href="-m-a-p_-w-r-i-t-e.html">MAP_WRITE</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be mapped for writing. Does not need to be enabled for mapped_at_creation.</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">MAP_WRITE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -75,6 +83,7 @@
 <h4><a href="-s-t-o-r-a-g-e.html">STORAGE</a></h4>
 </td>
 <td>
+<p>Allows a buffer to be used as a storage buffer</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">STORAGE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -83,6 +92,7 @@
 <h4><a href="-u-n-i-f-o-r-m.html">UNIFORM</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be used as uniform buffer</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">UNIFORM</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 <tr>
@@ -91,6 +101,7 @@
 <h4><a href="-v-e-r-t-e-x.html">VERTEX</a></h4>
 </td>
 <td>
+<p>Allow a buffer to be used as vertex buffer for draw calls</p>
 <code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">VERTEX</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
 </tr>
 </tbody>
