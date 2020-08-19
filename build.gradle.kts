@@ -1,5 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("multiplatform") version "1.3.72"
@@ -19,7 +20,7 @@ kotlin {
     jvm()
     js().browser()
 
-    sourceSets{
+    sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
@@ -27,8 +28,15 @@ kotlin {
             }
         }
 
-        jvm().compilations["main"].defaultSourceSet{
-            dependencies{
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+
+        jvm().compilations["main"].defaultSourceSet {
+            dependencies {
                 implementation(kotlin("stdlib-jdk8"))
                 api(project(":wgpuj"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
@@ -49,17 +57,60 @@ kotlin {
 
                 runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-windows")
                 runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-macos")
-                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-linux")            }
+                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-linux")
+            }
         }
 
-        js().compilations["main"].defaultSourceSet{
-            dependencies{
+        jvm().compilations["test"].defaultSourceSet {
+            dependencies {
+                implementation(kotlin("test-junit"))
+            }
+        }
+
+        js().compilations["main"].defaultSourceSet {
+            dependencies {
                 implementation(kotlin("stdlib-js"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 api(npm("gl-matrix", "3.3.0"))
             }
         }
+
+        js().compilations["test"].defaultSourceSet {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
     }
+}
+
+tasks.withType<AbstractTestTask>().all {
+    testLogging {
+        events("skipped", "failed")
+
+        info {
+            events("skipped", "failed", "passed")
+        }
+
+        exceptionFormat = TestExceptionFormat.FULL
+        showCauses = true
+        showStackTraces = true
+    }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent == null) { // root suite
+                println("\n\nTests Ran: ${result.testCount}")
+                println("Passes: ${result.successfulTestCount}")
+                println("Failures: ${result.failedTestCount}")
+                println("Skipped: ${result.skippedTestCount}")
+                println("Result: ${result.resultType}\n\n")
+            }
+        }
+    })
 }
 
 tasks {
@@ -77,13 +128,13 @@ tasks {
                 subProjects = listOf("wgpuj")
             }
 
-            val js by creating{
+            val js by creating {
 
             }
         }
     }
 
-    register("startDocServer"){
+    register("startDocServer") {
         val port = 8000
         val path = "$rootDir/docs/book"
 
@@ -95,13 +146,13 @@ tasks {
         }
     }
 
-    register("copyExamplesToBook", Copy::class){
+    register("copyExamplesToBook", Copy::class) {
         dependsOn("examples:buildWebExample")
         from("$rootDir/examples/build/distributions")
         into("$rootDir/docs/book/examples")
     }
 
-    register("generateBook", Exec::class){
+    register("generateBook", Exec::class) {
         workingDir("${rootDir}/docs")
         commandLine("mdbook", "build")
     }

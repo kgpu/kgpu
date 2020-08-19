@@ -62,7 +62,25 @@ data class Vec3f(var x: Float, var y: Float, var z: Float){
         return this
     }
 
+    fun mul(other: Vec3f) : Vec3f {
+        x *= other.x
+        y *= other.y
+        z *= other.z
+
+        return this
+    }
+
     fun normalize() : Vec3f{
+        var length = length()
+
+        if(length > 0){
+            length = 1 / length
+        }
+
+        x *= length
+        y *= length
+        z *= length
+
         return this
     }
 
@@ -93,6 +111,22 @@ data class Vec3f(var x: Float, var y: Float, var z: Float){
         this.x += x
         this.y += y
         this.z += z
+
+        return this
+    }
+
+    fun sub(other: Vec3f) : Vec3f{
+        x -= other.x
+        y -= other.y
+        z -= other.z
+
+        return this
+    }
+
+    fun sub(x: Float, y: Float, z: Float) : Vec3f{
+        this.x -= x
+        this.y -= y
+        this.z -= z
 
         return this
     }
