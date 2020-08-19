@@ -9,7 +9,7 @@
 <br/>
 <h1>Vec3f</h1>
 <a name="io.github.kgpu.Vec3f"></a>
-(js, jvm) <code><span class="keyword">class </span><span class="identifier">Vec3f</span></code>
+(js, jvm) <code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Vec3f</span></code>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -20,6 +20,7 @@
 </td>
 <td>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="symbol">)</span></code><br/>
+<code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$<init>(kotlin.Float, kotlin.Float)/x">x</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$<init>(kotlin.Float, kotlin.Float)/y">y</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span></code><br/>
 <code><span class="identifier">&lt;init&gt;</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$<init>(kotlin.Float, kotlin.Float, kotlin.Float)/x">x</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$<init>(kotlin.Float, kotlin.Float, kotlin.Float)/y">y</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$<init>(kotlin.Float, kotlin.Float, kotlin.Float)/z">z</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span></code></td>
 </tr>
 </tbody>
@@ -27,14 +28,6 @@
 <h3>Properties</h3>
 <table>
 <tbody>
-<tr>
-<td>
-<h4><a href="vec.html">vec</a></h4>
-</td>
-<td>
-(js) <code><span class="keyword">val </span><span class="identifier">vec</span><span class="symbol">: </span><a href="../../io.github.kgpu.internal/-vec3/index.html"><span class="identifier">Vec3</span></a></code><br/>
-(jvm) <code><span class="keyword">val </span><span class="identifier">vec</span><span class="symbol">: </span><span class="identifier">Vector3f</span></code></td>
-</tr>
 <tr>
 <td>
 (js, jvm) 
@@ -67,10 +60,68 @@
 <tr>
 <td>
 (js, jvm) 
+<h4><a href="add.html">add</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">add</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$add(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">add</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$add(kotlin.Float, kotlin.Float, kotlin.Float)/x">x</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$add(kotlin.Float, kotlin.Float, kotlin.Float)/y">y</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$add(kotlin.Float, kotlin.Float, kotlin.Float)/z">z</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="angle.html">angle</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">angle</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$angle(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="distance.html">distance</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">distance</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$distance(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="distance-squared.html">distanceSquared</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">distanceSquared</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$distanceSquared(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="dot.html">dot</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">dot</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$dot(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="length.html">length</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">length</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
+<h4><a href="length-squared.html">lengthSquared</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">lengthSquared</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a></code></td>
+</tr>
+<tr>
+<td>
+(js, jvm) 
 <h4><a href="mul.html">mul</a></h4>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">mul</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$mul(kotlin.Float)/scalar">scalar</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">mul</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$mul(kotlin.Float)/scalar">scalar</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">mul</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$mul(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -82,11 +133,33 @@
 </tr>
 <tr>
 <td>
-(jvm) 
-<h4><a href="to-string.html">toString</a></h4>
+(js, jvm) 
+<h4><a href="sub.html">sub</a></h4>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">toString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">sub</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$sub(io.github.kgpu.Vec3f)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">sub</span><span class="symbol">(</span><span class="identifier" id="io.github.kgpu.Vec3f$sub(kotlin.Float, kotlin.Float, kotlin.Float)/x">x</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$sub(kotlin.Float, kotlin.Float, kotlin.Float)/y">y</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">, </span><span class="identifier" id="io.github.kgpu.Vec3f$sub(kotlin.Float, kotlin.Float, kotlin.Float)/z">z</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html"><span class="identifier">Float</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Vec3f</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Extension Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+(jvm) 
+<h4><a href="../into-joml.html">intoJoml</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">.</span><span class="identifier">intoJoml</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Vector3fc</span></code></td>
+</tr>
+<tr>
+<td>
+(js) 
+<h4><a href="../into-js-type.html">intoJsType</a></h4>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">Vec3f</span></a><span class="symbol">.</span><span class="identifier">intoJsType</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../io.github.kgpu.internal/-vec3/index.html"><span class="identifier">Vec3</span></a></code></td>
 </tr>
 </tbody>
 </table>
