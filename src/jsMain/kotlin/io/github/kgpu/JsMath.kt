@@ -1,6 +1,7 @@
 package io.github.kgpu
 
 import io.github.kgpu.internal.Mat4
+import io.github.kgpu.internal.Vec3
 import io.github.kgpu.internal.mat4
 import io.github.kgpu.internal.vec3
 import org.khronos.webgl.Float32Array
@@ -43,7 +44,7 @@ actual class Matrix4f constructor(val mat : Mat4) {
     }
 
     actual fun lookAt(eye: Vec3f, center: Vec3f, up: Vec3f): Matrix4f {
-        mat4.lookAt(mat, eye.vec, center.vec, up.vec)
+        mat4.lookAt(mat, eye.intoJsType(), center.intoJsType(), up.intoJsType())
 
         return this
     }
@@ -91,41 +92,6 @@ actual class Matrix4f constructor(val mat : Mat4) {
     }
 }
 
-actual class Vec3f actual constructor(x: Float, y: Float, z: Float) {
-    val vec = vec3.fromValues(x, y, z)
-
-    actual constructor() : this(0f, 0f, 0f)
-
-    actual var x: Float
-        get() = toArrayType(vec)[0]
-        set(value) {
-            toArrayType(vec)[0] = value
-        }
-    actual var y: Float
-        get() = toArrayType(vec)[1]
-        set(value) {
-            toArrayType(vec)[1] = value
-        }
-    actual var z: Float
-        get() = toArrayType(vec)[2]
-        set(value) {
-            toArrayType(vec)[2] = value
-        }
-
-    actual fun mul(scalar: Float): Vec3f {
-        vec3.mul(vec, vec, vec3.fromValues(scalar, scalar, scalar))
-
-        return this
-    }
-
-    actual fun normalize(): Vec3f {
-        vec3.normalize(vec, vec)
-
-        return this
-    }
-
-}
-
-private fun toArrayType(input: dynamic): Float32Array {
-    return input as Float32Array
+fun Vec3f.intoJsType() : Vec3 {
+    return vec3.fromValues(this.x, this.y, this.z)
 }

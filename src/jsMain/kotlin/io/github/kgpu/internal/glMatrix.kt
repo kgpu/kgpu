@@ -1,18 +1,20 @@
 @file:JsModule("gl-matrix")
 @file:JsNonModule()
+
 package io.github.kgpu.internal
 
 import io.github.kgpu.Matrix4f
+import io.github.kgpu.Vec3f
 
-external object glMatrix{
+external object glMatrix {
     val EPSILON: Float
 }
 
-external object mat4{
+external object mat4 {
 
-    fun create() : Mat4
+    fun create(): Mat4
 
-    fun clone(a: Mat4) : Mat4
+    fun clone(a: Mat4): Mat4
 
     fun multiplyScalar(out: Mat4, a: Mat4, scalar: Float)
 
@@ -38,14 +40,8 @@ external object mat4{
 
 }
 
-external object vec3{
-    fun create() : Vec3
-
-    fun fromValues(x: Float, y: Float, z: Float) : Vec3
-
-    fun normalize(out: Vec3, a: Vec3)
-
-    fun mul(out: Vec3, a: Vec3, b: Vec3)
+external object vec3 {
+    fun fromValues(x: Float, y: Float, z: Float): Vec3
 }
 
 external class Mat4
