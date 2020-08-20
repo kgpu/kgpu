@@ -1,18 +1,20 @@
-package io.github.kgpu
+package io.github.kgpu.kshader
 
 import org.lwjgl.util.shaderc.Shaderc;
 import java.nio.ByteBuffer
 
-actual object ShaderCompiler{
+actual object KShader{
 
-    actual suspend fun compile(name: String, source: String, stage: ShaderType): ByteArray {
+    actual fun init(){}
+
+    actual suspend fun compile(name: String, source: String, type: KShaderType): ByteArray {
         val compiler = Shaderc.shaderc_compiler_initialize()
         val options = Shaderc.shaderc_compile_options_initialize()
 
         val result: Long = Shaderc.shaderc_compile_into_spv(
             compiler,
             source,
-            stage.nativeType,
+            type.nativeType,
             name,
             "main",
             options
@@ -26,7 +28,7 @@ actual object ShaderCompiler{
         }
 
         val output: ByteBuffer = Shaderc.shaderc_result_get_bytes(result) ?:
-            throw RuntimeException("Failed to get results of shader compliation")
+        throw RuntimeException("Failed to get results of shader compliation")
         val outputArray = ByteArray(output.remaining())
         output.get(outputArray)
 
@@ -39,7 +41,7 @@ actual object ShaderCompiler{
 
 }
 
-actual enum class ShaderType(val nativeType: Int){
+actual enum class KShaderType(internal val nativeType: Int){
     VERTEX(Shaderc.shaderc_vertex_shader),
     FRAGMENT(Shaderc.shaderc_fragment_shader),
     COMPUTE(Shaderc.shaderc_compute_shader)

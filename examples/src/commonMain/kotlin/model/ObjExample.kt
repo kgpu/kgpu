@@ -1,6 +1,7 @@
 package model
 
 import io.github.kgpu.*
+import io.github.kgpu.kshader.*
 
 val VERTEX_SHADER = """
 #version 450
@@ -59,8 +60,8 @@ suspend fun runObjModelExample(window: Window) {
         BufferUsage.UNIFORM or BufferUsage.COPY_DST
     )
 
-    val vertexShader = ShaderUtils.fromSource(device, "Vertex Shader", VERTEX_SHADER, ShaderType.VERTEX)
-    val fragShader = ShaderUtils.fromSource(device, "Frag Shader", FRAG_SHADER, ShaderType.FRAGMENT)
+    val vertexShader = device.createShaderModule(KShader.compile("vertex", VERTEX_SHADER, KShaderType.VERTEX))
+    val fragShader = device.createShaderModule(KShader.compile("frag", FRAG_SHADER, KShaderType.FRAGMENT))
 
     val descriptor = BindGroupLayoutDescriptor(
         BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)

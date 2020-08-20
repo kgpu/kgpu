@@ -1,4 +1,5 @@
 import io.github.kgpu.*
+import io.github.kgpu.kshader.*;
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -96,8 +97,8 @@ suspend fun runEarthExample(window: Window) {
         MathUtils.UNIT_Z
     )
 
-    val vertexShader = ShaderUtils.fromSource(device, "vertex", EarthShaderSource.vertex, ShaderType.VERTEX)
-    val fragShader = ShaderUtils.fromSource(device, "frag", EarthShaderSource.frag, ShaderType.FRAGMENT)
+    val vertexShader = device.createShaderModule(KShader.compile("vertex", EarthShaderSource.vertex, KShaderType.VERTEX))
+    val fragShader = device.createShaderModule(KShader.compile("frag", EarthShaderSource.frag, KShaderType.FRAGMENT))
     val vertexBuffer = BufferUtils.createFloatBuffer(device, "indices", vertices, BufferUsage.VERTEX)
     val indexBuffer = BufferUtils.createShortBuffer(device, "vertices", indices, BufferUsage.INDEX)
     val modelMatrixBuffer = createMatrixBuffer(device, modelMatrix, "model matrix")

@@ -1,4 +1,5 @@
 import io.github.kgpu.*
+import io.github.kgpu.kshader.*
 
 const val COLLATZ_SHADER = """
 #version 450
@@ -67,11 +68,11 @@ suspend fun runComputeExample() {
     )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shaderModule = ShaderUtils.fromSource(device, "shader", COLLATZ_SHADER, ShaderType.COMPUTE)
+    val shader = device.createShaderModule(KShader.compile("shader", COLLATZ_SHADER, KShaderType.COMPUTE))
     val computePipeline = device.createComputePipeline(
         ComputePipelineDescriptor(
             pipelineLayout,
-            ProgrammableStageDescriptor(shaderModule, "main")
+            ProgrammableStageDescriptor(shader, "main")
         )
     )
     val cmdEncoder = device.createCommandEncoder()

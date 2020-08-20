@@ -1,7 +1,6 @@
 package io.github.kgpu
 
 import io.github.kgpu.internal.ArrayBufferUtils
-import io.github.kgpu.internal.GlslangLibrary
 import kotlinx.coroutines.await
 import org.khronos.webgl.*
 import org.w3c.dom.HTMLCanvasElement
@@ -12,10 +11,6 @@ import kotlin.browser.window as jsWindow
 actual object Kgpu {
     actual val backendName: String = "Web"
     actual val undefined = kotlin.js.undefined
-
-    fun init() {
-        GlslangLibrary.init()
-    }
 
     actual fun runLoop(window: Window, func: () -> Unit) {
         window.update()

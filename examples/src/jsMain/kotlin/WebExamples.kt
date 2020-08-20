@@ -14,7 +14,7 @@ import kotlin.js.Date
 import kotlin.js.Promise
 
 fun main(){
-    Kgpu.init()
+    io.github.kgpu.kshader.KShader.init()
 
     val kgpuWindow = Window()
     kgpuWindow.setTitle("Kgpu - Web")

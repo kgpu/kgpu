@@ -1,25 +1,24 @@
-package io.github.kgpu.internal
+package io.github.kgpu.kshader
 
-import io.github.kgpu.ShaderType
 import kotlinx.coroutines.await
 import org.khronos.webgl.Uint32Array
-import kotlin.browser.document
+import kotlinx.browser.document
 import kotlin.js.Promise
 
-private const val glslangGlobalVariable = "window.test"
+private const val glslangGlobalVariable = "window.kshader_glslang"
 private const val glslangUrl = "https://cdn.jsdelivr.net/npm/@webgpu/glslang@0.0.15/dist/web-devel/glslang.js"
 private const val scriptSrc = """
     import * as glslang from '$glslangUrl'
 
     $glslangGlobalVariable = glslang.default()
-    console.log("Setup glslang: ", $glslangGlobalVariable)
+    console.log("KShader loaded glslang: ", $glslangGlobalVariable)
 """
 
 internal object GlslangLibrary{
 
     fun init(){
         val script = document.createElement("script")
-        script.id = "kgpu_internal_glslang"
+        script.id = "kshader_internal_glslang"
         script.setAttribute("type", "module")
         script.innerHTML = scriptSrc
 
@@ -27,6 +26,9 @@ internal object GlslangLibrary{
     }
 
     suspend fun getGlslang() : Glslang{
+        if(js(glslangGlobalVariable) == undefined)
+            throw RuntimeException("Failed to call KShader.init()!")
+        
         return (js(glslangGlobalVariable) as Promise<Glslang>).await()
     }
 }

@@ -38,6 +38,7 @@ kotlin {
         val commonMain by getting {
             dependencies{
                 implementation(project(":"))
+                implementation(project(":modules:kshader"))
             }
         }
         val jvmMain by getting {

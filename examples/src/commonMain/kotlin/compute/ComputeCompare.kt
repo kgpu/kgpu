@@ -2,6 +2,7 @@ package compute
 
 import flushExampleStatus
 import io.github.kgpu.*;
+import io.github.kgpu.kshader.*
 import setExampleStatus
 import timeExecution
 import kotlin.random.Random;
@@ -153,11 +154,11 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray) : Compu
     )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shaderModule = ShaderUtils.fromSource(device, "shader", SHADER_SOURCE, ShaderType.COMPUTE)
+    val shader = device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.VERTEX))
     val computePipeline = device.createComputePipeline(
         ComputePipelineDescriptor(
             pipelineLayout,
-            ProgrammableStageDescriptor(shaderModule, "main")
+            ProgrammableStageDescriptor(shader, "main")
         )
     )
     val cmdEncoder = device.createCommandEncoder()

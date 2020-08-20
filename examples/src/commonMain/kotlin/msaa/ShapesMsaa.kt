@@ -1,14 +1,15 @@
 package msaa
 
 import io.github.kgpu.*
+import io.github.kgpu.kshader.*
 
 const val SAMPLE_COUNT = 4;
 
 suspend fun runMsaaTriangle(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync();
-    val vertexShader = ShaderUtils.fromInternalTextFile(device, "triangle.vert", ShaderType.VERTEX)
-    val fragShader = ShaderUtils.fromInternalTextFile(device, "shared.frag", ShaderType.FRAGMENT)
+    val vertexShader = device.createShaderModule(KShader.compile("vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
+    val fragShader = device.createShaderModule(KShader.compile("frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
 
     val vertices = floatArrayOf(
         -.5f, .5f, 0f, 1f, 0f, 0f,
