@@ -1,19 +1,18 @@
 package io.github.kgpu
 
+import io.github.kgpu.wgpuj.WgpuJava
+import io.github.kgpu.wgpuj.jni.WgpuPresentMode
+import io.github.kgpu.wgpuj.jni.WgpuSwapChainDescriptor
+import io.github.kgpu.wgpuj.util.Platform
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWNativeWin32
 import org.lwjgl.glfw.GLFWNativeX11
-import org.lwjgl.glfw.GLFWWindowSizeCallbackI
-import org.lwjgl.glfw.GLFWKeyCallbackI
-import org.lwjgl.glfw.GLFWMouseButtonCallbackI
-import org.lwjgl.glfw.GLFWCursorPosCallbackI
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
-import io.github.kgpu.wgpuj.WgpuJava
-import io.github.kgpu.wgpuj.jni.*
-import io.github.kgpu.wgpuj.util.Platform
-import org.lwjgl.glfw.GLFWCharCallbackI
+import java.awt.Dimension
+import java.nio.IntBuffer
+
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
@@ -157,12 +156,12 @@ internal object GlfwHandler {
     }
 
     fun getWindowDimension(handle: Long): WindowSize {
-        MemoryStack.stackPush().use { stack ->
-            val width = stack.mallocInt(1)
-            val height = stack.mallocInt(1)
+        return MemoryStack.stackPush().use { stack: MemoryStack ->
+            val width: IntBuffer = stack.mallocInt(1)
+            val height: IntBuffer = stack.mallocInt(1)
             GLFW.glfwGetWindowSize(handle, width, height)
 
-            return WindowSize(width.get(), height.get())
+            WindowSize(width.get(), height.get())
         }
     }
 

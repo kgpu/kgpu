@@ -3,7 +3,7 @@ import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFacto
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    kotlin("multiplatform") version "1.3.72"
+    kotlin("multiplatform") version "1.4.0"
     id("org.jetbrains.dokka") version "0.10.1"
     id("maven-publish")
 }
@@ -23,20 +23,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-common"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
             }
         }
 
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
 
         jvm().compilations["main"].defaultSourceSet {
             dependencies {
+                //Needed or else build fails
                 implementation(kotlin("stdlib-jdk8"))
                 api(project(":wgpuj"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
@@ -69,7 +68,6 @@ kotlin {
 
         js().compilations["main"].defaultSourceSet {
             dependencies {
-                implementation(kotlin("stdlib-js"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
                 api(npm("gl-matrix", "3.3.0"))
             }

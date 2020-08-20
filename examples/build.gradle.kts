@@ -38,17 +38,14 @@ kotlin {
         val commonMain by getting {
             dependencies{
                 implementation(project(":"))
-                implementation(kotlin("stdlib-common"))
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-jdk8"))
             }
         }
         val jsMain by getting{
             dependencies {
-                implementation(kotlin("stdlib-js"))
             }
         }
     }
