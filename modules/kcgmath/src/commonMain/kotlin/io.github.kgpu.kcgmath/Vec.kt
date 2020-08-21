@@ -7,6 +7,14 @@ data class Vec3(var x: Float, var y: Float, var z: Float){
     constructor() : this(0f, 0f, 0f)
     constructor(x: Float, y: Float) : this(x, y, 0f)
 
+    companion object {
+        val UNIT_X = Vec3(1f, 0f, 0f)
+        val UNIT_Y = Vec3(0f, 1f, 0f)
+        val UNIT_Z = Vec3(0f, 0f, 1f)
+        val ZERO = Vec3(0f, 0f, 0f)
+        val ONE = Vec3(1f, 1f, 1f)
+    }
+
     fun mul(scalar: Float) : Vec3{
         x *= scalar
         y *= scalar

@@ -92,6 +92,7 @@ tasks.withType<AbstractTestTask>().all {
         exceptionFormat = TestExceptionFormat.FULL
         showCauses = true
         showStackTraces = true
+        showStandardStreams = true
     }
 
     addTestListener(object : TestListener {

@@ -2,6 +2,8 @@ package model
 
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
+import io.github.kgpu.kcgmath.*;
+import io.github.kgpu.kcgmath.MathUtils;
 
 val VERTEX_SHADER = """
 #version 450
@@ -32,23 +34,23 @@ void main() {
 """.trimIndent()
 
 suspend fun runObjModelExample(window: Window) {
-    fun getProjectionMatrix(): Matrix4f {
+    fun getProjectionMatrix(): Matrix4 {
         val windowSize = window.windowSize
         val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
-        return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
+        return Matrix4().perspective(45f / 180f * MathUtils.PIf, aspectRatio, 1f, 10f)
     }
 
     val text = KgpuFiles.loadInternalUtf8("models/model.obj")
     val model = Model(text)
     val projMatrix = getProjectionMatrix()
-    val viewMatrix = Matrix4f().lookAt(
-        Vec3f(3.5f, 5f, 3f),
-        Vec3f(0f, 0f, 0f),
-        MathUtils.UNIT_Y
+    val viewMatrix = Matrix4().lookAt(
+        Vec3(3.5f, 5f, 3f),
+        Vec3(0f, 0f, 0f),
+        Vec3(0f, 1f, 0f)
     )
     val transMatrix = projMatrix.mul(viewMatrix)
-
+    
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
     val indices = BufferUtils.createIntBuffer(device, "Model Indices", model.indices.toIntArray(), BufferUsage.INDEX)
@@ -93,7 +95,7 @@ suspend fun runObjModelExample(window: Window) {
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
 
-        viewMatrix.rotateY(.01f)
+        viewMatrix.rotate(.01f, 0f, .01f)
         queue.writeBuffer(matrixBuffer, getProjectionMatrix().mul(viewMatrix).toBytes())
         queue.submit(cmdBuffer)
         swapChain.present();

@@ -39,6 +39,7 @@ kotlin {
             dependencies{
                 implementation(project(":"))
                 implementation(project(":modules:kshader"))
+                implementation(project(":modules:kcgmath"))
             }
         }
         val jvmMain by getting {

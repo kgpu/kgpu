@@ -2,7 +2,8 @@ import io.github.kgpu.*
 import io.github.kgpu.kshader.*;
 import kotlin.math.cos
 import kotlin.math.sin
-
+import io.github.kgpu.kcgmath.*;
+import io.github.kgpu.kcgmath.MathUtils;
 
 private object EarthShaderSource {
 
@@ -63,19 +64,19 @@ private object EarthShaderSource {
 }
 
 suspend fun runEarthExample(window: Window) {
-    fun createTransformationMatrix(viewMatrix: Matrix4f): Matrix4f {
+    fun createTransformationMatrix(viewMatrix: Matrix4): Matrix4 {
         val windowSize = window.windowSize
         val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
-        return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f).mul(viewMatrix)
+        return Matrix4().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f).mul(viewMatrix)
     }
 
-    fun createNormalMatrix(modelMatrix: Matrix4f, viewMatrix: Matrix4f): Matrix4f {
-        return Matrix4f(modelMatrix).invert().transpose().mul(viewMatrix)
+    fun createNormalMatrix(modelMatrix: Matrix4, viewMatrix: Matrix4): Matrix4 {
+        return modelMatrix.clone().invert().transpose().mul(viewMatrix)
     }
 
 
-    fun createMatrixBuffer(device: Device, matrix: Matrix4f, label: String): Buffer {
+    fun createMatrixBuffer(device: Device, matrix: Matrix4, label: String): Buffer {
         return BufferUtils.createBufferFromData(
             device,
             label,
@@ -90,11 +91,11 @@ suspend fun runEarthExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
     val image = ImageData.load("earth3D.png")
-    val modelMatrix = Matrix4f().rotateY(.1f)
-    val viewMatrix = Matrix4f().lookAt(
-        Vec3f(-5f, -5f, 3.5f),
-        Vec3f(),
-        MathUtils.UNIT_Z
+    val modelMatrix = Matrix4().rotate(0f, .1f, 0f)
+    val viewMatrix = Matrix4().lookAt(
+        Vec3(-5f, -5f, 3.5f),
+        Vec3(),
+        Vec3.UNIT_Z
     )
 
     val vertexShader = device.createShaderModule(KShader.compile("vertex", EarthShaderSource.vertex, KShaderType.VERTEX))
@@ -181,7 +182,7 @@ suspend fun runEarthExample(window: Window) {
 
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
-        modelMatrix.rotateZ(.01f)
+        modelMatrix.rotate(0f, 0f, .01f)
         queue.writeBuffer(modelMatrixBuffer, modelMatrix.toBytes())
         queue.writeBuffer(transformationMatrixBuffer, createTransformationMatrix(viewMatrix).toBytes())
         queue.writeBuffer(normalMatrixBuffer, createNormalMatrix(modelMatrix, viewMatrix).toBytes())

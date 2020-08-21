@@ -1,5 +1,6 @@
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
+import io.github.kgpu.kcgmath.Matrix4;
 
 private object TextureShaderSource {
     val vertex = """
@@ -36,11 +37,11 @@ private object TextureShaderSource {
 }
 
 suspend fun runTextureExample(window: Window) {
-    fun createTransformationMatrix(): Matrix4f {
+    fun createTransformationMatrix(): FloatArray {
         val width = window.windowSize.width  / 2f
         val height = window.windowSize.height / 2f
 
-        return Matrix4f().ortho(-width, width, height, -height, 10f, -10f)
+        return Matrix4().ortho(-width, width, -height, height, 10f, -10f).toFloats()
     }
 
     val vertices = floatArrayOf(

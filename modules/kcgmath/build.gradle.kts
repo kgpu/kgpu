@@ -66,6 +66,7 @@ tasks.withType<AbstractTestTask>().all {
         }
 
         exceptionFormat = TestExceptionFormat.FULL
+        showStandardStreams = true
         showCauses = true
         showStackTraces = true
     }

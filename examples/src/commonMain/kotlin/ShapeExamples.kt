@@ -1,13 +1,6 @@
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
 
-
-private fun mathTest() {
-    val matrix = Matrix4f().translate(1f, 2f, 3f)
-
-    println("Op0 = ${matrix.toFloats().joinToString()}")
-}
-
 suspend fun runCubeExample(window: Window) {
     val vertices = floatArrayOf(
         -1f, -1f, 1f, 1f, 0f, 0f,
@@ -120,8 +113,6 @@ suspend fun runCubeExample(window: Window) {
 }
 
 suspend fun runTriangleExample(window: Window) {
-    mathTest()
-
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync();
     val vertexShader = device.createShaderModule(KShader.compile("vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
