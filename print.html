@@ -133,8 +133,16 @@
 <li>Firefox Nightly</li>
 </ul>
 <a class="header" href="print.html#links" id="links"><h2>Links</h2></a>
-<p><a href="kgpu/index.html"><strong>Documentation</strong></a></p>
+<p><a href="dokka/-modules.html"><strong>Documentation</strong></a></p>
 <p><a href="examples/index.html"><strong>Live Example</strong></a></p>
+<a class="header" href="print.html#modules" id="modules"><h2>Modules</h2></a>
+<p>kgpu is split into multiple modules:</p>
+<ul>
+<li><strong>kgpu:</strong> The core of this library (Kotlin bindings to WebGPU)</li>
+<li><strong>kcgmath:</strong>  A cross platform graphics library for Kotlin based
+on the Rust crate <a href="https://crates.io/crates/cgmath">cgmath</a></li>
+<li><strong>kshader:</strong> A library to help compile GLSL to SPIR-V</li>
+</ul>
 <a class="header" href="print.html#images" id="images"><h2>Images</h2></a>
 <p><img src="images/earth.png" alt="Earth Example" /></p>
 <a class="header" href="print.html#examples" id="examples"><h2>Examples</h2></a>
@@ -145,7 +153,7 @@ gradlew runTextureExample
 gradlew runEarthExample
 </code></pre>
 <p>To run the examples on the Web:</p>
-<pre><code>gradlew buildWeb startWebServer
+<pre><code class="language-bash">gradlew buildWeb startWebServer
 </code></pre>
 <p>Then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
 <a class="header" href="print.html#how-to-add-to-gradle-kotlin-dsl" id="how-to-add-to-gradle-kotlin-dsl"><h3>How to add to Gradle (Kotlin DSL)</h3></a>
@@ -168,7 +176,7 @@ gradlew runEarthExample
 <a class="header" href="print.html#introduction" id="introduction"><h1>Introduction</h1></a>
 <p>Kgpu is cross platform library that exposes the WebGPU api for Kotlin Javascript, and for Kotlin on the JVM.
 This allows users to write code that can be run on both web browsers and natively on their computers.</p>
-<a class="header" href="print.html#what-is-webgpu" id="what-is-webgpu"><h3>What is WebGPU?</h3></a>
+<a class="header" href="print.html#what-is-webgpu" id="what-is-webgpu"><h2>What is WebGPU</h2></a>
 <p>According to the W3C website, WebGPU is,</p>
 <blockquote>
 <p>an interface between the Web Platform and modern 3D graphics and computation capabilities present
@@ -178,26 +186,26 @@ from Microsoft, Metal from Apple, and Vulkan from the Khronos Group. This API wi
 computational facilities available in today's GPUs to the Web, and investigate shader languages to produce a
 cross-platform solution.</p>
 </blockquote>
-<a class="header" href="print.html#what-is-wgpu" id="what-is-wgpu"><h3>What is Wgpu?</h3></a>
+<a class="header" href="print.html#what-is-wgpu" id="what-is-wgpu"><h2>What is Wgpu</h2></a>
 <p>Wgpu is Mozilla's Rust implementation of the WebGPU specification. It is similar to Dawn, Google's WebGPU implementation
-for Chromium. </p>
+for Chromium</p>
 <a class="header" href="print.html#getting-started" id="getting-started"><h1>Getting Started</h1></a>
 <p>To start a new project, you can use the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a>.
 It allows you to get a basic project setup by only needing to change a few files.</p>
-<a class="header" href="print.html#cloning-the-project" id="cloning-the-project"><h3>Cloning the project</h3></a>
-<a class="header" href="print.html#using-github" id="using-github"><h5>Using Github</h5></a>
+<a class="header" href="print.html#cloning-the-project" id="cloning-the-project"><h2>Cloning the project</h2></a>
+<a class="header" href="print.html#using-github" id="using-github"><h3>Using Github</h3></a>
 <ol>
 <li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
 <li>Click the <code>Use This Template</code> Button</li>
 </ol>
 <p>For more info, see <a href="https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template">Creating a repository from a template</a></p>
-<a class="header" href="print.html#no-github-account" id="no-github-account"><h5>No Github Account</h5></a>
+<a class="header" href="print.html#no-github-account" id="no-github-account"><h3>No Github Account</h3></a>
 <ol>
 <li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
 <li>Click the <code>Clone or Download</code> (or <code>Code</code>) dropdown</li>
 <li>Select the <code>Download Zip</code> option</li>
 </ol>
-<a class="header" href="print.html#editing-the-project-settings" id="editing-the-project-settings"><h3>Editing the project settings</h3></a>
+<a class="header" href="print.html#editing-the-project-settings" id="editing-the-project-settings"><h2>Editing the project settings</h2></a>
 <p>Once you have the project copied, then you can open it in any text editor,
 and then open the <code>gradle.properties</code> file.</p>
 <p>You can edit the file to change the name of the project, the project's group, and the version of KGPU to use.</p>
@@ -209,7 +217,7 @@ projectGroup=your.group.here
 projectVersion=0.1.0
 desktopMainClass=DesktopKt
 </code></pre>
-<a class="header" href="print.html#editing-website" id="editing-website"><h3>Editing Website</h3></a>
+<a class="header" href="print.html#editing-website" id="editing-website"><h2>Editing Website</h2></a>
 <p>The last part of setup is setting up the index.html page to use.</p>
 <p>Open the <code>src/jsMain/resources/index.html</code> file</p>
 <p>Then change the ProjectName in the script source, to the name you set in
@@ -223,7 +231,7 @@ the <code>gradle.properties</code> file.</p>
 &lt;/script&gt;
 &lt;script src=&quot;ProjectName.js&quot;&gt;&lt;/script&gt; &lt;!-- Change this line! --&gt;
 </code></pre>
-<a class="header" href="print.html#start-coding" id="start-coding"><h3>Start Coding</h3></a>
+<a class="header" href="print.html#start-coding" id="start-coding"><h2>Start Coding</h2></a>
 <p>You can now start working on your project! There are three kotlin files in the template: <code>Application</code>, <code>Desktop</code>,
 and <code>Browser</code></p>
 <p><code>src/commonMain/kotlin/Application.kt:</code>
@@ -232,46 +240,38 @@ This is the code that is shared between all of the platforms.</p>
 This is the code that will be compiled into javascript for the browser</p>
 <p><code>src/jvmMain/kotlin/Desktop.kt:</code>
 This is the code that will be compiled into java classes and executed on the Desktop via the JVM.</p>
-<a class="header" href="print.html#running-the-application" id="running-the-application"><h3>Running the application</h3></a>
+<a class="header" href="print.html#running-the-application" id="running-the-application"><h2>Running the application</h2></a>
 <p>To run on the desktop:</p>
 <pre><code class="language-bash">gradlew runJvm
 </code></pre>
 <p>To build the examples for the Web:</p>
-<pre><code>gradlew jsBrowserDistribution
+<pre><code class="language-bash">gradlew jsBrowserDistribution
 </code></pre>
 <p>And you can start a static file server for the web:</p>
-<pre><code>gradlew startWebServer
+<pre><code class="language-bash">gradlew startWebServer
 </code></pre>
 <p>And then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
 <a class="header" href="print.html#coordinates" id="coordinates"><h1>Coordinates</h1></a>
 <p>In kgpu, both textures and screen coordinates start in the top left:</p>
 <p><img src="images/coordinates.png" alt="Coordinates" /></p>
-<a class="header" href="print.html#structure" id="structure"><h1>Structure</h1></a>
-<a class="header" href="print.html#src" id="src"><h3>src</h3></a>
-<p>This folder contains the crossplatform library that applications will depend on.
-It is split into 3 parts: common, jvm (desktop), js (web browsers).</p>
-<p>The common folder contains code that is common between all of the platforms, and
-the APIs that are expected to be implemented by the jvm and javascript modules.</p>
-<p>The js folder has all of the code that is used on Web browsers. This includes code to set
-up a canvas, load images, and bindings to the gl-matrix library.</p>
-<p>The jvm folder has the code that maps Kgpu types with the wgpuj module (see below). It also
-contains code to create windows (via GLFW), load images (via Java AWT), and a wrapper around the JOML math library.</p>
-<a class="header" href="print.html#examples-1" id="examples-1"><h3>examples</h3></a>
+<a class="header" href="print.html#internal-structure" id="internal-structure"><h1>Internal Structure</h1></a>
+<p>This page documents the non-library projects in the kgpu repo. These libraries should not be used directly and do not have stable APIs.</p>
+<a class="header" href="print.html#examples-1" id="examples-1"><h2>examples</h2></a>
 <p>This contains the example code for Kgpu. Like the core library, it is split into three parts: common, js, and jvm.
 The js and jvm modules are responible for setting up the basic application, and selecting which example to run.</p>
 <p>The common folder contains all of the core code examples, and the resources used (images, shaders)</p>
-<a class="header" href="print.html#wgpuj" id="wgpuj"><h3>wgpuj</h3></a>
+<a class="header" href="print.html#wgpuj" id="wgpuj"><h2>wgpuj</h2></a>
 <p>This module is written in Java and has the FFI code between the JVM and wgpu. It uses the jnr-ffi library,
 which creates JNI bindings at runtime. Most of the code in this module is generated by jnr-gen</p>
 <a class="header" href="print.html#wgpujjnrgen" id="wgpujjnrgen"><h3>wgpuj/jnrgen</h3></a>
 <p>jnr-gen is a tool that generates jnr enum and struct classes from the wgpu.h header. For more info see
 <a href="jnrgen.md">this page</a> all about jnr-gen.</p>
 <a class="header" href="print.html#wgpujwgpu-test" id="wgpujwgpu-test"><h3>wgpuj/wgpu-test</h3></a>
-<p>This is a small crate which contains unit tests for the wgpuj library.</p>
+<p>This is a small crate which contains unit tests for the wgpuj library</p>
 <a class="header" href="print.html#jnr-gen" id="jnr-gen"><h1>JNR Gen</h1></a>
 <p>JNR Gen is a program to generate Java enums, structs, and constants from a c header file.
 To run JNR Gen and update the java files, run the following command:</p>
-<pre><code>gradlew native:updateBindings
+<pre><code class="language-bash">gradlew native:updateBindings
 </code></pre>
 <a class="header" href="print.html#example-enum" id="example-enum"><h2>Example Enum</h2></a>
 <pre><code class="language-java">package io.github.kgpu.wgpuj.jni;
@@ -331,7 +331,7 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
     public void setLabel(java.lang.String x){
         this.label.set(RustCString.toPointer(x));
     }
-    
+
     public DynamicStructRef&lt;WgpuBindGroupEntry&gt; getEntries(){
         return entries;
     }
@@ -372,15 +372,15 @@ public final class Wgpu{
 }
 </code></pre>
 <a class="header" href="print.html#additional-resources" id="additional-resources"><h1>Additional Resources</h1></a>
-<p><a href="kgpu/index.html"><strong>Documentation</strong></a></p>
-<a class="header" href="print.html#tutorials--examples" id="tutorials--examples"><h3>Tutorials / Examples</h3></a>
+<p><a href="dokka/-modules.html"><strong>Documentation</strong></a></p>
+<a class="header" href="print.html#tutorials--examples" id="tutorials--examples"><h2>Tutorials / Examples</h2></a>
 <p><a href="https://sotrh.github.io/learn-wgpu/"><strong>Learn Wgpu</strong></a></p>
 <p><a href="https://github.com/gfx-rs/wgpu-rs/tree/master/examples"><strong>Wgpu-rs Examples</strong></a></p>
 <p><a href="https://github.com/austinEng/webgpu-samples"><strong>WebGPU Examples</strong></a></p>
-<a class="header" href="print.html#webgpu" id="webgpu"><h3>WebGPU:</h3></a>
+<a class="header" href="print.html#webgpu" id="webgpu"><h2>WebGPU</h2></a>
 <p><a href="https://gpuweb.github.io/gpuweb/"><strong>WebGPU Specification</strong></a></p>
 <p><a href="https://github.com/gpuweb/gpuweb"><strong>WebGPU Github Page</strong></a></p>
-<a class="header" href="print.html#wgpu" id="wgpu"><h3>Wgpu:</h3></a>
+<a class="header" href="print.html#wgpu" id="wgpu"><h2>Wgpu</h2></a>
 <p><a href="https://github.com/gfx-rs/wgpu-native"><strong>Wgpu-native Github Repo</strong></a></p>
 <p><a href="https://github.com/gfx-rs/wgpu"><strong>Wgpu Github Repo</strong></a></p>
 <p><a href="https://github.com/jnr/jnr-ffi"><strong>jnr-ffi Github Repo</strong></a></p>

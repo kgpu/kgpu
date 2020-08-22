@@ -1,8 +1,0 @@
-$dokka.format:html
-$dokka.linkExtension:html
-
-io.github.kgpu
-io.github.kgpu.internal
-io.github.kgpu.wgpuj
-io.github.kgpu.wgpuj.jni
-io.github.kgpu.wgpuj.util

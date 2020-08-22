@@ -132,8 +132,16 @@
 <li>Firefox Nightly</li>
 </ul>
 <a class="header" href="homepage.html#links" id="links"><h2>Links</h2></a>
-<p><a href="kgpu/index.html"><strong>Documentation</strong></a></p>
+<p><a href="dokka/-modules.html"><strong>Documentation</strong></a></p>
 <p><a href="examples/index.html"><strong>Live Example</strong></a></p>
+<a class="header" href="homepage.html#modules" id="modules"><h2>Modules</h2></a>
+<p>kgpu is split into multiple modules:</p>
+<ul>
+<li><strong>kgpu:</strong> The core of this library (Kotlin bindings to WebGPU)</li>
+<li><strong>kcgmath:</strong>  A cross platform graphics library for Kotlin based
+on the Rust crate <a href="https://crates.io/crates/cgmath">cgmath</a></li>
+<li><strong>kshader:</strong> A library to help compile GLSL to SPIR-V</li>
+</ul>
 <a class="header" href="homepage.html#images" id="images"><h2>Images</h2></a>
 <p><img src="images/earth.png" alt="Earth Example" /></p>
 <a class="header" href="homepage.html#examples" id="examples"><h2>Examples</h2></a>
@@ -144,7 +152,7 @@ gradlew runTextureExample
 gradlew runEarthExample
 </code></pre>
 <p>To run the examples on the Web:</p>
-<pre><code>gradlew buildWeb startWebServer
+<pre><code class="language-bash">gradlew buildWeb startWebServer
 </code></pre>
 <p>Then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
 <a class="header" href="homepage.html#how-to-add-to-gradle-kotlin-dsl" id="how-to-add-to-gradle-kotlin-dsl"><h3>How to add to Gradle (Kotlin DSL)</h3></a>

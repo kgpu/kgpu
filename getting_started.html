@@ -121,20 +121,20 @@
                         <a class="header" href="getting_started.html#getting-started" id="getting-started"><h1>Getting Started</h1></a>
 <p>To start a new project, you can use the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a>.
 It allows you to get a basic project setup by only needing to change a few files.</p>
-<a class="header" href="getting_started.html#cloning-the-project" id="cloning-the-project"><h3>Cloning the project</h3></a>
-<a class="header" href="getting_started.html#using-github" id="using-github"><h5>Using Github</h5></a>
+<a class="header" href="getting_started.html#cloning-the-project" id="cloning-the-project"><h2>Cloning the project</h2></a>
+<a class="header" href="getting_started.html#using-github" id="using-github"><h3>Using Github</h3></a>
 <ol>
 <li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
 <li>Click the <code>Use This Template</code> Button</li>
 </ol>
 <p>For more info, see <a href="https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template">Creating a repository from a template</a></p>
-<a class="header" href="getting_started.html#no-github-account" id="no-github-account"><h5>No Github Account</h5></a>
+<a class="header" href="getting_started.html#no-github-account" id="no-github-account"><h3>No Github Account</h3></a>
 <ol>
 <li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
 <li>Click the <code>Clone or Download</code> (or <code>Code</code>) dropdown</li>
 <li>Select the <code>Download Zip</code> option</li>
 </ol>
-<a class="header" href="getting_started.html#editing-the-project-settings" id="editing-the-project-settings"><h3>Editing the project settings</h3></a>
+<a class="header" href="getting_started.html#editing-the-project-settings" id="editing-the-project-settings"><h2>Editing the project settings</h2></a>
 <p>Once you have the project copied, then you can open it in any text editor,
 and then open the <code>gradle.properties</code> file.</p>
 <p>You can edit the file to change the name of the project, the project's group, and the version of KGPU to use.</p>
@@ -146,7 +146,7 @@ projectGroup=your.group.here
 projectVersion=0.1.0
 desktopMainClass=DesktopKt
 </code></pre>
-<a class="header" href="getting_started.html#editing-website" id="editing-website"><h3>Editing Website</h3></a>
+<a class="header" href="getting_started.html#editing-website" id="editing-website"><h2>Editing Website</h2></a>
 <p>The last part of setup is setting up the index.html page to use.</p>
 <p>Open the <code>src/jsMain/resources/index.html</code> file</p>
 <p>Then change the ProjectName in the script source, to the name you set in
@@ -160,7 +160,7 @@ the <code>gradle.properties</code> file.</p>
 &lt;/script&gt;
 &lt;script src=&quot;ProjectName.js&quot;&gt;&lt;/script&gt; &lt;!-- Change this line! --&gt;
 </code></pre>
-<a class="header" href="getting_started.html#start-coding" id="start-coding"><h3>Start Coding</h3></a>
+<a class="header" href="getting_started.html#start-coding" id="start-coding"><h2>Start Coding</h2></a>
 <p>You can now start working on your project! There are three kotlin files in the template: <code>Application</code>, <code>Desktop</code>,
 and <code>Browser</code></p>
 <p><code>src/commonMain/kotlin/Application.kt:</code>
@@ -169,15 +169,15 @@ This is the code that is shared between all of the platforms.</p>
 This is the code that will be compiled into javascript for the browser</p>
 <p><code>src/jvmMain/kotlin/Desktop.kt:</code>
 This is the code that will be compiled into java classes and executed on the Desktop via the JVM.</p>
-<a class="header" href="getting_started.html#running-the-application" id="running-the-application"><h3>Running the application</h3></a>
+<a class="header" href="getting_started.html#running-the-application" id="running-the-application"><h2>Running the application</h2></a>
 <p>To run on the desktop:</p>
 <pre><code class="language-bash">gradlew runJvm
 </code></pre>
 <p>To build the examples for the Web:</p>
-<pre><code>gradlew jsBrowserDistribution
+<pre><code class="language-bash">gradlew jsBrowserDistribution
 </code></pre>
 <p>And you can start a static file server for the web:</p>
-<pre><code>gradlew startWebServer
+<pre><code class="language-bash">gradlew startWebServer
 </code></pre>
 <p>And then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
 
