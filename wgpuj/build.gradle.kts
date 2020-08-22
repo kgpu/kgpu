@@ -4,7 +4,6 @@ import de.undercouch.gradle.tasks.download.Download
 
 plugins {
     id("java-library")
-    id("kotlin")
     id("com.diffplug.gradle.spotless") version "4.4.0"
     id("de.undercouch.download")
     id("maven-publish")
@@ -21,6 +20,7 @@ java {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {

@@ -18,9 +18,10 @@ jobs:
         run: cargo install mdbook --no-default-features --features output --vers "^0.1.0"
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build Documentation
-        run: |
-          ./gradlew build buildWeb generateBook copyExamplesToBook dokka dokkaHtmlMultimodule --info
+      - name: Gradle Build
+        run: ./gradlew build buildWeb --info --stacktrace
+      - name: Generate Documentation
+        run: ./gradlew generateBook copyExamplesToBook dokkaHtmlMultimodule --info --stacktrace
       - name: Deploy To Github Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

@@ -16,11 +16,18 @@ A Cross Platform Graphics API For Kotlin JVM/JS
 
 ## Links
 
-[__Core Documentation__](dokka/core/kgpu/index.html)
-
-[__Modules Documentation__](dokka/modules/-modules.html)
+[__Documentation__](dokka/-modules.html)
 
 [__Live Example__](examples/index.html)
+
+## Modules
+
+kgpu is split into multiple modules:
+
+- __kgpu:__ The core of this library (Kotlin bindings to WebGPU)
+- __kcgmath:__  A cross platform graphics library for Kotlin based
+on the Rust crate [cgmath](https://crates.io/crates/cgmath)
+- __kshader:__ A library to help compile GLSL to SPIR-V
 
 ## Images
 

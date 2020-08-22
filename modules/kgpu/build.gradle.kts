@@ -1,9 +1,9 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
-plugins{
+plugins {
     kotlin("multiplatform")
-    id("maven-publish")
     id("org.jetbrains.dokka")
+    id("maven-publish")
 }
 
 repositories {
@@ -16,27 +16,55 @@ version = rootProject.extra["projectVersion"]
 
 kotlin {
     jvm()
-    js(){
-        browser()
-        nodejs()
-    }
+    js().browser()
 
     sourceSets {
         val commonMain by getting {
-            dependencies{
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
             }
         }
+
         val commonTest by getting {
-            dependencies{
+            dependencies {
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val jvmMain by getting {
+
+        jvm().compilations["main"].defaultSourceSet {
+            dependencies {
+                //Needed or else build fails
+                implementation(kotlin("stdlib-jdk8"))
+                api(project(":wgpuj"))
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+
+                val lwjglVersion = rootProject.extra["lwjglVersion"]
+                implementation("org.lwjgl:lwjgl:$lwjglVersion")
+                implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-windows")
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-macos")
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-linux")
+
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows")
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos")
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux")
+            }
+        }
+
+        jvm().compilations["test"].defaultSourceSet {
             dependencies {
                 implementation(kotlin("test-junit"))
             }
         }
-        val jsMain by getting{
+
+        js().compilations["main"].defaultSourceSet {
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
+            }
+        }
+
+        js().compilations["test"].defaultSourceSet {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -45,7 +73,7 @@ kotlin {
 }
 
 tasks.withType<DokkaTask>().configureEach {
-    outputDirectory = "$rootDir/docs/book/dokka/kcgmath"
+    outputDirectory = "$rootDir/docs/book/dokka/kgpu"
 
     dokkaSourceSets {
         configureEach {

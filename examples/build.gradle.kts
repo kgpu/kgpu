@@ -2,11 +2,12 @@ import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFacto
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackOutput.Target.UMD
 
 plugins{
-    kotlin("multiplatform")
+    kotlin("multiplatform") 
 }
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 group = rootProject.extra["projectGroup"]
@@ -37,7 +38,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies{
-                implementation(project(":"))
+                implementation(project(":modules:kgpu"))
                 implementation(project(":modules:kshader"))
                 implementation(project(":modules:kcgmath"))
             }

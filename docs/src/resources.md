@@ -1,8 +1,6 @@
 # Additional Resources
 
-[__Core Documentation__](dokka/core/kgpu/index.html)
-
-[__Modules Documentation__](dokka/modules/-modules.html)
+[__Documentation__](dokka/-modules.html)
 
 ## Tutorials / Examples
 

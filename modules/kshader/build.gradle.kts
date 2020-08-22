@@ -1,7 +1,6 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.dokka.gradle.DokkaTask
 
-plugins{
+plugins{ 
     kotlin("multiplatform")
     id("maven-publish")
     id("org.jetbrains.dokka")
@@ -43,7 +42,7 @@ kotlin {
 }
 
 tasks.withType<DokkaTask>().configureEach {
-    outputDirectory = "$rootDir/docs/book/dokka"
+    outputDirectory = "$rootDir/docs/book/dokka/kshader"
 
     dokkaSourceSets {
         configureEach {
