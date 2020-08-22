@@ -251,7 +251,7 @@ private class Sphere(private val chunks: Int, private val slices: Int, val radiu
             for (chunk in 0..chunks) {
                 val index: Int = (slice * (chunks + 1) + chunk) * FLOATS_PER_VERTEX
                 angleXY = MathUtils.PIf * 2f / chunks * chunk
-                val pos: Vec3f = Vec3f(
+                val pos: Vec3 = Vec3(
                     cos(angleZ) * cos(angleXY),
                     cos(angleZ) * sin(angleXY),
                     sin(angleZ)

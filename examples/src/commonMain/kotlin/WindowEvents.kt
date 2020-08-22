@@ -21,8 +21,8 @@ fun runWindowEventExample(window: Window){
         setExampleStatus("Last Event", "Mouse Released ${event.button}")
     }
 
-    window.onMouseMove = {pos: Point ->
-        setExampleStatus("Mouse Pos", "(${pos.x}, ${pos.y})")
+    window.onMouseMove = {x: Float, y: Float ->
+        setExampleStatus("Mouse Pos", "(${x}, ${y})")
     }
 
     window.onKeyTyped = {c: Char ->

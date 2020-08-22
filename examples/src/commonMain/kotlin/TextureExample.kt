@@ -37,11 +37,11 @@ private object TextureShaderSource {
 }
 
 suspend fun runTextureExample(window: Window) {
-    fun createTransformationMatrix(): FloatArray {
+    fun createTransformationMatrix(): Matrix4 {
         val width = window.windowSize.width  / 2f
         val height = window.windowSize.height / 2f
 
-        return Matrix4().ortho(-width, width, -height, height, 10f, -10f).toFloats()
+        return Matrix4().ortho(-width, width, -height, height, 10f, -10f)
     }
 
     val vertices = floatArrayOf(

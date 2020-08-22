@@ -25,8 +25,10 @@ actual class Window actual constructor() {
     actual var onKeyTyped: (c: Char) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
-    actual var onMouseMove: (pos: Point) -> Unit = {}
-    actual var mousePos: Point = Point(0, 0)
+    actual var onMouseMove: (x: Float, y: Float) -> Unit = {_, _ -> }
+    actual var mouseX = 0f
+        private set
+    actual var mouseY = 0f
         private set
 
     init {
@@ -93,8 +95,9 @@ actual class Window actual constructor() {
         }
 
         GLFW.glfwSetCursorPosCallback(handle) { _, x, y ->
-            mousePos = Point(x.toInt(), y.toInt())
-            onMouseMove(mousePos)
+            mouseX = x.toFloat()
+            mouseY = y.toFloat()
+            onMouseMove(mouseX, mouseY)
         }
     }
 

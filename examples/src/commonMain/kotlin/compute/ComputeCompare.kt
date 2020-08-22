@@ -8,10 +8,6 @@ import timeExecution
 import kotlin.random.Random;
 import kotlin.math.abs;
 
-
-// Not on the slides. Local size in X and Y. Without this the GPU will only run
-// one instance of the compute shader on a block of (for example) 32 ALUs,
-// wasting 31 of them.
 private const val LOCAL_SIZE = 8;
 private const val MATRIX_SIZE = 512
 private val SHADER_SOURCE = """
@@ -154,7 +150,7 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray) : Compu
     )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader = device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.VERTEX))
+    val shader = device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.COMPUTE))
     val computePipeline = device.createComputePipeline(
         ComputePipelineDescriptor(
             pipelineLayout,

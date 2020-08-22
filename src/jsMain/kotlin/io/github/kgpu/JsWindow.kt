@@ -4,8 +4,8 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
-import kotlin.browser.document as jsDocument
-import kotlin.browser.window as jsWindow
+import kotlinx.browser.document as jsDocument
+import kotlinx.browser.window as jsWindow
 
 actual class Window actual constructor() {
 
@@ -20,8 +20,10 @@ actual class Window actual constructor() {
     actual var onKeyTyped: (c: Char) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
-    actual var onMouseMove: (pos: Point) -> Unit = {}
-    actual var mousePos: Point = Point(0, 0)
+    actual var onMouseMove: (x: Float, y: Float) -> Unit = {_, _-> }
+    actual var mouseX = 0f
+        private set
+    actual var mouseY = 0f
         private set
 
     init {
@@ -63,11 +65,9 @@ actual class Window actual constructor() {
             val rect = canvas.getBoundingClientRect()
 
             if(isEventOnCanvas(event)){
-                mousePos = Point(
-                    (event.clientX - rect.left).toInt(),
-                    (event.clientY - rect.top).toInt())
-
-                onMouseMove(mousePos)
+                mouseX = (event.clientX - rect.left).toFloat()
+                mouseY = (event.clientY - rect.top).toFloat()
+                onMouseMove(mouseX, mouseY)
             }
 
             asDynamic() // On mouse move requires we return a dynamic

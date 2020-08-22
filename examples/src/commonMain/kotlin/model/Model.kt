@@ -1,13 +1,13 @@
 package model
 
-import io.github.kgpu.Vec3f
+import io.github.kgpu.kcgmath.Vec3
 
 /**
  * Represents an obj model
  */
 class Model(text: String) {
 
-    val vertices: MutableList<Vec3f> = mutableListOf()
+    val vertices: MutableList<Vec3> = mutableListOf()
     val indices: MutableList<Int> = mutableListOf()
 
     init {
@@ -48,7 +48,7 @@ class Model(text: String) {
                 "Vertex did not have 3 arguments. Line: ${command.joinToString(" ")}"
             )
 
-        val vertex = Vec3f()
+        val vertex = Vec3()
         vertex.x = parseFloat(command[1])
         vertex.y = parseFloat(command[2])
         vertex.z = -parseFloat(command[3])

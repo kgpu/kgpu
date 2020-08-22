@@ -39,7 +39,6 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 api(project(":wgpuj"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
-                api("org.joml:joml:1.9.25")
 
                 val lwjglVersion = rootProject.extra["lwjglVersion"]
                 implementation("org.lwjgl:lwjgl:$lwjglVersion")
@@ -69,7 +68,6 @@ kotlin {
         js().compilations["main"].defaultSourceSet {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
-                api(npm("gl-matrix", "3.3.0"))
             }
         }
 

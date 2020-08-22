@@ -12,8 +12,9 @@ expect class Window() {
     var onKeyTyped: (c: Char) -> Unit
     var onMouseClick: (event: ClickEvent) -> Unit
     var onMouseRelease: (event: ClickEvent) -> Unit
-    var onMouseMove: (pos: Point) -> Unit
-    var mousePos: Point
+    var onMouseMove: (x: Float, y: Float) -> Unit
+    var mouseX: Float
+    var mouseY: Float
 
     fun setTitle(title: String)
 

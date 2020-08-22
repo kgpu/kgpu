@@ -1,5 +1,7 @@
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
+import io.github.kgpu.kcgmath.*
+import io.github.kgpu.kcgmath.MathUtils
 
 suspend fun runCubeExample(window: Window) {
     val vertices = floatArrayOf(
@@ -43,18 +45,18 @@ suspend fun runCubeExample(window: Window) {
         20, 21, 22, 22, 23, 20
     )
 
-    fun getProjectionMatrix(): Matrix4f {
+    fun getProjectionMatrix(): Matrix4 {
         val windowSize = window.windowSize
         val aspectRatio = windowSize.width.toFloat() / windowSize.height
 
-        return Matrix4f().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
+        return Matrix4().perspective(MathUtils.toRadians(45f), aspectRatio, 1f, 10f)
     }
 
     val projMatrix = getProjectionMatrix()
-    val viewMatrix = Matrix4f().lookAt(
-        Vec3f(3.5f, 5f, 3f),
-        Vec3f(0f, 0f, 0f),
-        MathUtils.UNIT_Z
+    val viewMatrix = Matrix4().lookAt(
+        Vec3(3.5f, 5f, 3f),
+        Vec3(0f, 0f, 0f),
+        Vec3.UNIT_Z
     )
     val transMatrix = projMatrix.mul(viewMatrix)
 
@@ -105,7 +107,7 @@ suspend fun runCubeExample(window: Window) {
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
 
-        viewMatrix.rotateZ(.01f)
+        viewMatrix.rotate(0f, .01f, 0f)
         queue.writeBuffer(matrixBuffer, getProjectionMatrix().mul(viewMatrix).toBytes())
         queue.submit(cmdBuffer)
         swapChain.present();
