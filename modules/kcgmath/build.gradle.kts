@@ -1,12 +1,15 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins{
     kotlin("multiplatform")
     id("maven-publish")
+    id("org.jetbrains.dokka")
 }
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 group = rootProject.extra["projectGroup"]
@@ -38,6 +41,31 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-js"))
             }
+        }
+    }
+}
+
+tasks.withType<DokkaTask>().configureEach {
+    outputDirectory = "$rootDir/docs/book/dokka"
+
+    dokkaSourceSets {
+        configureEach {
+            includeNonPublic = false 
+        }
+
+        register("commonMain"){
+            displayName = "Common"
+            platform = "common"
+        }
+
+        register("jvmMain"){
+            displayName = "Desktop"
+            platform = "jvm"
+        }
+
+        register("jsMain"){
+            displayName = "Web"
+            platform = "js"
         }
     }
 }

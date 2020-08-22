@@ -4,7 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("multiplatform") version "1.4.0"
-    id("org.jetbrains.dokka") version "0.10.1"
+    id("org.jetbrains.dokka") version "1.4.0-rc"
     id("maven-publish")
 }
 
@@ -43,7 +43,6 @@ kotlin {
                 val lwjglVersion = rootProject.extra["lwjglVersion"]
                 implementation("org.lwjgl:lwjgl:$lwjglVersion")
                 implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
-                implementation("org.lwjgl:lwjgl-shaderc:$lwjglVersion")
 
                 runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-windows")
                 runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:natives-macos")
@@ -52,10 +51,6 @@ kotlin {
                 runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows")
                 runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos")
                 runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux")
-
-                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-windows")
-                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-macos")
-                runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-linux")
             }
         }
 
@@ -110,27 +105,37 @@ tasks.withType<AbstractTestTask>().all {
     })
 }
 
-tasks {
-    val dokka by getting(DokkaTask::class) {
-        outputDirectory = "$rootDir/docs/book"
-        outputFormat = "html"
+tasks.dokkaHtmlMultimodule {
+    outputDirectory = "$rootDir/docs/book/dokka/modules"
+    documentationFileName = "README.md"
+}
 
-        multiplatform {
-            val global by creating {
-                includeNonPublic = false
-                includes = listOf("docs/packages.md")
-            }
+tasks.withType<DokkaTask>().configureEach {
+    outputDirectory = "$rootDir/docs/book/dokka/core"
 
-            val jvm by creating {
-                subProjects = listOf("wgpuj")
-            }
+    dokkaSourceSets {
+        configureEach {
+            includeNonPublic = false 
+        }
 
-            val js by creating {
+        register("commonMain"){
+            displayName = "Common"
+            platform = "common"
+        }
 
-            }
+        register("jvmMain"){
+            displayName = "Desktop"
+            platform = "jvm"
+        }
+
+        register("jsMain"){
+            displayName = "Web"
+            platform = "js"
         }
     }
+}
 
+tasks {
     register("startDocServer") {
         val port = 8000
         val path = "$rootDir/docs/book"

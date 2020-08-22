@@ -1,11 +1,14 @@
 # JNR Gen
-JNR Gen is a program to generate Java enums, structs, and constants from a c header file. 
+
+JNR Gen is a program to generate Java enums, structs, and constants from a c header file.
 To run JNR Gen and update the java files, run the following command:
-```
+
+```bash
 gradlew native:updateBindings
 ```
 
 ## Example Enum
+
 ```java
 package io.github.kgpu.wgpuj.jni;
 
@@ -22,7 +25,9 @@ public enum WgpuBindingType {
     WRITEONLY_STORAGE_TEXTURE,
 }
 ```
+
 ## Example Struct
+
 ```java
 package io.github.kgpu.wgpuj.jni;
 
@@ -65,7 +70,7 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
     public void setLabel(java.lang.String x){
         this.label.set(RustCString.toPointer(x));
     }
-    
+
     public DynamicStructRef<WgpuBindGroupEntry> getEntries(){
         return entries;
     }
@@ -80,7 +85,9 @@ public class WgpuBindGroupDescriptor extends WgpuJavaStruct {
 
 }
 ```
+
 ## Example Constants
+
 ```java
 package io.github.kgpu.wgpuj.jni;
 

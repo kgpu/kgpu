@@ -8,6 +8,9 @@ docs/book
 ## Rust
 wgpuj/wgpu-test/target/**
 
+# Gradle / JVM
+**.hprof
+
 ## Wgpu artifacts
 data1.bin
 data2.spv
