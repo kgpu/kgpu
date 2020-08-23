@@ -5,14 +5,23 @@ import kotlin.math.*;
 /**
  * A column major 4x4 matrix backed by floats.
  *
- * Order:
+ * ```
  * M00 M01 M02 M03
  * M10 M11 M12 M13
  * M20 M21 M22 M23
  * M30 M31 M32 M33
+ * ```
+ *
+ * To make a matrix from values, use:
+ * [Matrix4.fromRows]
+ * or
+ * [Matrix4.fromCols]
  */
-class Matrix4 constructor(val values: FloatArray){
+class Matrix4 internal constructor(private val values: FloatArray){
 
+    /**
+     * Creates a 4x4 Identity Matrix
+     */
     constructor() : this (INDENTITY.copyInto(FloatArray(16)))
 
     init {
@@ -40,12 +49,84 @@ class Matrix4 constructor(val values: FloatArray){
         const val M23 = 14
         const val M33 = 15
 
+        /**
+        * A 4x4 Identity Matrix
+        */
         val INDENTITY = floatArrayOf(
             1f, 0f, 0f, 0f, // column-0
             0f, 1f, 0f, 0f, // column-1
             0f, 0f, 1f, 0f, // column-2
             0f, 0f, 0f, 1f  // column-3
         )
+
+
+        /**
+         * Generates a matrix from row major order. 
+         * 
+         * 
+         * ```kotlin
+         * fromCols(
+         *   A, B, C, D,
+         *   E, F, G, H,
+         *   I, J, K, L,
+         *   M, N, O, P
+         * )
+         * ```
+         * Produces: 
+         * ```
+         * A, B, C, D,
+         * E, F, G, H,
+         * I, J, K, L,
+         * M, N, O, P
+         * ```
+         */
+        fun fromRows(
+            M00: Float, M01: Float, M02: Float, M03: Float,
+            M10: Float, M11: Float, M12: Float, M13: Float,
+            M20: Float, M21: Float, M22: Float, M23: Float,
+            M30: Float, M31: Float, M32: Float, M33: Float
+        ) : Matrix4 {
+            return Matrix4(floatArrayOf(
+                M00, M10, M20, M30,
+                M01, M11, M21, M31,
+                M02, M12, M22, M32, 
+                M03, M13, M23, M33
+            ))
+        }
+
+        /**
+         * Generates a matrix from column major order. 
+         * 
+         * 
+         * ```kotlin
+         * fromCols(
+         *   A, B, C, D,
+         *   E, F, G, H,
+         *   I, J, K, L,
+         *   M, N, O, P
+         * )
+         * ```
+         * Produces: 
+         * ```
+         * A, E, I, M,
+         * B, F, J, N
+         * C, G, K, O
+         * D, H, L, P
+         * ```
+         */
+        fun fromCols(
+            M00: Float, M10: Float, M20: Float, M30: Float,
+            M01: Float, M11: Float, M21: Float, M31: Float,
+            M02: Float, M12: Float, M22: Float, M32: Float,
+            M03: Float, M13: Float, M23: Float, M33: Float
+        ) : Matrix4 {
+            return Matrix4(floatArrayOf(
+                M00, M10, M20, M30,
+                M01, M11, M21, M31,
+                M02, M12, M22, M32, 
+                M03, M13, M23, M33
+            ))
+        }
 
         private fun assertValid(floats: FloatArray){
             if(floats.size != 16){
@@ -100,6 +181,11 @@ class Matrix4 constructor(val values: FloatArray){
         return set(outputs);
     }
 
+    /**
+     * Copies the given array into this matrix
+     * 
+     * @throws UnsupportedOperationException if the passed array does not have a size of 16
+     */
     fun set(values: FloatArray) : Matrix4{
         assertValid(values)
         values.copyInto(this.values)
@@ -278,6 +364,10 @@ class Matrix4 constructor(val values: FloatArray){
         return a * b + c
     }
 
+    /**
+     * Creates a copy of this matrix. Changing the copy will not affect
+     * this array.
+     */
     fun clone() : Matrix4{
         return Matrix4(values.copyOf())
     }
@@ -311,10 +401,18 @@ class Matrix4 constructor(val values: FloatArray){
         return builder.toString()
     }
 
+    /**
+     * Returns the array backing this matrix in column major order. Warning: changing the returned 
+     * array will change this matrix.
+     */
     fun toFloats() : FloatArray{
         return values
     }
 
+    /**
+     * Returns a byte array of the values stored in this matrix. 
+     * The values will be in column major order
+     */
     fun toBytes() : ByteArray {
         val bytes = ByteArray(64)
 

@@ -199,4 +199,42 @@ class Matrix4Tests {
 
         assertEquals(expected, matrix)
     }
+
+    @Test
+    fun fromColsTest(){
+        val matrix  = Matrix4.fromCols(
+            1f, 2f, 3f, 4f,
+            5f, 6f, 7f, 8f,
+            9f, 10f, 11f, 12f,
+            13f, 14f, 15f, 16f
+        )
+
+        val expected  = Matrix4(floatArrayOf(
+            1f, 2f, 3f, 4f,
+            5f, 6f, 7f, 8f,
+            9f, 10f, 11f, 12f,
+            13f, 14f, 15f, 16f
+        ))
+
+        assertEquals(expected, matrix)
+    }
+
+    @Test
+    fun fromRowsTest(){
+        val matrix  = Matrix4.fromRows(
+            1f, 2f, 3f, 4f,
+            5f, 6f, 7f, 8f,
+            9f, 10f, 11f, 12f,
+            13f, 14f, 15f, 16f
+        )
+
+        val expected  = Matrix4(floatArrayOf(
+            1f, 5f, 9f, 13f,
+            2f, 6f, 10f, 14f,
+            3f, 7f, 11f, 15f,
+            4f, 8f, 12f, 16f
+        ))
+
+        assertEquals(expected, matrix)
+    }
 }
