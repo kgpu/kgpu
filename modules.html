@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Getting Started - Kgpu</title>
+        <title>Modules - Kgpu</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -69,7 +69,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="homepage.html">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="modules.html"><strong aria-hidden="true">2.</strong> Modules</a></li><li><a href="getting_started.html" class="active"><strong aria-hidden="true">3.</strong> Getting Started</a></li><li><a href="coordinates.html"><strong aria-hidden="true">4.</strong> Coordinates</a></li><li><a href="structure/structure.html"><strong aria-hidden="true">5.</strong> Structure</a></li><li><ol class="section"><li><a href="structure/jnrgen.html"><strong aria-hidden="true">5.1.</strong> JNR Gen</a></li></ol></li><li><a href="resources.html"><strong aria-hidden="true">6.</strong> Additional Resources</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="homepage.html">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="modules.html" class="active"><strong aria-hidden="true">2.</strong> Modules</a></li><li><a href="getting_started.html"><strong aria-hidden="true">3.</strong> Getting Started</a></li><li><a href="coordinates.html"><strong aria-hidden="true">4.</strong> Coordinates</a></li><li><a href="structure/structure.html"><strong aria-hidden="true">5.</strong> Structure</a></li><li><ol class="section"><li><a href="structure/jnrgen.html"><strong aria-hidden="true">5.1.</strong> JNR Gen</a></li></ol></li><li><a href="resources.html"><strong aria-hidden="true">6.</strong> Additional Resources</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -118,81 +118,59 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="getting_started.html#getting-started" id="getting-started"><h1>Getting Started</h1></a>
-<p>To start a new project, you can use the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a>.
-It allows you to get a basic project setup by only needing to change a few files.</p>
-<a class="header" href="getting_started.html#cloning-the-project" id="cloning-the-project"><h2>Cloning the project</h2></a>
-<a class="header" href="getting_started.html#using-github" id="using-github"><h3>Using Github</h3></a>
-<ol>
-<li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
-<li>Click the <code>Use This Template</code> Button</li>
-</ol>
-<p>For more info, see <a href="https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template">Creating a repository from a template</a></p>
-<a class="header" href="getting_started.html#no-github-account" id="no-github-account"><h3>No Github Account</h3></a>
-<ol>
-<li>Navigate to the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a></li>
-<li>Click the <code>Clone or Download</code> (or <code>Code</code>) dropdown</li>
-<li>Select the <code>Download Zip</code> option</li>
-</ol>
-<a class="header" href="getting_started.html#editing-the-project-settings" id="editing-the-project-settings"><h2>Editing the project settings</h2></a>
-<p>Once you have the project copied, then you can open it in any text editor,
-and then open the <code>gradle.properties</code> file.</p>
-<p>You can edit the file to change the name of the project, the project's group, and the version of KGPU to use.</p>
-<p>Here is an example properties file:</p>
-<pre><code class="language-properties">kotlin.code.style=official
-kgpuVersion=0.1.0-SNAPSHOT
-projectName=ProjectName
-projectGroup=your.group.here
-projectVersion=0.1.0
-desktopMainClass=DesktopKt
-</code></pre>
-<a class="header" href="getting_started.html#editing-website" id="editing-website"><h2>Editing Website</h2></a>
-<p>The last part of setup is setting up the index.html page to use.</p>
-<p>Open the <code>src/jsMain/resources/index.html</code> file</p>
-<p>Then change the ProjectName in the script source, to the name you set in
-the <code>gradle.properties</code> file.</p>
-<pre><code class="language-html">&lt;script&gt;
-     if (!navigator.gpu) {
-        document.body.className = 'error';
-        document.getElementById('content').hidden = true
-        document.getElementById('errorMessage').hidden = false
-    }
-&lt;/script&gt;
-&lt;script src=&quot;ProjectName.js&quot;&gt;&lt;/script&gt; &lt;!-- Change this line! --&gt;
-</code></pre>
-<a class="header" href="getting_started.html#start-coding" id="start-coding"><h2>Start Coding</h2></a>
-<p>You can now start working on your project! There are three kotlin files in the template: <code>Application</code>, <code>Desktop</code>,
-and <code>Browser</code></p>
-<p><code>src/commonMain/kotlin/Application.kt:</code>
-This is the code that is shared between all of the platforms.</p>
-<p><code>src/jsMain/kotlin/Browser.kt:</code>
-This is the code that will be compiled into javascript for the browser</p>
-<p><code>src/jvmMain/kotlin/Desktop.kt:</code>
-This is the code that will be compiled into java classes and executed on the Desktop via the JVM.</p>
-<a class="header" href="getting_started.html#running-the-application" id="running-the-application"><h2>Running the application</h2></a>
-<p>To run on the desktop:</p>
-<pre><code class="language-bash">gradlew runJvm
-</code></pre>
-<p>To build the examples for the Web:</p>
-<pre><code class="language-bash">gradlew jsBrowserDistribution
-</code></pre>
-<p>And you can start a static file server for the web:</p>
-<pre><code class="language-bash">gradlew startWebServer
-</code></pre>
-<p>And then navigate to <a href="http://localhost:8080/index.html">http://localhost:8080/index.html</a></p>
+                        <a class="header" href="modules.html#modules" id="modules"><h1>Modules</h1></a>
+<a class="header" href="modules.html#kgpu" id="kgpu"><h2>kgpu</h2></a>
+<p>The core of kgpu. It provides the following APIs:</p>
+<ul>
+<li>
+<p>WebGPU Bindings</p>
+<ul>
+<li>JVM/Desktop: Native Bindings to wgpu</li>
+<li>JS/Web: Javascript Bindings</li>
+</ul>
+</li>
+<li>
+<p>Window API</p>
+<ul>
+<li>JVM/Desktop: GLFW Bindings via LWJGL</li>
+<li>JS/Web: Canvas API via Web Browser</li>
+</ul>
+</li>
+<li>
+<p>Image Loading API:</p>
+<ul>
+<li>JVM/Desktop: AWT Image Loading</li>
+<li>JS/Web: Off-screen Canvas Image Loading</li>
+</ul>
+</li>
+</ul>
+<a class="header" href="modules.html#kcgmath" id="kcgmath"><h2>kcgmath</h2></a>
+<p>Kotlin Computer Graphics Math Library</p>
+<p>A cross platform graphics library for Kotlin based
+on the Rust crate <a href="https://crates.io/crates/cgmath">cgmath</a></p>
+<p><strong>Note:</strong> This library is meant to be used as a basic computer graphics library for WebGPU. If you are using OpenGL or want something more complex,
+you may want to consider one of the following:</p>
+<ul>
+<li><a href="https://joml-ci.github.io/JOML/">JOML</a>: JVM Only, More Complex, Faster</li>
+<li><a href="https://github.com/korlibs/korma/blob/master/korma/src/commonMain/kotlin/com/soywiz/korma/geom/Matrix3D.kt">Korma</a>: Built for OpenGL</li>
+</ul>
+<a class="header" href="modules.html#kshader" id="kshader"><h2>kshader</h2></a>
+<p>A library to help compile GLSL to SPIR-V</p>
+<p>On the JVM/Desktop it uses <a href="https://github.com/LWJGL/lwjgl3/tree/master/modules/lwjgl/shaderc">Shaderc</a> via LWJGL.</p>
+<p>For JS/Web it uses the <a href="https://www.npmjs.com/package/@webgpu/glslang">glslang</a> library.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="modules.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="coordinates.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="getting_started.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -204,13 +182,13 @@ This is the code that will be compiled into java classes and executed on the Des
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="modules.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="coordinates.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="getting_started.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

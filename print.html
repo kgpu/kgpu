@@ -69,7 +69,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="homepage.html">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><a href="coordinates.html"><strong aria-hidden="true">3.</strong> Coordinates</a></li><li><a href="structure/structure.html"><strong aria-hidden="true">4.</strong> Structure</a></li><li><ol class="section"><li><a href="structure/jnrgen.html"><strong aria-hidden="true">4.1.</strong> JNR Gen</a></li></ol></li><li><a href="resources.html"><strong aria-hidden="true">5.</strong> Additional Resources</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="homepage.html">Homepage</a></li><li><a href="intro.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="modules.html"><strong aria-hidden="true">2.</strong> Modules</a></li><li><a href="getting_started.html"><strong aria-hidden="true">3.</strong> Getting Started</a></li><li><a href="coordinates.html"><strong aria-hidden="true">4.</strong> Coordinates</a></li><li><a href="structure/structure.html"><strong aria-hidden="true">5.</strong> Structure</a></li><li><ol class="section"><li><a href="structure/jnrgen.html"><strong aria-hidden="true">5.1.</strong> JNR Gen</a></li></ol></li><li><a href="resources.html"><strong aria-hidden="true">6.</strong> Additional Resources</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -189,6 +189,46 @@ cross-platform solution.</p>
 <a class="header" href="print.html#what-is-wgpu" id="what-is-wgpu"><h2>What is Wgpu</h2></a>
 <p>Wgpu is Mozilla's Rust implementation of the WebGPU specification. It is similar to Dawn, Google's WebGPU implementation
 for Chromium</p>
+<a class="header" href="print.html#modules-1" id="modules-1"><h1>Modules</h1></a>
+<a class="header" href="print.html#kgpu-1" id="kgpu-1"><h2>kgpu</h2></a>
+<p>The core of kgpu. It provides the following APIs:</p>
+<ul>
+<li>
+<p>WebGPU Bindings</p>
+<ul>
+<li>JVM/Desktop: Native Bindings to wgpu</li>
+<li>JS/Web: Javascript Bindings</li>
+</ul>
+</li>
+<li>
+<p>Window API</p>
+<ul>
+<li>JVM/Desktop: GLFW Bindings via LWJGL</li>
+<li>JS/Web: Canvas API via Web Browser</li>
+</ul>
+</li>
+<li>
+<p>Image Loading API:</p>
+<ul>
+<li>JVM/Desktop: AWT Image Loading</li>
+<li>JS/Web: Off-screen Canvas Image Loading</li>
+</ul>
+</li>
+</ul>
+<a class="header" href="print.html#kcgmath" id="kcgmath"><h2>kcgmath</h2></a>
+<p>Kotlin Computer Graphics Math Library</p>
+<p>A cross platform graphics library for Kotlin based
+on the Rust crate <a href="https://crates.io/crates/cgmath">cgmath</a></p>
+<p><strong>Note:</strong> This library is meant to be used as a basic computer graphics library for WebGPU. If you are using OpenGL or want something more complex,
+you may want to consider one of the following:</p>
+<ul>
+<li><a href="https://joml-ci.github.io/JOML/">JOML</a>: JVM Only, More Complex, Faster</li>
+<li><a href="https://github.com/korlibs/korma/blob/master/korma/src/commonMain/kotlin/com/soywiz/korma/geom/Matrix3D.kt">Korma</a>: Built for OpenGL</li>
+</ul>
+<a class="header" href="print.html#kshader" id="kshader"><h2>kshader</h2></a>
+<p>A library to help compile GLSL to SPIR-V</p>
+<p>On the JVM/Desktop it uses <a href="https://github.com/LWJGL/lwjgl3/tree/master/modules/lwjgl/shaderc">Shaderc</a> via LWJGL.</p>
+<p>For JS/Web it uses the <a href="https://www.npmjs.com/package/@webgpu/glslang">glslang</a> library.</p>
 <a class="header" href="print.html#getting-started" id="getting-started"><h1>Getting Started</h1></a>
 <p>To start a new project, you can use the <a href="https://github.com/kgpu/kgpu-template">kgpu-template repository</a>.
 It allows you to get a basic project setup by only needing to change a few files.</p>
@@ -255,7 +295,8 @@ This is the code that will be compiled into java classes and executed on the Des
 <p>In kgpu, both textures and screen coordinates start in the top left:</p>
 <p><img src="images/coordinates.png" alt="Coordinates" /></p>
 <a class="header" href="print.html#internal-structure" id="internal-structure"><h1>Internal Structure</h1></a>
-<p>This page documents the non-library projects in the kgpu repo. These libraries should not be used directly and do not have stable APIs.</p>
+<p>This page documents the non-library projects in the kgpu repo. These libraries should not be used directly and do not have stable APIs.
+If you want to see info about the different public modules kgpu provides, see <a href="../-modules.md">this page</a></p>
 <a class="header" href="print.html#examples-1" id="examples-1"><h2>examples</h2></a>
 <p>This contains the example code for Kgpu. Like the core library, it is split into three parts: common, js, and jvm.
 The js and jvm modules are responible for setting up the basic application, and selecting which example to run.</p>
