@@ -22,7 +22,7 @@ class Matrix4 internal constructor(private val values: FloatArray){
     /**
      * Creates a 4x4 Identity Matrix
      */
-    constructor() : this (INDENTITY.copyInto(FloatArray(16)))
+    constructor() : this (IDENTITY.copyInto(FloatArray(16)))
 
     init {
         assertValid(values)
@@ -52,7 +52,7 @@ class Matrix4 internal constructor(private val values: FloatArray){
         /**
         * A 4x4 Identity Matrix
         */
-        val INDENTITY = floatArrayOf(
+        val IDENTITY = floatArrayOf(
             1f, 0f, 0f, 0f, // column-0
             0f, 1f, 0f, 0f, // column-1
             0f, 0f, 1f, 0f, // column-2
@@ -194,14 +194,14 @@ class Matrix4 internal constructor(private val values: FloatArray){
     }
 
     fun ortho(left: Float, right: Float, top: Float, bottom: Float, zNear: Float, zFar: Float) : Matrix4{
-        set(INDENTITY)
+        set(IDENTITY)
 
         values[M00] = 2 / (right - left)
         values[M11] = 2 / (top - bottom)
         values[M22] = 1 / (zNear - zFar)
-        values[M30] = (right + left) / (left - right)
-        values[M31] = (top + bottom) / (bottom - top)
-        values[M32] = zNear / (zNear - zFar)
+        values[M03] = (right + left) / (left - right)
+        values[M13] = (top + bottom) / (bottom - top)
+        values[M23] = zNear / (zNear - zFar)
         
         return this
     }
@@ -211,14 +211,16 @@ class Matrix4 internal constructor(private val values: FloatArray){
         val h = tan(fov * 0.5f)
         values[M00] = 1.0f / (h * aspect)
         values[M11] = 1.0f / h
-        values[M22] = (zFar + zNear) / (zNear - zFar)
-        values[M23] = (2 * zFar) * zNear / (zNear - zFar)
+        values[M22] = zFar / (zNear - zFar)
+        values[M23] = zFar * zNear / (zNear - zFar)
         values[M32] = -1f
     
         return this;
     }
 
     fun lookAt(eye: Vec3, center: Vec3, up: Vec3) : Matrix4{
+        set(IDENTITY)
+
         val direction = eye.copy().sub(center).normalize();
         val left = Vec3(
             up.y * direction.z - up.z * direction.y,
@@ -268,10 +270,10 @@ class Matrix4 internal constructor(private val values: FloatArray){
         val nm12 = values[M11] * -sinX + values[M12] * cosX
         val nm22 = values[M21] * -sinX + values[M22] * cosX
         val nm32 = values[M31] * -sinX + values[M32] * cosX
-        val nm00 = values[M00] * cosY + values[M02] * -sinY 
-        val nm10 = values[M10] * cosY + values[M12] * -sinY 
-        val nm20 = values[M20] * cosY + values[M22] * -sinY 
-        val nm30 = values[M30] * cosY + values[M32] * -sinY 
+        val nm00 = values[M00] * cosY + nm02 * -sinY 
+        val nm10 = values[M10] * cosY + nm12 * -sinY 
+        val nm20 = values[M20] * cosY + nm22 * -sinY 
+        val nm30 = values[M30] * cosY + nm32 * -sinY 
 
         values[M02] = values[M00] * sinY + nm02 * cosY
         values[M12] = values[M10] * sinY + nm12 * cosY

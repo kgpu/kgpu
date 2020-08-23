@@ -33,10 +33,19 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
                 implementation(kotlin("test-junit"))
+                implementation("org.joml:joml:1.9.25")
             }
         }
         val jsMain by getting{
+            
+        }
+        val jsTest by getting {
             dependencies {
                 implementation(kotlin("test-js"))
             }
