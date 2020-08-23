@@ -1,6 +1,7 @@
 # Internal Structure
 
 This page documents the non-library projects in the kgpu repo. These libraries should not be used directly and do not have stable APIs.
+If you want to see info about the different public modules kgpu provides, see [this page](../-modules.md)
 
 ## examples
 

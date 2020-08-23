@@ -31,6 +31,8 @@ kgpu is split into multiple modules:
 on the Rust crate [cgmath](https://crates.io/crates/cgmath)
 - __kshader:__ A library to help compile GLSL to SPIR-V
 
+[__More Info__](https://kgpu.github.io/kgpu/modules.html)
+
 ## Images
 
 ![Earth Example](docs/src/images/earth.png)
