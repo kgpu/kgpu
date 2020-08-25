@@ -146,4 +146,16 @@ public interface WgpuJNI {
     void wgpu_texture_destroy(@u_int64_t long texture);
 
     void wgpu_texture_view_destroy(@u_int64_t long textureView);
+
+    void wgpu_render_pass_pop_debug_group(Pointer rawPass);
+
+    void wgpu_render_pass_push_debug_group(Pointer rawPass, Pointer label);
+
+    void wgpu_render_pass_insert_debug_marker(Pointer rawPass, Pointer label);
+
+    void wgpu_compute_pass_pop_debug_group(Pointer rawPass);
+
+    void wgpu_compute_pass_push_debug_group(Pointer rawPass, Pointer label);
+
+    void wgpu_compute_pass_insert_debug_marker(Pointer rawPass, Pointer label);
 }

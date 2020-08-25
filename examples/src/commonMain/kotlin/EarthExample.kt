@@ -173,11 +173,14 @@ suspend fun runEarthExample(window: Window) {
 
         val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
+        renderPassEncoder.pushDebugGroup("Started Rendering!")
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
         renderPassEncoder.setVertexBuffer(0, vertexBuffer)
         renderPassEncoder.setIndexBuffer(indexBuffer)
         renderPassEncoder.drawIndexed(indices.size, 1)
+        renderPassEncoder.insertDebugMarker("Render Pass Created!")
+        renderPassEncoder.popDebugGroup()
         renderPassEncoder.endPass()
 
         val cmdBuffer = cmdEncoder.finish()

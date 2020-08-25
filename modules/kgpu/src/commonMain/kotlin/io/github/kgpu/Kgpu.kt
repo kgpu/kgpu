@@ -114,6 +114,12 @@ expect class RenderPassEncoder {
     fun setIndexBuffer(buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
 
     fun setBindGroup(index: Int, bindGroup: BindGroup)
+
+    fun pushDebugGroup(label: String)
+
+    fun popDebugGroup()
+
+    fun insertDebugMarker(label: String)
 }
 
 expect class ComputePassEncoder {

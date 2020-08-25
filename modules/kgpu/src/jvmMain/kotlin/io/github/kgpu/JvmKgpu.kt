@@ -4,6 +4,7 @@ import io.github.kgpu.wgpuj.WgpuJava
 import io.github.kgpu.wgpuj.jni.*
 import io.github.kgpu.wgpuj.util.Platform
 import io.github.kgpu.wgpuj.util.SharedLibraryLoader
+import io.github.kgpu.wgpuj.util.RustCString
 import jnr.ffi.Pointer
 import kotlinx.coroutines.runBlocking
 import org.lwjgl.Version
@@ -259,6 +260,21 @@ actual class RenderPassEncoder(val pass: WgpuRawPass) {
         )
     }
 
+    actual fun pushDebugGroup(label: String) {
+        val strPtr = RustCString.toPointer(label)
+
+        WgpuJava.wgpuNative.wgpu_render_pass_push_debug_group(pass.pointerTo, strPtr);
+    }
+
+    actual fun popDebugGroup() {
+        WgpuJava.wgpuNative.wgpu_render_pass_pop_debug_group(pass.pointerTo);
+    }
+
+    actual fun insertDebugMarker(label: String){
+        val strPtr = RustCString.toPointer(label)
+
+        WgpuJava.wgpuNative.wgpu_render_pass_insert_debug_marker(pass.pointerTo, strPtr);
+    }
 }
 
 actual class ComputePassEncoder(val pass: WgpuRawPass) {
