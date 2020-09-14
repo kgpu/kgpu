@@ -81,7 +81,7 @@ tasks{
     register("updateBindings", Copy::class){
         dependsOn("jnrgen:generateBindings")
         from("${projectDir}/jnrgen/build/jnr-gen")
-        into("${projectDir}/src/main/java/com/noahcharlton/wgpuj/jni")
+        into("${projectDir}/src/main/java/io/github/kgpu/wgpuj/jni")
 
         finalizedBy("spotlessApply")
     }

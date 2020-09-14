@@ -26,6 +26,7 @@ public class Parser {
             var item = createItem(token);
 
             if(item != null){
+                System.out.println("Added item: " + item);
                 lastComment = null;
                 items.add(item);
             }

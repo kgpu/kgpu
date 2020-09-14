@@ -42,10 +42,10 @@ public class StructItem implements Item {
         }
 
         var writer = outputHandler.startFile(name + ".java",
-                "com.noahcharlton.wgpuj.WgpuJava",
-                "com.noahcharlton.wgpuj.util.WgpuJavaStruct",
-                "com.noahcharlton.wgpuj.util.CStrPointer",
-                "com.noahcharlton.wgpuj.util.RustCString",
+                "io.github.kgpu.wgpuj.WgpuJava",
+                "io.github.kgpu.wgpuj.util.WgpuJavaStruct",
+                "io.github.kgpu.wgpuj.util.CStrPointer",
+                "io.github.kgpu.wgpuj.util.RustCString",
                 "jnr.ffi.Runtime",
                 "jnr.ffi.Struct");
 
@@ -141,7 +141,8 @@ public class StructItem implements Item {
                 } else {
                     type = "Struct.Pointer";
                 }
-            } else if (type.equals("uintptr_t") || type.equals("uint64_t") || type.equals("unsigned long long")) {
+            } else if (type.equals("uintptr_t") || type.equals("uint64_t") 
+                || type.equals("unsigned long long") || type.equals("unsigned long")) {
                 type = "Struct.Unsigned64";
             } else if (type.equals("uint32_t")) {
                 type = "Struct.Unsigned32";

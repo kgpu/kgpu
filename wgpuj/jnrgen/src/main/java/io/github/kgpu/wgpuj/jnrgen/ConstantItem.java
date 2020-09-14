@@ -17,6 +17,8 @@ public class ConstantItem implements Item {
         this.cName = cName;
         this.value = value;
         this.comment = comment;
+
+        System.out.println("Constant Item: " + cName +" " + value);
     }
 
     @Override

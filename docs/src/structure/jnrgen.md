@@ -4,7 +4,7 @@ JNR Gen is a program to generate Java enums, structs, and constants from a c hea
 To run JNR Gen and update the java files, run the following command:
 
 ```bash
-gradlew native:updateBindings
+gradlew wgpuj:updateBindings
 ```
 
 ## Example Enum

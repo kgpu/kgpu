@@ -5,79 +5,17 @@ package io.github.kgpu.wgpuj.jni;
 public final class Wgpu{
 
     /**
-     * Bound uniform/storage buffer offsets must be aligned to this number.
-     */
-    public static final int BIND_BUFFER_ALIGNMENT = 256;
-    /**
-     * Buffer-Texture copies on command encoders have to have the `bytes_per_row`
-     * aligned to this number.
+     * Buffer-Texture copies must have [`bytes_per_row`] aligned to this number.
      *
-     * This doesn't apply to `Queue::write_texture`.
+     * This doesn't apply to [`Queue::write_texture`].
+     *
+     * [`bytes_per_row`]: TextureDataLayout::bytes_per_row
      */
     public static final int COPY_BYTES_PER_ROW_ALIGNMENT = 256;
-    public static final int DEFAULT_BIND_GROUPS = 4;
     public static final int DESIRED_NUM_FRAMES = 3;
     public static final int MAX_ANISOTROPY = 16;
     public static final int MAX_COLOR_TARGETS = 4;
     public static final int MAX_MIP_LEVELS = 16;
     public static final int MAX_VERTEX_BUFFERS = 16;
-
-    public static final class ShaderStage{
-        public static final int NONE = 0;
-        public static final int VERTEX = 1;
-        public static final int FRAGMENT = 2;
-        public static final int COMPUTE = 4;
-    }
-
-    public static final class Extensions{
-        /**
-         * This is a native only extension. Support is planned to be added to webgpu,
-         * but it is not yet implemented.
-         *
-         * https://github.com/gpuweb/gpuweb/issues/696
-         */
-        public static final int ANISOTROPIC_FILTERING = 65536;
-        /**
-         * Extensions which are part of the upstream webgpu standard
-         */
-        public static final int ALL_WEBGPU = 65535;
-        /**
-         * Extensions that require activating the unsafe extension flag
-         */
-        public static final long ALL_UNSAFE = Long.parseUnsignedLong("18446462598732840960");
-        /**
-         * Extensions that are only available when targeting native (not web)
-         */
-        public static final long ALL_NATIVE = Long.parseUnsignedLong("18446744073709486080");
-    }
-
-    public static final class ColorWrite{
-        public static final int RED = 1;
-        public static final int GREEN = 2;
-        public static final int BLUE = 4;
-        public static final int ALPHA = 8;
-        public static final int COLOR = 7;
-        public static final int ALL = 15;
-    }
-
-    public static final class BufferUsage{
-        public static final int MAP_READ = 1;
-        public static final int MAP_WRITE = 2;
-        public static final int COPY_SRC = 4;
-        public static final int COPY_DST = 8;
-        public static final int INDEX = 16;
-        public static final int VERTEX = 32;
-        public static final int UNIFORM = 64;
-        public static final int STORAGE = 128;
-        public static final int INDIRECT = 256;
-    }
-
-    public static final class TextureUsage{
-        public static final int COPY_SRC = 1;
-        public static final int COPY_DST = 2;
-        public static final int SAMPLED = 4;
-        public static final int STORAGE = 8;
-        public static final int OUTPUT_ATTACHMENT = 16;
-    }
 
 }

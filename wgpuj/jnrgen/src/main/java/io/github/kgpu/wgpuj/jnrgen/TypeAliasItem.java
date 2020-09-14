@@ -26,4 +26,9 @@ public class TypeAliasItem implements Item {
         //This function is only called if this item is used as a field
         throw new UnsupportedOperationException("This is not a java type.");
     }
+
+    @Override
+    public String toString(){
+        return "TypeAlias(new=" + newType + ", original = " + originalType + ")";
+    }
 }

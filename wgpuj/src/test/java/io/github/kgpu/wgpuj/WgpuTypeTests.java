@@ -66,36 +66,6 @@ public class WgpuTypeTests extends WgpuNativeTest {
         wgpuTest.wgpu_extent_3d_test(extent.getPointerTo());
     }
 
-    @ParameterizedTest
-    @MethodSource("getBindGroupEntryStringInputs")
-    void bindGroupEntryDataStringTest(Consumer<WgpuBindingResourceData> data, WgpuBindingResourceTag tag,
-                                      String expected) {
-        var entry = WgpuBindGroupEntry.createDirect();
-        entry.getResource().setTag(tag);
-        data.accept(entry.getResource().getData());
-
-        Pointer output = wgpuTest.bind_group_entry_resource_to_string(entry.getPointerTo());
-        String actual = RustCString.fromPointer(output);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    private static Stream<Arguments> getBindGroupEntryStringInputs() {
-        return Stream.of(
-                Arguments.of((Consumer<WgpuBindingResourceData>) data -> data.setSamplerId(745),
-                        WgpuBindingResourceTag.SAMPLER, "Sampler((745, 0, Empty))"),
-                Arguments.of((Consumer<WgpuBindingResourceData>) data -> data.setTextureViewId(66),
-                        WgpuBindingResourceTag.TEXTURE_VIEW, "TextureView((66, 0, Empty))"),
-                Arguments.of((Consumer<WgpuBindingResourceData>) data -> {
-                            data.getBinding().setSize(26);
-                            data.getBinding().setOffset(45);
-                            data.getBinding().setBuffer(31);
-                        },
-                        WgpuBindingResourceTag.BUFFER,
-                        "Buffer(BufferBinding { buffer: (31, 0, Empty), offset: 45, size: BufferSize(26) })")
-        );
-    }
-
 //  --- Blocked by wgpu-native having a private field ---
 //  @Test
     void cLimitsMaxBindGroupsTest() {
@@ -120,7 +90,6 @@ public class WgpuTypeTests extends WgpuNativeTest {
         var desc = WgpuBufferDescriptor.createDirect();
         desc.setLabel("ZebraBuffer");
         desc.setSize(98);
-        desc.setUsage(Wgpu.BufferUsage.UNIFORM);
         desc.setMappedAtCreation(true);
 
         wgpuTest.wgpu_buffer_descriptor_test(desc.getPointerTo());
@@ -153,7 +122,6 @@ public class WgpuTypeTests extends WgpuNativeTest {
     void colorStateDescriptorTest() {
         var colorState = WgpuColorStateDescriptor.createDirect();
         colorState.setFormat(WgpuTextureFormat.RGBA16_UINT);
-        colorState.setWriteMask(Wgpu.ColorWrite.GREEN);
         colorState.getColorBlend().setSrcFactor(WgpuBlendFactor.SRC_ALPHA_SATURATED);
         colorState.getAlphaBlend().setDstFactor(WgpuBlendFactor.ONE_MINUS_SRC_COLOR);
 
@@ -230,32 +198,12 @@ public class WgpuTypeTests extends WgpuNativeTest {
     }
 
     @Test
-    void rawPassTest() {
-        var rawPass = WgpuRawPass.createHeap();
-        var rawPassPtr = wgpuTest.get_raw_pass_test(55);
-
-        rawPass.useMemory(rawPassPtr);
-
-        Assertions.assertEquals(55, rawPass.getParent());
-        Assertions.assertEquals(24, rawPass.getCapacity());
-    }
-
-    @Test
     void renderPassTest() {
         var renderPass = new WgpuRenderPassDescriptor();
         renderPass.getColorAttachments().set(123);
         renderPass.getColorAttachmentsLength().set(456);
 
         wgpuTest.wgpu_render_pass_descriptor_test(renderPass.getPointerTo());
-    }
-
-    @Test
-    void shaderModuleDescriptorTest() {
-        var shaderModule = WgpuShaderModuleDescriptor.createDirect();
-        shaderModule.getCode().setBytes(longAsPointer(667));
-        shaderModule.getCode().setLength(74);
-
-        wgpuTest.wgpu_shader_module_test(shaderModule.getPointerTo());
     }
 
     @Test
@@ -298,7 +246,6 @@ public class WgpuTypeTests extends WgpuNativeTest {
     @Test
     void swapChainDescriptorTest() {
         var descriptor = WgpuSwapChainDescriptor.createDirect();
-        descriptor.setUsage(Wgpu.TextureUsage.STORAGE);
         descriptor.setFormat(WgpuTextureFormat.DEPTH32_FLOAT);
         descriptor.setWidth(43);
         descriptor.setHeight(34);
@@ -333,7 +280,6 @@ public class WgpuTypeTests extends WgpuNativeTest {
         descriptor.setSampleCount(151);
         descriptor.setDimension(WgpuTextureDimension.D3);
         descriptor.setFormat(WgpuTextureFormat.RG11B10_FLOAT);
-        descriptor.setUsage(Wgpu.TextureUsage.SAMPLED);
 
         wgpuTest.wgpu_texture_descriptor_test(descriptor.getPointerTo());
     }
@@ -366,21 +312,5 @@ public class WgpuTypeTests extends WgpuNativeTest {
         descriptor.setCompare(WgpuCompareFunction.LESS_EQUAL);
 
         wgpuTest.wgpu_sampler_descriptor_test(descriptor.getPointerTo());
-    }
-
-    @Test
-    void renderPassDepthStencilDescriptor() {
-        var descriptor = WgpuRenderPassDepthStencilDescriptor.createDirect();
-        descriptor.setAttachment(123);
-        descriptor.setDepthLoadOp(WgpuLoadOp.LOAD);
-        descriptor.setDepthStoreOp(WgpuStoreOp.STORE);
-        descriptor.setClearDepth(10f);
-        descriptor.setDepthReadOnly(true);
-        descriptor.setStencilLoadOp(WgpuLoadOp.LOAD);
-        descriptor.setStencilStoreOp(WgpuStoreOp.CLEAR);
-        descriptor.setClearStencil(11);
-        descriptor.setStencilReadOnly(true);
-
-        wgpuTest.wgpu_render_pass_depth_stencil_descriptor(descriptor.getPointerTo());
     }
 }

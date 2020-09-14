@@ -52,15 +52,6 @@ pub extern "C" fn bind_group_entry_test_binding(desc: &wgc::binding_model::BindG
 }
 
 #[no_mangle]
-pub extern "C" fn bind_group_entry_resource_to_string(
-    desc: &wgc::binding_model::BindGroupEntry,
-) -> *const c_char {
-    CString::new(format!("{:?}", desc.resource))
-        .unwrap()
-        .into_raw()
-}
-
-#[no_mangle]
 pub extern "C" fn wgpu_origin_3d_test(origin: &wgt::Origin3d) {
     assert_ffi!(123, origin.x);
     assert_ffi!(456, origin.y);
@@ -97,7 +88,6 @@ pub unsafe extern "C" fn wgpu_buffer_descriptor_test(
 
     assert_ffi!("ZebraBuffer", label.to_str().unwrap());
     assert_ffi!(98, buffer.size);
-    assert_ffi!(wgt::BufferUsage::UNIFORM, buffer.usage);
     assert_ffi!(true, buffer.mapped_at_creation);
 }
 
@@ -132,7 +122,6 @@ pub extern "C" fn wgpu_color_state_descriptor_test(color_state: &wgt::ColorState
         wgt::BlendFactor::OneMinusSrcColor,
         color_state.alpha_blend.dst_factor
     );
-    assert_ffi!(wgt::ColorWrite::GREEN, color_state.write_mask);
 }
 
 #[no_mangle]
@@ -194,25 +183,10 @@ pub extern "C" fn wgpu_rasterization_state_descriptor(desc: &wgt::RasterizationS
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn get_raw_pass_test(
-    id: wgc::id::CommandEncoderId,
-) -> *const wgc::command::RawPass {
-    let pass = wgc::command::RawPass::new_compute(id);
-
-    return Box::into_raw(Box::new(pass));
-}
-
-#[no_mangle]
 pub extern "C" fn wgpu_render_pass_descriptor_test(desc: &wgc::command::RenderPassDescriptor) {
     assert_ffi!(123, desc.color_attachments as usize);
     assert_ffi!(456, desc.color_attachments_length);
     assert_ffi!(true, desc.depth_stencil_attachment.is_none())
-}
-
-#[no_mangle]
-pub extern "C" fn wgpu_shader_module_test(module: &wgc::pipeline::ShaderModuleDescriptor) {
-    assert_ffi!(667, module.code.bytes as usize);
-    assert_ffi!(74, module.code.length)
 }
 
 #[no_mangle]
@@ -258,7 +232,6 @@ pub extern "C" fn wgpu_swap_chain_output_test(output: &wgc::swap_chain::SwapChai
 
 #[no_mangle]
 pub extern "C" fn wgpu_swap_chain_descriptor_test(desc: &wgt::SwapChainDescriptor) {
-    assert_ffi!(wgt::TextureUsage::STORAGE, desc.usage);
     assert_ffi!(wgt::TextureFormat::Depth32Float, desc.format);
     assert_ffi!(43, desc.width);
     assert_ffi!(34, desc.height);
@@ -298,7 +271,6 @@ pub unsafe extern "C" fn wgpu_texture_descriptor_test(
     assert_ffi!(151, desc.sample_count);
     assert_ffi!(wgt::TextureDimension::D3, desc.dimension);
     assert_ffi!(wgt::TextureFormat::Rg11b10Float, desc.format);
-    assert_ffi!(wgt::TextureUsage::SAMPLED, desc.usage);
 }
 
 #[no_mangle]
@@ -330,19 +302,4 @@ pub unsafe extern "C" fn wgpu_sampler_descriptor_test(
     assert_ffi!(23.0, sampler.lod_min_clamp);
     assert_ffi!(24.0, sampler.lod_max_clamp);
     assert_ffi!(wgt::CompareFunction::LessEqual, sampler.compare);
-}
-
-#[no_mangle]
-pub extern "C" fn wgpu_render_pass_depth_stencil_descriptor(
-    pass: &wgt::RenderPassDepthStencilAttachmentDescriptorBase<wgc::id::TextureViewId>
-){
-    assert_ffi!("(123, 0, Empty)", format!("{:?}", pass.attachment));
-    assert_ffi!(wgt::LoadOp::Load, pass.depth_load_op);
-    assert_ffi!(wgt::StoreOp::Store, pass.depth_store_op);
-    assert_ffi!(10.0, pass.clear_depth);
-    assert_ffi!(true, pass.depth_read_only);
-    assert_ffi!(wgt::LoadOp::Load, pass.stencil_load_op);
-    assert_ffi!(wgt::StoreOp::Clear, pass.stencil_store_op);
-    assert_ffi!(11, pass.clear_stencil);
-    assert_ffi!(true, pass.stencil_read_only);
 }

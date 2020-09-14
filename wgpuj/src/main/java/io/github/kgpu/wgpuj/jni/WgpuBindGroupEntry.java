@@ -9,7 +9,11 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 binding = new Struct.Unsigned32();
     private final Struct.Unsigned32 _NO_USE_padding = new Struct.Unsigned32();
-    private final WgpuBindingResource resource = inner(WgpuBindingResource.createHeap());
+    private final Struct.Unsigned64 buffer = new Struct.Unsigned64();
+    private final Struct.Unsigned64 offset = new Struct.Unsigned64();
+    private final Struct.Unsigned64 size = new Struct.Unsigned64();
+    private final Struct.Unsigned64 sampler = new Struct.Unsigned64();
+    private final Struct.Unsigned64 textureView = new Struct.Unsigned64();
 
     protected WgpuBindGroupEntry(boolean direct){
          if(direct){
@@ -51,8 +55,44 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
         this.binding.set(x);
     }
 
-    public WgpuBindingResource getResource(){
-        return resource;
+    public long getBuffer(){
+        return buffer.get();
+    }
+
+    public void setBuffer(long x){
+        this.buffer.set(x);
+    }
+
+    public long getOffset(){
+        return offset.get();
+    }
+
+    public void setOffset(long x){
+        this.offset.set(x);
+    }
+
+    public long getSize(){
+        return size.get();
+    }
+
+    public void setSize(long x){
+        this.size.set(x);
+    }
+
+    public long getSampler(){
+        return sampler.get();
+    }
+
+    public void setSampler(long x){
+        this.sampler.set(x);
+    }
+
+    public long getTextureView(){
+        return textureView.get();
+    }
+
+    public void setTextureView(long x){
+        this.textureView.set(x);
     }
 
 }

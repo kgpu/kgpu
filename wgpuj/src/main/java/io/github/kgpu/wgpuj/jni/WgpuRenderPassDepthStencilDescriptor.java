@@ -8,14 +8,8 @@ import jnr.ffi.Struct;
 public class WgpuRenderPassDepthStencilDescriptor extends WgpuJavaStruct {
 
     private final Struct.Unsigned64 attachment = new Struct.Unsigned64();
-    private final Struct.Enum<WgpuLoadOp> depthLoadOp = new Struct.Enum<>(WgpuLoadOp.class);
-    private final Struct.Enum<WgpuStoreOp> depthStoreOp = new Struct.Enum<>(WgpuStoreOp.class);
-    private final Struct.Float clearDepth = new Struct.Float();
-    private final Struct.Boolean depthReadOnly = new Struct.Boolean();
-    private final Struct.Enum<WgpuLoadOp> stencilLoadOp = new Struct.Enum<>(WgpuLoadOp.class);
-    private final Struct.Enum<WgpuStoreOp> stencilStoreOp = new Struct.Enum<>(WgpuStoreOp.class);
-    private final Struct.Unsigned32 clearStencil = new Struct.Unsigned32();
-    private final Struct.Boolean stencilReadOnly = new Struct.Boolean();
+    private final WgpuPassChannel_f32 depth = inner(WgpuPassChannel_f32.createHeap());
+    private final WgpuPassChannel_u32 stencil = inner(WgpuPassChannel_u32.createHeap());
 
     protected WgpuRenderPassDepthStencilDescriptor(boolean direct){
          if(direct){
@@ -57,68 +51,12 @@ public class WgpuRenderPassDepthStencilDescriptor extends WgpuJavaStruct {
         this.attachment.set(x);
     }
 
-    public WgpuLoadOp getDepthLoadOp(){
-        return depthLoadOp.get();
+    public WgpuPassChannel_f32 getDepth(){
+        return depth;
     }
 
-    public void setDepthLoadOp(WgpuLoadOp x){
-        this.depthLoadOp.set(x);
-    }
-
-    public WgpuStoreOp getDepthStoreOp(){
-        return depthStoreOp.get();
-    }
-
-    public void setDepthStoreOp(WgpuStoreOp x){
-        this.depthStoreOp.set(x);
-    }
-
-    public float getClearDepth(){
-        return clearDepth.get();
-    }
-
-    public void setClearDepth(float x){
-        this.clearDepth.set(x);
-    }
-
-    public boolean getDepthReadOnly(){
-        return depthReadOnly.get();
-    }
-
-    public void setDepthReadOnly(boolean x){
-        this.depthReadOnly.set(x);
-    }
-
-    public WgpuLoadOp getStencilLoadOp(){
-        return stencilLoadOp.get();
-    }
-
-    public void setStencilLoadOp(WgpuLoadOp x){
-        this.stencilLoadOp.set(x);
-    }
-
-    public WgpuStoreOp getStencilStoreOp(){
-        return stencilStoreOp.get();
-    }
-
-    public void setStencilStoreOp(WgpuStoreOp x){
-        this.stencilStoreOp.set(x);
-    }
-
-    public long getClearStencil(){
-        return clearStencil.get();
-    }
-
-    public void setClearStencil(long x){
-        this.clearStencil.set(x);
-    }
-
-    public boolean getStencilReadOnly(){
-        return stencilReadOnly.get();
-    }
-
-    public void setStencilReadOnly(boolean x){
-        this.stencilReadOnly.set(x);
+    public WgpuPassChannel_u32 getStencil(){
+        return stencil;
     }
 
 }

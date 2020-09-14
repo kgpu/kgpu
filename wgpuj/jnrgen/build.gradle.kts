@@ -23,7 +23,7 @@ tasks{
         dependsOn("deletePreviousBindings")
         dependsOn("classes")
         classpath = sourceSets["main"].runtimeClasspath
-        main = "com.noahcharlton.wgpuj.jnrgen.JNRGenerator"
+        main = "io.github.kgpu.wgpuj.jnrgen.JNRGenerator"
         args = listOf("${buildDir}")
     }
 }

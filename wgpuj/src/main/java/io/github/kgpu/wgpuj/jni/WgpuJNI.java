@@ -54,7 +54,7 @@ public interface WgpuJNI {
     @u_int64_t
     long wgpu_device_create_command_encoder(@u_int64_t long device_id, Pointer commandEncoderDescription);
 
-    WgpuRawPass wgpu_command_encoder_begin_render_pass(@u_int64_t long encoder, Pointer renderPassDescriptor);
+    Pointer wgpu_command_encoder_begin_render_pass(@u_int64_t long encoder, Pointer renderPassDescriptor);
 
     void wgpu_render_pass_set_pipeline(Pointer rawPass, @u_int64_t long pipelineID);
 
@@ -90,7 +90,7 @@ public interface WgpuJNI {
     @u_int64_t
     long wgpu_device_create_compute_pipeline(@u_int64_t long device, Pointer computePipelineDescriptor);
 
-    WgpuRawPass wgpu_command_encoder_begin_compute_pass(@u_int64_t long encoderId, Pointer computePassDescriptor);
+    Pointer wgpu_command_encoder_begin_compute_pass(@u_int64_t long encoderId, Pointer computePassDescriptor);
 
     void wgpu_compute_pass_set_pipeline(Pointer rawPass, @u_int64_t long pipelineId);
 

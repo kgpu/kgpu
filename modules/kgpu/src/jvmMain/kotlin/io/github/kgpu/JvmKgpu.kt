@@ -82,12 +82,12 @@ actual class Device(val id: Long) {
     }
 
     actual fun createShaderModule(data: ByteArray): ShaderModule {
-        val desc = WgpuShaderModuleDescriptor.createDirect();
+        val src = WgpuShaderSource.createDirect();
         val codePtr = WgpuJava.createByteArrayPointer(data)
-        desc.code.bytes = codePtr;
-        desc.code.length = data.size.toLong() / 4 //length is in terms of u32s
+        src.bytes = codePtr;
+        src.length = data.size.toLong() / 4 //length is in terms of u32s
 
-        val module = WgpuJava.wgpuNative.wgpu_device_create_shader_module(id, desc.pointerTo)
+        val module = WgpuJava.wgpuNative.wgpu_device_create_shader_module(id, src.pointerTo)
 
         return ShaderModule(module)
     }
@@ -216,74 +216,74 @@ actual class CommandEncoder(val id: Long) {
 }
 
 
-actual class RenderPassEncoder(val pass: WgpuRawPass) {
+actual class RenderPassEncoder(val pass: Pointer) {
 
     override fun toString(): String {
         return "RenderPassEncoder"
     }
 
     actual fun setPipeline(pipeline: RenderPipeline) {
-        WgpuJava.wgpuNative.wgpu_render_pass_set_pipeline(pass.pointerTo, pipeline.id)
+        WgpuJava.wgpuNative.wgpu_render_pass_set_pipeline(pass, pipeline.id)
     }
 
     actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
         WgpuJava.wgpuNative.wgpu_render_pass_draw(
-            pass.pointerTo,
+            pass,
             vertexCount, instanceCount, firstVertex, firstInstance
         )
     }
 
     actual fun endPass() {
-        WgpuJava.wgpuNative.wgpu_render_pass_end_pass(pass.pointerTo)
+        WgpuJava.wgpuNative.wgpu_render_pass_end_pass(pass)
     }
 
     actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
-        WgpuJava.wgpuNative.wgpu_render_pass_set_vertex_buffer(pass.pointerTo, slot.toInt(), buffer.id, offset, size)
+        WgpuJava.wgpuNative.wgpu_render_pass_set_vertex_buffer(pass, slot.toInt(), buffer.id, offset, size)
     }
 
     actual fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int) {
         WgpuJava.wgpuNative.wgpu_render_pass_draw_indexed(
-            pass.pointerTo, indexCount, instanceCount,
+            pass, indexCount, instanceCount,
             firstVertex, baseVertex, firstInstance
         )
     }
 
     actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        WgpuJava.wgpuNative.wgpu_render_pass_set_index_buffer(pass.pointerTo, buffer.id, offset, size)
+        WgpuJava.wgpuNative.wgpu_render_pass_set_index_buffer(pass, buffer.id, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
         WgpuJava.wgpuNative.wgpu_render_pass_set_bind_group(
-            pass.pointerTo, index, bindGroup.id,
+            pass, index, bindGroup.id,
             WgpuJava.createNullPointer(), 0
         )
     }
 
 }
 
-actual class ComputePassEncoder(val pass: WgpuRawPass) {
+actual class ComputePassEncoder(val pass: Pointer) {
 
     override fun toString(): String {
         return "ComputePassEncoder"
     }
 
     actual fun setPipeline(pipeline: ComputePipeline) {
-        WgpuJava.wgpuNative.wgpu_compute_pass_set_pipeline(pass.pointerTo, pipeline.id)
+        WgpuJava.wgpuNative.wgpu_compute_pass_set_pipeline(pass, pipeline.id)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
          WgpuJava.wgpuNative.wgpu_compute_pass_set_bind_group(
-            pass.pointerTo, index, bindGroup.id,
+            pass, index, bindGroup.id,
             WgpuJava.createNullPointer(), 0
         )
     }
 
     actual fun dispatch(x: Int, y: Int, z: Int) {
-        WgpuJava.wgpuNative.wgpu_compute_pass_dispatch(pass.pointerTo, x, y, z)
+        WgpuJava.wgpuNative.wgpu_compute_pass_dispatch(pass, x, y, z)
     }
 
     actual fun endPass() {
-        WgpuJava.wgpuNative.wgpu_compute_pass_end_pass(pass.pointerTo)
+        WgpuJava.wgpuNative.wgpu_compute_pass_end_pass(pass)
     }
 
 }
@@ -613,9 +613,8 @@ actual class Texture(val id: Long) {
 
 actual class TextureView(val id: Long) : IntoBindingResource {
 
-    override fun intoBindingResource(resource: WgpuBindingResource) {
-        resource.setTag(WgpuBindingResourceTag.TEXTURE_VIEW)
-        resource.data.setTextureViewId(id)
+    override fun intoBindingResource(resource: WgpuBindGroupEntry) {
+        resource.textureView = id
     }
 
     actual fun destroy(){
@@ -665,15 +664,16 @@ actual class RenderPassColorAttachmentDescriptor actual constructor(
 ) : WgpuRenderPassColorDescriptor(true) {
     init {
         this.attachment = attachment.id
-        this.storeOp = storeOp
         this.resolveTarget = resolveTarget?.id ?: 0
-        this.loadOp = if (clearColor == null) {
+        this.channel.storeOp = storeOp
+        this.channel.loadOp = if (clearColor == null) {
             LoadOp.LOAD
         } else {
             LoadOp.CLEAR
         }
+        this.channel.readOnly = false        
 
-        copyToNativeColor(this.clearColor, clearColor ?: Color.CLEAR)
+        copyToNativeColor(this.channel.clearValue, clearColor ?: Color.CLEAR)
     }
 }
 
@@ -738,11 +738,10 @@ actual class BufferDescriptor actual constructor(
 
 actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
 
-    override fun intoBindingResource(resource: WgpuBindingResource) {
-        resource.setTag(WgpuBindingResourceTag.BUFFER)
-        resource.data.binding.buffer = id
-        resource.data.binding.size = size
-        resource.data.binding.offset = 0
+    override fun intoBindingResource(resource: WgpuBindGroupEntry) {
+        resource.buffer = id
+        resource.size = size
+        resource.offset = 0
     }
 
     override fun toString(): String {
@@ -809,7 +808,7 @@ actual class BindGroupEntry actual constructor(
 
     init {
         this.binding = binding
-        resource.intoBindingResource(this.resource)
+        resource.intoBindingResource(this)
     }
 
 }
@@ -836,7 +835,7 @@ actual class BindGroup(val id: Long) {
 
 actual interface IntoBindingResource {
 
-    fun intoBindingResource(resource: WgpuBindingResource)
+    fun intoBindingResource(resource: WgpuBindGroupEntry)
 
 }
 
@@ -910,9 +909,8 @@ actual class SamplerDescriptor actual constructor(
 
 actual class Sampler(val id: Long) : IntoBindingResource {
 
-    override fun intoBindingResource(resource: WgpuBindingResource) {
-        resource.setTag(WgpuBindingResourceTag.SAMPLER)
-        resource.data.setSamplerId(id)
+    override fun intoBindingResource(resource: WgpuBindGroupEntry) {
+        resource.sampler = id
     }
 
     override fun toString(): String {
