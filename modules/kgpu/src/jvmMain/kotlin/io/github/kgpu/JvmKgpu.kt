@@ -213,6 +213,15 @@ actual class CommandEncoder(val id: Long) {
             Pointer.wrap(WgpuJava.getRuntime(), size)
         )
     }
+
+    actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D){
+        WgpuJava.wgpuNative.wgpu_command_encoder_copy_texture_to_buffer(
+            id, 
+            source.pointerTo,
+            dest.pointerTo,
+            size.pointerTo
+        )
+    }
 }
 
 

@@ -146,4 +146,9 @@ public interface WgpuJNI {
     void wgpu_texture_destroy(@u_int64_t long texture);
 
     void wgpu_texture_view_destroy(@u_int64_t long textureView);
+
+    void wgpu_command_encoder_copy_texture_to_buffer(@u_int64_t long encoder,
+                                                 Pointer source,
+                                                 Pointer destination,
+                                                 Pointer size);
 }

@@ -54,6 +54,7 @@ kotlin {
 
         jvm().compilations["test"].defaultSourceSet {
             dependencies {
+                implementation(project(":modules:kshader"))
                 implementation(kotlin("test-junit"))
             }
         }

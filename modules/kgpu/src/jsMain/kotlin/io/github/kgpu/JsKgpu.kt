@@ -201,6 +201,10 @@ actual class CommandEncoder(val jsType: GPUCommandEncoder) {
     ) {
         jsType.copyBufferToBuffer(source.jsType, sourceOffset, destination.jsType, destinationOffset, size)
     }
+
+    actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D){
+        jsType.copyTextureToBuffer(source, dest, size)
+    }
 }
 
 external class GPUCommandEncoder {
@@ -220,6 +224,8 @@ external class GPUCommandEncoder {
         destinationOffset: Int,
         size: Long
     )
+
+    fun copyTextureToBuffer(source: TextureCopyView, destination: BufferCopyView, copySize: Extent3D)
 }
 
 actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {

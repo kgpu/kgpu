@@ -95,6 +95,8 @@ expect class CommandEncoder {
         source: Buffer, destination: Buffer, size: Long = destination.size,
         sourceOffset: Int = 0, destinationOffset: Int = 0
     )
+
+    fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D)
 }
 
 expect class RenderPassEncoder {
