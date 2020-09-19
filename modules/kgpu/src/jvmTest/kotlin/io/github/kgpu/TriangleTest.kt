@@ -92,12 +92,13 @@ class TriangleTest {
         }
     }
 
-    @Test
-    fun triangleTest(){
-        runBlocking {
-            triangleTestAsync();
-        }
-    }
+    // Disabled until adapter can be selected on CI
+    // @Test
+    // fun triangleTest(){
+    //     runBlocking {
+    //         triangleTestAsync();
+    //     }
+    // }
 
     private fun createRenderPipeline(
         pipelineLayout: PipelineLayout,
