@@ -115,30 +115,6 @@ tasks{
         into("${projectDir}/src/main/resources")
     }
 
-    register("installWgpuTest", Copy::class){
-        dependsOn("compileWgpuTest")
-
-        from("${projectDir}/wgpu-test/target/debug"){
-            include("wgpu_test.dll")
-            include("libwgpu_test.so")
-            include("libwgpu_test.dylib")
-        }
-        into("${projectDir}/src/test/resources")
-    }
-
-    register("compileWgpuTest", Exec::class){
-        workingDir("${projectDir}/wgpu-test")
-        commandLine("cargo", "build")
-    }
-
-    val test by getting {
-        dependsOn("cleanTest")
-    }
-
-    val compileTestJava by getting{
-        dependsOn("installWgpuTest")
-    }
-
     val compileJava by getting{
         dependsOn("installWgpuNative")
     }

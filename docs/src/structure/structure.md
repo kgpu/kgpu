@@ -19,7 +19,3 @@ which creates JNI bindings at runtime. Most of the code in this module is genera
 
 jnr-gen is a tool that generates jnr enum and struct classes from the wgpu.h header. For more info see
 [this page](jnrgen.md) all about jnr-gen.
-
-### wgpuj/wgpu-test
-
-This is a small crate which contains unit tests for the wgpuj library
