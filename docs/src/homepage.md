@@ -2,6 +2,9 @@
 
 A Cross Platform Graphics API For Kotlin JVM/JS
 
+__Warning__: Because WebGPU is under active development, kgpu is very unstable! Once the specification is more 
+finalized, this will not be an issue. 
+
  __Requirements:__
 
 - JDK 11

@@ -250,7 +250,7 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
     }
 
     actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        jsType.setIndexBuffer(buffer.jsType, offset, size)
+        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
@@ -269,7 +269,7 @@ external class GPURenderPassEncoder {
 
     fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int)
 
-    fun setIndexBuffer(buffer: GPUBuffer, offset: Long, size: Long)
+    fun setIndexBuffer(buffer: GPUBuffer, format: String, offset: Long, size: Long)
 
     fun setBindGroup(index: Int, bindGroup: GPUBindGroup)
 }
