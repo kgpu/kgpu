@@ -9,7 +9,7 @@ import jnr.ffi.Struct;
 public class WgpuVertexStateDescriptor extends WgpuJavaStruct {
 
     private final Struct.Enum<WgpuIndexFormat> indexFormat = new Struct.Enum<>(WgpuIndexFormat.class);
-    private final DynamicStructRef<WgpuVertexBufferLayoutDescriptor> vertexBuffers = new DynamicStructRef<>(WgpuVertexBufferLayoutDescriptor.class);
+    private final DynamicStructRef<WgpuVertexBufferDescriptor> vertexBuffers = new DynamicStructRef<>(WgpuVertexBufferDescriptor.class);
     private final Struct.Unsigned64 vertexBuffersLength = new Struct.Unsigned64();
 
     protected WgpuVertexStateDescriptor(boolean direct){
@@ -52,11 +52,11 @@ public class WgpuVertexStateDescriptor extends WgpuJavaStruct {
         this.indexFormat.set(x);
     }
 
-    public DynamicStructRef<WgpuVertexBufferLayoutDescriptor> getVertexBuffers(){
+    public DynamicStructRef<WgpuVertexBufferDescriptor> getVertexBuffers(){
         return vertexBuffers;
     }
 
-    public void setVertexBuffers(WgpuVertexBufferLayoutDescriptor... x){
+    public void setVertexBuffers(WgpuVertexBufferDescriptor... x){
         if(x.length == 0 || x[0] == null){
             this.vertexBuffers.set(WgpuJava.createNullPointer());
         } else {

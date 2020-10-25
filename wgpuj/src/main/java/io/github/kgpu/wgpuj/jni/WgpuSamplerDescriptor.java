@@ -21,6 +21,7 @@ public class WgpuSamplerDescriptor extends WgpuJavaStruct {
     private final Struct.Float lodMinClamp = new Struct.Float();
     private final Struct.Float lodMaxClamp = new Struct.Float();
     private final Struct.Enum<WgpuCompareFunction> compare = new Struct.Enum<>(WgpuCompareFunction.class);
+    private final Struct.Enum<WgpuSamplerBorderColor> borderColor = new Struct.Enum<>(WgpuSamplerBorderColor.class);
 
     protected WgpuSamplerDescriptor(boolean direct){
          if(direct){
@@ -144,6 +145,14 @@ public class WgpuSamplerDescriptor extends WgpuJavaStruct {
 
     public void setCompare(WgpuCompareFunction x){
         this.compare.set(x);
+    }
+
+    public WgpuSamplerBorderColor getBorderColor(){
+        return borderColor.get();
+    }
+
+    public void setBorderColor(WgpuSamplerBorderColor x){
+        this.borderColor.set(x);
     }
 
 }

@@ -15,4 +15,8 @@ public enum WgpuTextureComponentType {
        * They see it as a unsigned integer `utexture1D`, `utexture2D` etc
        */
     UINT,
+     /**
+       * They see it as a floating point 0-1 result of comparison, i.e. `shadowTexture2D`
+       */
+    DEPTH_COMPARISON,
 }

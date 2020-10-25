@@ -8,7 +8,7 @@ import jnr.ffi.Struct;
 public class WgpuBindGroupEntry extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 binding = new Struct.Unsigned32();
-    private final Struct.Unsigned32 _NO_USE_padding = new Struct.Unsigned32();
+    private final Struct.Unsigned32 _NO_USE_padding_1 = new Struct.Unsigned32();
     private final Struct.Unsigned64 buffer = new Struct.Unsigned64();
     private final Struct.Unsigned64 offset = new Struct.Unsigned64();
     private final Struct.Unsigned64 size = new Struct.Unsigned64();

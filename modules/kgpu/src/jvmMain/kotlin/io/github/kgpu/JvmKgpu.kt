@@ -46,7 +46,6 @@ actual object Kgpu {
         WgpuJava.wgpuNative.wgpu_request_adapter_async(
             options.pointerTo,
             defaultBackend,
-            false,
             { received: Long, userData: Pointer? -> adapter.set(received) },
             WgpuJava.createNullPointer()
         )
@@ -448,7 +447,7 @@ actual class RenderPipelineDescriptor actual constructor(
         this.vertexState.vertexBuffersLength = vertexState.vertexBuffersLength
         this.sampleCount = sampleCount.toLong()
         this.sampleMask = sampleMask
-        this.alphaToCoverageEnabled = alphaToCoverage
+        this.alphaToCoverage = alphaToCoverage
     }
 
 }
@@ -471,10 +470,10 @@ actual class VertexBufferLayoutDescriptor actual constructor(
     arrayStride: Long,
     stepMode: InputStepMode,
     vararg attributes: VertexAttributeDescriptor
-) : WgpuVertexBufferLayoutDescriptor(true) {
+) : WgpuVertexBufferDescriptor(true) {
 
     init {
-        this.arrayStride = arrayStride
+        this.stride = arrayStride
         this.stepMode = stepMode
         this.attributes.set(attributes)
         this.attributesLength = attributes.size.toLong()
@@ -650,10 +649,9 @@ actual class SwapChain(val id: Long, private val window: Window) {
     }
 
     actual fun getCurrentTextureView(): TextureView {
-        val output = WgpuSwapChainOutput.createDirect()
-        WgpuJava.wgpuNative.wgpu_swap_chain_get_next_texture_jnr_hack(id, output.pointerTo)
+        val id = WgpuJava.wgpuNative.wgpu_swap_chain_get_current_texture_view(id)
 
-        return TextureView(output.viewId)
+        return TextureView(id)
     }
 
     actual fun present() {
@@ -670,7 +668,7 @@ actual class RenderPassColorAttachmentDescriptor actual constructor(
     clearColor: Color?,
     resolveTarget: TextureView?,
     storeOp: StoreOp
-) : WgpuRenderPassColorDescriptor(true) {
+) : WgpuColorAttachmentDescriptor(true) {
     init {
         this.attachment = attachment.id
         this.resolveTarget = resolveTarget?.id ?: 0
@@ -695,10 +693,12 @@ internal fun copyToNativeColor(native: WgpuColor, color: Color) {
 
 actual class RenderPassDescriptor actual constructor(
     vararg colorAttachments: RenderPassColorAttachmentDescriptor
-) : WgpuRenderPassDescriptor(
-    null,
-    *colorAttachments
-)
+) : WgpuRenderPassDescriptor(true){
+    init {
+        this.colorAttachments.set(colorAttachments)
+        this.colorAttachmentsLength = colorAttachments.size.toLong()
+    }
+}
 
 actual class CommandBuffer(val id: Long) {
 
@@ -904,7 +904,8 @@ actual class SamplerDescriptor actual constructor(
 ) : WgpuSamplerDescriptor(true) {
 
     init {
-        this.compare = compare ?: WgpuCompareFunction.values()[0]
+        this.setNextInChain(null)
+        this.compare = compare ?: CompareFunction.UNDEFINED
         this.addressModeU = addressModeU
         this.addressModeV = addressModeV
         this.addressModeW = addressModeV

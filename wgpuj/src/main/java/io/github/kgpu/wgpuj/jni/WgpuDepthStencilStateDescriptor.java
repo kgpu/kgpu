@@ -10,10 +10,7 @@ public class WgpuDepthStencilStateDescriptor extends WgpuJavaStruct {
     private final Struct.Enum<WgpuTextureFormat> format = new Struct.Enum<>(WgpuTextureFormat.class);
     private final Struct.Boolean depthWriteEnabled = new Struct.Boolean();
     private final Struct.Enum<WgpuCompareFunction> depthCompare = new Struct.Enum<>(WgpuCompareFunction.class);
-    private final WgpuStencilStateFaceDescriptor stencilFront = inner(WgpuStencilStateFaceDescriptor.createHeap());
-    private final WgpuStencilStateFaceDescriptor stencilBack = inner(WgpuStencilStateFaceDescriptor.createHeap());
-    private final Struct.Unsigned32 stencilReadMask = new Struct.Unsigned32();
-    private final Struct.Unsigned32 stencilWriteMask = new Struct.Unsigned32();
+    private final WgpuStencilStateDescriptor stencil = inner(WgpuStencilStateDescriptor.createHeap());
 
     protected WgpuDepthStencilStateDescriptor(boolean direct){
          if(direct){
@@ -71,28 +68,8 @@ public class WgpuDepthStencilStateDescriptor extends WgpuJavaStruct {
         this.depthCompare.set(x);
     }
 
-    public WgpuStencilStateFaceDescriptor getStencilFront(){
-        return stencilFront;
-    }
-
-    public WgpuStencilStateFaceDescriptor getStencilBack(){
-        return stencilBack;
-    }
-
-    public long getStencilReadMask(){
-        return stencilReadMask.get();
-    }
-
-    public void setStencilReadMask(long x){
-        this.stencilReadMask.set(x);
-    }
-
-    public long getStencilWriteMask(){
-        return stencilWriteMask.get();
-    }
-
-    public void setStencilWriteMask(long x){
-        this.stencilWriteMask.set(x);
+    public WgpuStencilStateDescriptor getStencil(){
+        return stencil;
     }
 
 }

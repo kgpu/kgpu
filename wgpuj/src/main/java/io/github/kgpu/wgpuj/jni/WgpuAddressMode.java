@@ -24,4 +24,12 @@ public enum WgpuAddressMode {
        * 1.25 -> 0.75
        */
     MIRROR_REPEAT,
+     /**
+       * Clamp the value to the border of the texture
+       * Requires feature [`Features::ADDRESS_MODE_CLAMP_TO_BORDER`]
+       *
+       * -0.25 -> border
+       * 1.25 -> border
+       */
+    CLAMP_TO_BORDER,
 }

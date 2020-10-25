@@ -630,7 +630,9 @@ expect enum class BlendFactor {
 }
 
 expect enum class IndexFormat {
+    /// Supported on Web and Desktop
     UINT16,
+    /// Not supported on web for KGPU.
     UINT32,
 }
 
@@ -764,7 +766,6 @@ expect enum class FilterMode {
 }
 
 expect enum class CompareFunction {
-    UNDEFINED,
     NEVER,
     LESS,
     EQUAL,

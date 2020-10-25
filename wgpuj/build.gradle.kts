@@ -88,7 +88,7 @@ tasks{
 
     register("downloadWgpuNative", Download::class){
         val wgpuNativeSHA: String by rootProject.extra
-        val baseUrl = "https://github.com/kgpu/wgpu-native/releases/download/V.$wgpuNativeSHA/"
+        val baseUrl = "https://github.com/kgpu/wgpu-native-builds/releases/download/V.$wgpuNativeSHA/"
         onlyIfModified(true)
 
         src(listOf(

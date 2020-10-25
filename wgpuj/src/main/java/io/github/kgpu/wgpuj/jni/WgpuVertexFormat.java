@@ -44,11 +44,11 @@ public enum WgpuVertexFormat {
        */
     USHORT4,
      /**
-       * Two unsigned shorts (i16). `ivec2` in shaders.
+       * Two signed shorts (i16). `ivec2` in shaders.
        */
     SHORT2,
      /**
-       * Four unsigned shorts (i16). `ivec4` in shaders.
+       * Four signed shorts (i16). `ivec4` in shaders.
        */
     SHORT4,
      /**

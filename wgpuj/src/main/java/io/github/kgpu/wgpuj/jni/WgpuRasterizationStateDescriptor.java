@@ -9,6 +9,8 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
 
     private final Struct.Enum<WgpuFrontFace> frontFace = new Struct.Enum<>(WgpuFrontFace.class);
     private final Struct.Enum<WgpuCullMode> cullMode = new Struct.Enum<>(WgpuCullMode.class);
+    private final Struct.Enum<WgpuPolygonMode> polygonMode = new Struct.Enum<>(WgpuPolygonMode.class);
+    private final Struct.Boolean clampDepth = new Struct.Boolean();
     private final Struct.Signed32 depthBias = new Struct.Signed32();
     private final Struct.Float depthBiasSlopeScale = new Struct.Float();
     private final Struct.Float depthBiasClamp = new Struct.Float();
@@ -59,6 +61,22 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
 
     public void setCullMode(WgpuCullMode x){
         this.cullMode.set(x);
+    }
+
+    public WgpuPolygonMode getPolygonMode(){
+        return polygonMode.get();
+    }
+
+    public void setPolygonMode(WgpuPolygonMode x){
+        this.polygonMode.set(x);
+    }
+
+    public boolean getClampDepth(){
+        return clampDepth.get();
+    }
+
+    public void setClampDepth(boolean x){
+        this.clampDepth.set(x);
     }
 
     public int getDepthBias(){

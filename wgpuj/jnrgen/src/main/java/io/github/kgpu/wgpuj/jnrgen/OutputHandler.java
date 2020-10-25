@@ -28,16 +28,13 @@ public class OutputHandler {
             "WgpuBindingResource_WgpuSampler_Body",
             "WgpuBindingResource_WgpuTextureView_Body",
             "WgpuRenderPassDepthStencilAttachmentDescriptorBase_TextureViewId",
-            "WgpuRenderPassDescriptor",
             "WgpuRenderBundleEncoderDescriptor");
 
     private static final Map<String, String> exportNames = Map.of(
             "SURFACE_DESCRIPTOR_FROM_WINDOWS_H_W_N_D", "SURFACE_DESCRIPTOR_FROM_WINDOWS_HWND",
             "SURFACE_DESCRIPTOR_FROM_H_T_M_L_CANVAS_ID", "SURFACE_DESCRIPTOR_FROM_HTML_CANVAS_ID",
             "SHADER_MODULE_S_P_I_R_V_DESCRIPTOR", "SHADER_MODULE_SPIRV_DESCRIPTOR",
-            "SHADER_MODULE_W_G_S_L_DESCRIPTOR", "SHADER_MODULE_WGSL_DESCRIPTOR",
-            "WgpuRenderPassDepthStencilAttachmentDescriptorBase_TextureViewId", "WgpuRenderPassDepthStencilDescriptor",
-            "WgpuRenderPassColorAttachmentDescriptorBase_TextureViewId", "WgpuRenderPassColorDescriptor"
+            "SHADER_MODULE_W_G_S_L_DESCRIPTOR", "SHADER_MODULE_WGSL_DESCRIPTOR"
     );
 
     public OutputHandler(File outputDirectory) {

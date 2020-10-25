@@ -8,5 +8,4 @@ public enum WgpuSwapChainStatus {
     TIMEOUT,
     OUTDATED,
     LOST,
-    OUT_OF_MEMORY,
 }

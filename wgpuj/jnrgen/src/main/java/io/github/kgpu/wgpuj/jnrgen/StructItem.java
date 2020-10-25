@@ -148,6 +148,8 @@ public class StructItem implements Item {
                 type = "Struct.Unsigned32";
             } else if (type.equals("int32_t")) {
                 type = "Struct.Signed32";
+            } else if (type.equals("uint16_t")) {
+                type = "Struct.Unsigned16";
             } else if (type.equals("uint8_t")) {
                 type = "Struct.Unsigned8";
             } else if (type.equals("bool")) {

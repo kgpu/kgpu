@@ -116,7 +116,7 @@ suspend fun runCubeExample(window: Window) {
 
 suspend fun runTriangleExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
-    val device = adapter.requestDeviceAsync();
+    val device = adapter.requestDeviceAsync()
     val vertexShader = device.createShaderModule(KShader.compile("vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
     val fragShader = device.createShaderModule(KShader.compile("frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
 

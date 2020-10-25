@@ -16,7 +16,8 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
     private final Struct.Enum<WgpuTextureViewDimension> viewDimension = new Struct.Enum<>(WgpuTextureViewDimension.class);
     private final Struct.Enum<WgpuTextureComponentType> textureComponentType = new Struct.Enum<>(WgpuTextureComponentType.class);
     private final Struct.Enum<WgpuTextureFormat> storageTextureFormat = new Struct.Enum<>(WgpuTextureFormat.class);
-    private final Struct.Unsigned64 count = new Struct.Unsigned64();
+    private final Struct.Unsigned32 count = new Struct.Unsigned32();
+    private final Struct.Unsigned32 _NO_USE_padding_0 = new Struct.Unsigned32();
 
     protected WgpuBindGroupLayoutEntry(boolean direct){
          if(direct){

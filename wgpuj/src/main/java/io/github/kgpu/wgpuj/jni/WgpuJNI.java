@@ -19,7 +19,6 @@ public interface WgpuJNI {
 
     void wgpu_request_adapter_async(Pointer options,
                                     @u_int32_t int backendMask,
-                                    boolean allowUnsafe,
                                     RequestAdapterCallback callback,
                                     Pointer userdata);
 
@@ -49,7 +48,8 @@ public interface WgpuJNI {
     long wgpu_device_create_swap_chain(@u_int64_t long device, @u_int64_t long surfaceID,
                                        Pointer wgpuWSwapChainDescriptor);
 
-    void wgpu_swap_chain_get_next_texture_jnr_hack(@u_int64_t long swapChain, Pointer output);
+    @u_int64_t
+    long wgpu_swap_chain_get_current_texture_view(@u_int64_t long swapChain);
 
     @u_int64_t
     long wgpu_device_create_command_encoder(@u_int64_t long device_id, Pointer commandEncoderDescription);
