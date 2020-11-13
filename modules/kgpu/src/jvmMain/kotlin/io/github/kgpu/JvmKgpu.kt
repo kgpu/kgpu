@@ -41,7 +41,7 @@ actual object Kgpu {
         val defaultBackend: Int = (1 shl 1) or (1 shl 2) or (1 shl 3)
         val options = WgpuRequestAdapterOptions.createDirect()
         options.compatibleSurface = window?.surface ?: 0
-        options.powerPreference = WgpuPowerPreference.DEFAULT
+        options.powerPreference = WgpuPowerPreference.HIGH_PERFORMANCE
 
         WgpuJava.wgpuNative.wgpu_request_adapter_async(
             options.pointerTo,
@@ -65,7 +65,9 @@ actual class Adapter(val id: Long) {
         limits.maxBindGroups = 4;
         val deviceId = WgpuJava.wgpuNative.wgpu_adapter_request_device(
             id, 0,
-            limits.pointerTo, WgpuJava.createNullPointer()
+            limits.pointerTo,
+            false,
+            WgpuJava.createNullPointer()
         );
 
         return Device(deviceId)

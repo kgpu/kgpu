@@ -66,7 +66,6 @@ enum class GPUExtensionName {
 
 actual enum class PowerPreference(jsType: GPUPowerPreference?) {
     LOW_POWER(GPUPowerPreference.LOW_POWER),
-    DEFAULT(null),
     HIGH_PERFORMANCE(GPUPowerPreference.HIGH_PERFORMANCE)
 }
 
