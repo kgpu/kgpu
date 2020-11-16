@@ -134,4 +134,11 @@ tasks {
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-model")
     }
+
+    register("runBoidExample", Exec::class){
+        dependsOn("jvmFatJar")
+
+        workingDir("$projectDir")
+        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-boid")
+    }
 }

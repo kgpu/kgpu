@@ -3,6 +3,7 @@ import io.github.kgpu.Window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import msaa.runMsaaTriangle
+import boid.runBoidExample
 import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
@@ -36,6 +37,7 @@ fun main(){
                 runComputeCompareExample()
             }
             "7" -> runWindowEventExample(kgpuWindow)
+            "8" -> runBoidExample(kgpuWindow)
             else -> runTriangleExample(kgpuWindow)
         }
     }
