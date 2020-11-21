@@ -4,8 +4,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import msaa.runMsaaTriangle
 import org.w3c.dom.url.URL
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import compute.runComputeCompareExample
 import kotlinx.coroutines.await
 import org.w3c.dom.Element

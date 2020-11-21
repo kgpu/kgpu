@@ -9,7 +9,7 @@ import kotlinx.browser.window as jsWindow
 
 actual class Window actual constructor() {
 
-    private val canvas = kotlin.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
+    private val canvas = kotlinx.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
     private val context = canvas.getContext("gpupresent")
     private var canvasHackRan = false
     actual var windowSize: WindowSize = WindowSize(canvas.width, canvas.height)

@@ -6,7 +6,7 @@ import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLImageElement
 import org.w3c.dom.RenderingContext
-import kotlin.browser.document
+import kotlinx.browser.document
 import kotlin.js.Promise
 
 actual class ImageData(

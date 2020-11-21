@@ -10,7 +10,7 @@ import org.w3c.fetch.RequestCredentials
 import org.w3c.fetch.RequestInit
 import org.w3c.fetch.SAME_ORIGIN
 import org.w3c.xhr.XMLHttpRequest
-import kotlin.browser.window
+import kotlinx.browser.window
 
 actual object KgpuFiles {
 

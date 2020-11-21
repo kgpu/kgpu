@@ -5,8 +5,8 @@ import kotlinx.coroutines.await
 import org.khronos.webgl.*
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Promise
-import kotlin.browser.document as jsDocument
-import kotlin.browser.window as jsWindow
+import kotlinx.browser.document as jsDocument
+import kotlinx.browser.window as jsWindow
 
 actual object Kgpu {
     actual val backendName: String = "Web"
@@ -250,7 +250,7 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
     }
 
     actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType, offset, size)
+        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType,offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
