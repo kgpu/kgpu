@@ -4,12 +4,13 @@ import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.runBlocking
 import model.runObjModelExample
-import msaa.*
+import msaa.runMsaaTriangle
+import boid.runBoidExample
 
 fun main(args: Array<String>) {
     println("Args: ${args.joinToString()}")
 
-    val arg = if(args.size > 0){
+    val arg = if(args.isNotEmpty()){
         args[0]
     } else {
         "triangle"
@@ -24,6 +25,7 @@ fun main(args: Array<String>) {
             "-msaa" -> runMsaaTriangle(createWindow())
             "-window" -> runWindowEventExample(createWindow())
             "-model" -> runObjModelExample(createWindow())
+            "-boid" -> runBoidExample(createWindow())
             "-compute" -> {
                 Kgpu.init(false)
                 runComputeExample()

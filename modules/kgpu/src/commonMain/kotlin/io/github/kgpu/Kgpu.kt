@@ -65,7 +65,7 @@ expect class Adapter {
 }
 
 expect enum class PowerPreference {
-    LOW_POWER, DEFAULT, HIGH_PERFORMANCE
+    LOW_POWER, HIGH_PERFORMANCE
 }
 
 class Color(val r: Double, val g: Double, val b: Double, val a: Double) {

@@ -26,6 +26,7 @@ public interface WgpuJNI {
     long wgpu_adapter_request_device(@u_int64_t long adapter,
                                      @u_int64_t long extensions,
                                      Pointer limits,
+                                     boolean shaderValidation,
                                      Pointer tracePath);
 
     @u_int64_t

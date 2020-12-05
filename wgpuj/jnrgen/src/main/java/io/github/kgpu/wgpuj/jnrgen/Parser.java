@@ -63,7 +63,13 @@ public class Parser {
     private Item createConstant() {
         var name = pollExpect(Token.TokenType.IDENTIFIER);
 
-        if(Token.TokenType.IDENTIFIER != peek().getType()) {
+        //Skip casts
+        if(Token.TokenType.LEFT_PARENTHESIS == peek().getType()) {
+            while(poll().getType() != Token.TokenType.RIGHT_PARENTHESIS){}
+        }
+
+        //TODO: Handle struct constants
+        if(Token.TokenType.OPEN_BRACKET == peek().getType()){
             return null;
         }
 

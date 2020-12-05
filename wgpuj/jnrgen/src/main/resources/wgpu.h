@@ -321,17 +321,13 @@ typedef enum WGPUPolygonMode {
  */
 typedef enum WGPUPowerPreference {
   /**
-   * Prefer low power when on battery, high performance when on mains.
-   */
-  WGPUPowerPreference_Default = 0,
-  /**
    * Adapter that uses the least possible power. This is often an integerated GPU.
    */
-  WGPUPowerPreference_LowPower = 1,
+  WGPUPowerPreference_LowPower = 0,
   /**
    * Adapter that has the highest performance. This is often a discrete GPU.
    */
-  WGPUPowerPreference_HighPerformance = 2,
+  WGPUPowerPreference_HighPerformance = 1,
 } WGPUPowerPreference;
 
 /**
@@ -983,21 +979,11 @@ typedef enum WGPUVertexFormat {
   WGPUVertexFormat_Int4 = 29,
 } WGPUVertexFormat;
 
-/**
- * View of a buffer which can be used to copy to/from a texture.
- */
-typedef struct WGPUBufferCopyView_BufferId WGPUBufferCopyView_BufferId;
-
 typedef struct WGPUComputePass WGPUComputePass;
 
 typedef struct WGPURenderBundleEncoder WGPURenderBundleEncoder;
 
 typedef struct WGPURenderPass WGPURenderPass;
-
-/**
- * View of a texture which can be used to copy to/from a buffer/texture.
- */
-typedef struct WGPUTextureCopyView_TextureId WGPUTextureCopyView_TextureId;
 
 typedef WGPUNonZeroU64 WGPUId_CommandBuffer_Dummy;
 
@@ -1081,10 +1067,6 @@ typedef struct WGPUExtent3d {
   uint32_t height;
   uint32_t depth;
 } WGPUExtent3d;
-
-typedef WGPUTextureCopyView_TextureId WGPUTextureCopyView;
-
-typedef WGPUBufferCopyView_BufferId WGPUBufferCopyView;
 
 typedef WGPUNonZeroU64 WGPUId_TextureView_Dummy;
 
@@ -1576,9 +1558,9 @@ typedef uint32_t WGPUTextureUsage;
  */
 #define WGPUTextureUsage_STORAGE (uint32_t)8
 /**
- * Allows a texture to be a output attachment of a renderpass.
+ * Allows a texture to be an output attachment of a renderpass.
  */
-#define WGPUTextureUsage_OUTPUT_ATTACHMENT (uint32_t)16
+#define WGPUTextureUsage_RENDER_ATTACHMENT (uint32_t)16
 
 /**
  * Describes a [`Texture`].
@@ -2009,7 +1991,7 @@ typedef WGPUId_SwapChain_Dummy WGPUSwapChainId;
  */
 typedef struct WGPUSwapChainDescriptor {
   /**
-   * The usage of the swap chain. The only supported usage is OUTPUT_ATTACHMENT
+   * The usage of the swap chain. The only supported usage is `RENDER_ATTACHMENT`.
    */
   WGPUTextureUsage usage;
   /**
@@ -2225,7 +2207,7 @@ void wgpu_buffer_destroy(WGPUBufferId buffer_id, bool now);
 
 WGPUTextureId wgpu_device_create_texture(WGPUDeviceId device_id, const WGPUTextureDescriptor *desc);
 
-void wgpu_texture_destroy(WGPUTextureId texture_id);
+void wgpu_texture_destroy(WGPUTextureId texture_id, bool wait);
 
 WGPUTextureViewId wgpu_texture_create_view(WGPUTextureId texture_id,
                                            const WGPUTextureViewDescriptor *desc);
