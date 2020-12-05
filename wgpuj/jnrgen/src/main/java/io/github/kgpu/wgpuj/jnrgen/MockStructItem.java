@@ -2,7 +2,7 @@ package io.github.kgpu.wgpuj.jnrgen;
 
 import java.io.IOException;
 
-public class MockStructItem implements Item{
+public class MockStructItem implements Item {
 
     private final String javaType;
 
@@ -11,9 +11,7 @@ public class MockStructItem implements Item{
     }
 
     @Override
-    public void save(OutputHandler outputHandler) throws IOException {
-
-    }
+    public void save(OutputHandler outputHandler) throws IOException {}
 
     @Override
     public String getJavaTypeName() {

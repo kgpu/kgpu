@@ -9,7 +9,7 @@ public interface LogCallback {
     @Delegate
     void log(WgpuLogLevel level, Pointer message);
 
-    static LogCallback createDefault(){
+    static LogCallback createDefault() {
         return (level, pointer) -> {
             String message = RustCString.fromPointer(pointer);
 

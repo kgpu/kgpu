@@ -6,16 +6,24 @@ import io.github.kgpu.kshader.KShaderType
 import kotlin.random.Random
 
 const val BOIDS_PER_GROUP = 64
+
 const val BOID_COUNT = 1024
+
 const val MASS_RULE_DISTANCE = .1
+
 const val MASS_RULE_SCALE = 0.02
+
 const val SEPARATION_RULE_DISTANCE = .025
+
 const val SEPARATION_RULE_SCALE = .05
+
 const val HEADING_RULE_DISTANCE = .025
+
 const val HEADING_RULE_SCALE = .005
 
 object Shaders {
-    val VERTEX = """
+    val VERTEX =
+        """
         #version 450
 
         out gl_PerVertex {
@@ -34,7 +42,8 @@ object Shaders {
         }
     """.trimIndent()
 
-    val FRAG = """
+    val FRAG =
+        """
         #version 450
 
         layout(location = 0) out vec4 outColor;
@@ -45,7 +54,8 @@ object Shaders {
 
     """.trimIndent()
 
-    val COMPUTE = """
+    val COMPUTE =
+        """
         #version 450
 
         #define BOID_COUNT $BOID_COUNT
@@ -135,33 +145,42 @@ object Shaders {
 suspend fun runBoidExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val vertexShader = device.createShaderModule(KShader.compile("vertex", Shaders.VERTEX, KShaderType.VERTEX))
-    val fragShader = device.createShaderModule(KShader.compile("frag", Shaders.FRAG, KShaderType.FRAGMENT))
-    val computeShader = device.createShaderModule(KShader.compile("compute", Shaders.COMPUTE, KShaderType.COMPUTE))
+    val vertexShader =
+        device.createShaderModule(KShader.compile("vertex", Shaders.VERTEX, KShaderType.VERTEX))
+    val fragShader =
+        device.createShaderModule(KShader.compile("frag", Shaders.FRAG, KShaderType.FRAGMENT))
+    val computeShader =
+        device.createShaderModule(KShader.compile("compute", Shaders.COMPUTE, KShaderType.COMPUTE))
 
-    val vertices = floatArrayOf(
-        -0.015f, -0.0075f,
-        -0.015f, .0075f,
-        0.015f, 0.00f,
-    )
-    val vertexBuffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
+    val vertices =
+        floatArrayOf(
+            -0.015f,
+            -0.0075f,
+            -0.015f,
+            .0075f,
+            0.015f,
+            0.00f,
+        )
+    val vertexBuffer =
+        BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val boidData = FloatArray(BOID_COUNT * 4)
-    for (index in 0 until BOID_COUNT){
-        boidData[index * 4] = Random.Default.nextFloat() * 2f - 1f;
-        boidData[index * 4 + 1] = Random.Default.nextFloat() * 2f - 1f;
-        boidData[index * 4 + 2] = (Random.Default.nextFloat() - .5f) / 10f;
-        boidData[index * 4 + 3] = (Random.Default.nextFloat() - .5f) / 10f;
-
+    for (index in 0 until BOID_COUNT) {
+        boidData[index * 4] = Random.Default.nextFloat() * 2f - 1f
+        boidData[index * 4 + 1] = Random.Default.nextFloat() * 2f - 1f
+        boidData[index * 4 + 2] = (Random.Default.nextFloat() - .5f) / 10f
+        boidData[index * 4 + 3] = (Random.Default.nextFloat() - .5f) / 10f
     }
 
     val boidBuffers = ArrayList<Buffer>(2)
     val boidBindGroups = ArrayList<BindGroup>(2)
-    val bindGroupLayout = device.createBindGroupLayout(
-        BindGroupLayoutDescriptor(
-            BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
-            BindGroupLayoutEntry(1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
-        )
-    )
+    val bindGroupLayout =
+        device.createBindGroupLayout(
+            BindGroupLayoutDescriptor(
+                BindGroupLayoutEntry(
+                    0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
+                BindGroupLayoutEntry(
+                    1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
+            ))
 
     for (i in 0..1) {
         boidBuffers.add(
@@ -169,9 +188,7 @@ suspend fun runBoidExample(window: Window) {
                 device,
                 "Boid Buffer $i",
                 boidData,
-                BufferUsage.VERTEX or BufferUsage.STORAGE or BufferUsage.COPY_DST
-            )
-        )
+                BufferUsage.VERTEX or BufferUsage.STORAGE or BufferUsage.COPY_DST))
     }
 
     for (i in 0..1) {
@@ -180,29 +197,29 @@ suspend fun runBoidExample(window: Window) {
                 BindGroupDescriptor(
                     bindGroupLayout,
                     BindGroupEntry(0, boidBuffers[i]),
-                    BindGroupEntry(1, boidBuffers[(i + 1) % 2])
-                )
-            )
-        )
+                    BindGroupEntry(1, boidBuffers[(i + 1) % 2]))))
     }
 
     val renderPipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
-    val computePipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
+    val computePipelineLayout =
+        device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
 
-    val computePipelineDesc = ComputePipelineDescriptor(
-        computePipelineLayout,
-        ProgrammableStageDescriptor(computeShader, "main")
-    )
+    val computePipelineDesc =
+        ComputePipelineDescriptor(
+            computePipelineLayout, ProgrammableStageDescriptor(computeShader, "main"))
     val computePipeline = device.createComputePipeline(computePipelineDesc)
-    val renderPipeline = device.createRenderPipeline(createRenderPipeline(renderPipelineLayout, vertexShader, fragShader))
+    val renderPipeline =
+        device.createRenderPipeline(
+            createRenderPipeline(renderPipelineLayout, vertexShader, fragShader))
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
-    window.onResize = { size: WindowSize ->
-        swapChain = window.configureSwapChain(swapChainDescriptor)
-    }
+    window.onResize =
+        { size: WindowSize ->
+            swapChain = window.configureSwapChain(swapChainDescriptor)
+        }
 
-    var frameCount = 0;
+    var frameCount = 0
     Kgpu.runLoop(window) {
         val cmdEncoder = device.createCommandEncoder()
         val computePass = cmdEncoder.beginComputePass()
@@ -212,7 +229,7 @@ suspend fun runBoidExample(window: Window) {
         computePass.dispatch(BOID_COUNT / BOIDS_PER_GROUP, 1)
         computePass.endPass()
 
-        val swapChainTexture = swapChain.getCurrentTextureView();
+        val swapChainTexture = swapChain.getCurrentTextureView()
         val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(renderPipeline)
@@ -224,7 +241,7 @@ suspend fun runBoidExample(window: Window) {
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
         queue.submit(cmdBuffer)
-        swapChain.present();
+        swapChain.present()
     }
 }
 
@@ -234,24 +251,15 @@ private fun createRenderPipeline(
     fragModule: ShaderModule,
 ): RenderPipelineDescriptor {
 
-
     return RenderPipelineDescriptor(
         pipelineLayout,
         ProgrammableStageDescriptor(vertexModule, "main"),
         ProgrammableStageDescriptor(fragModule, "main"),
         PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(
-            FrontFace.CCW,
-            CullMode.NONE
-        ),
+        RasterizationStateDescriptor(FrontFace.CCW, CullMode.NONE),
         arrayOf(
             ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(),
-                BlendDescriptor(),
-                0xF
-            )
-        ),
+                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
             IndexFormat.UINT16,
@@ -269,6 +277,5 @@ private fun createRenderPipeline(
         ),
         1,
         0xFFFFFFFF,
-        false
-    )
+        false)
 }

@@ -1,6 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
-plugins{ 
+plugins {
     kotlin("multiplatform")
     id("maven-publish")
     id("org.jetbrains.dokka")
@@ -20,8 +20,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            dependencies{
-
+            dependencies {
             }
         }
         val jvmMain by getting {
@@ -33,7 +32,7 @@ kotlin {
                 runtimeOnly("org.lwjgl:lwjgl-shaderc:$lwjglVersion:natives-linux")
             }
         }
-        val jsMain by getting{
+        val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.7")
             }
@@ -46,20 +45,20 @@ tasks.withType<DokkaTask>().configureEach {
 
     dokkaSourceSets {
         configureEach {
-            includeNonPublic = false 
+            includeNonPublic = false
         }
 
-        register("commonMain"){
+        register("commonMain") {
             displayName = "Common"
             platform = "common"
         }
 
-        register("jvmMain"){
+        register("jvmMain") {
             displayName = "Desktop"
             platform = "jvm"
         }
 
-        register("jsMain"){
+        register("jsMain") {
             displayName = "Web"
             platform = "js"
         }

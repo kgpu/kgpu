@@ -9,76 +9,74 @@ import jnr.ffi.Struct;
 public class WgpuVertexBufferDescriptor extends WgpuJavaStruct {
 
     private final Struct.Unsigned64 stride = new Struct.Unsigned64();
-    private final Struct.Enum<WgpuInputStepMode> stepMode = new Struct.Enum<>(WgpuInputStepMode.class);
-    private final DynamicStructRef<WgpuVertexAttributeDescriptor> attributes = new DynamicStructRef<>(WgpuVertexAttributeDescriptor.class);
+    private final Struct.Enum<WgpuInputStepMode> stepMode =
+            new Struct.Enum<>(WgpuInputStepMode.class);
+    private final DynamicStructRef<WgpuVertexAttributeDescriptor> attributes =
+            new DynamicStructRef<>(WgpuVertexAttributeDescriptor.class);
     private final Struct.Unsigned64 attributesLength = new Struct.Unsigned64();
 
-    protected WgpuVertexBufferDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuVertexBufferDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuVertexBufferDescriptor(Runtime runtime){
+    public WgpuVertexBufferDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuVertexBufferDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuVertexBufferDescriptor createHeap() {
         return new WgpuVertexBufferDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuVertexBufferDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuVertexBufferDescriptor createDirect() {
         return new WgpuVertexBufferDescriptor(true);
     }
 
-
-    public long getStride(){
+    public long getStride() {
         return stride.get();
     }
 
-    public void setStride(long x){
+    public void setStride(long x) {
         this.stride.set(x);
     }
 
-    public WgpuInputStepMode getStepMode(){
+    public WgpuInputStepMode getStepMode() {
         return stepMode.get();
     }
 
-    public void setStepMode(WgpuInputStepMode x){
+    public void setStepMode(WgpuInputStepMode x) {
         this.stepMode.set(x);
     }
 
-    public DynamicStructRef<WgpuVertexAttributeDescriptor> getAttributes(){
+    public DynamicStructRef<WgpuVertexAttributeDescriptor> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(WgpuVertexAttributeDescriptor... x){
-        if(x.length == 0 || x[0] == null){
+    public void setAttributes(WgpuVertexAttributeDescriptor... x) {
+        if (x.length == 0 || x[0] == null) {
             this.attributes.set(WgpuJava.createNullPointer());
         } else {
             this.attributes.set(x);
         }
     }
 
-    public long getAttributesLength(){
+    public long getAttributesLength() {
         return attributesLength.get();
     }
 
-    public void setAttributesLength(long x){
+    public void setAttributesLength(long x) {
         this.attributesLength.set(x);
     }
-
 }

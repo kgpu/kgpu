@@ -5,7 +5,6 @@ include("modules:kshader")
 include("modules:kcgmath")
 include("modules:kgpu")
 
-
 pluginManagement {
     repositories {
         gradlePluginPortal()

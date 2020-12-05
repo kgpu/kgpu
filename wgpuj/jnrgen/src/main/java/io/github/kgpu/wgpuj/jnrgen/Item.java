@@ -6,7 +6,7 @@ public interface Item {
 
     void save(OutputHandler outputHandler) throws IOException;
 
-    default void preSave(OutputHandler outputHandler){}
+    default void preSave(OutputHandler outputHandler) {}
 
     String getJavaTypeName();
 }

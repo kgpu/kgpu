@@ -14,16 +14,16 @@ repositories {
     mavenCentral()
 }
 
-tasks{
-    register("deletePreviousBindings", Delete::class){
-        delete("${buildDir}/jnr-gen")
+tasks {
+    register("deletePreviousBindings", Delete::class) {
+        delete("$buildDir/jnr-gen")
     }
-    
-    register("generateBindings", JavaExec::class){
+
+    register("generateBindings", JavaExec::class) {
         dependsOn("deletePreviousBindings")
         dependsOn("classes")
         classpath = sourceSets["main"].runtimeClasspath
         main = "io.github.kgpu.wgpuj.jnrgen.JNRGenerator"
-        args = listOf("${buildDir}")
+        args = listOf("$buildDir")
     }
 }

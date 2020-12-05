@@ -4,18 +4,16 @@ import io.github.kgpu.wgpuj.WgpuJava
 import io.github.kgpu.wgpuj.jni.WgpuPresentMode
 import io.github.kgpu.wgpuj.jni.WgpuSwapChainDescriptor
 import io.github.kgpu.wgpuj.util.Platform
+import java.nio.IntBuffer
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.glfw.GLFWNativeWin32
 import org.lwjgl.glfw.GLFWNativeX11
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
-import java.awt.Dimension
-import java.nio.IntBuffer
-
 
 actual class Window actual constructor() {
-    private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL);
+    private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
     internal val surface: Long
     actual var windowSize: WindowSize = WindowSize(0, 0)
         private set
@@ -25,7 +23,7 @@ actual class Window actual constructor() {
     actual var onKeyTyped: (c: Char) -> Unit = {}
     actual var onMouseClick: (event: ClickEvent) -> Unit = {}
     actual var onMouseRelease: (event: ClickEvent) -> Unit = {}
-    actual var onMouseMove: (x: Float, y: Float) -> Unit = {_, _ -> }
+    actual var onMouseMove: (x: Float, y: Float) -> Unit = { _, _ -> }
     actual var mouseX = 0f
         private set
     actual var mouseY = 0f
@@ -33,21 +31,24 @@ actual class Window actual constructor() {
 
     init {
         val osHandle = GlfwHandler.getOsWindowHandle(handle)
-        surface = if (Platform.isWindows) {
-            WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(WgpuJava.createNullPointer(), osHandle)
-        } else if (Platform.isLinux) {
-            val display = GLFWNativeX11.glfwGetX11Display()
-            WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-        } else {
-            println("[WARNING] Platform not tested. See " +
-                    "https://github.com/DevOrc/wgpu-java/issues/4")
-            0
-        }
+        surface =
+            if (Platform.isWindows) {
+                WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(
+                    WgpuJava.createNullPointer(), osHandle)
+            } else if (Platform.isLinux) {
+                val display = GLFWNativeX11.glfwGetX11Display()
+                WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
+            } else {
+                println(
+                    "[WARNING] Platform not tested. See " +
+                        "https://github.com/DevOrc/wgpu-java/issues/4")
+                0
+            }
 
         if (handle == MemoryUtil.NULL)
             throw java.lang.RuntimeException("Failed to create the window!")
 
-        windowSize = GlfwHandler.getWindowDimension(handle) 
+        windowSize = GlfwHandler.getWindowDimension(handle)
         GlfwHandler.centerWindow(handle)
 
         GLFW.glfwSetWindowSizeCallback(handle) { _, width, height ->
@@ -62,7 +63,7 @@ actual class Window actual constructor() {
             val alt = (mod and 4) != 0
 
             val event = KeyEvent(kgpuKey, shift, ctrl, alt)
-            when(action) {
+            when (action) {
                 GLFW.GLFW_PRESS, GLFW.GLFW_REPEAT -> onKeyDown(event)
                 GLFW.GLFW_RELEASE -> onKeyUp(event)
             }
@@ -73,26 +74,24 @@ actual class Window actual constructor() {
             val ctrl = (mod and 2) != 0
             val alt = (mod and 4) != 0
 
-            val event = ClickEvent(
-                when(button){
-                    0 -> MouseButton.LEFT
-                    1 -> MouseButton.RIGHT
-                    2 -> MouseButton.MIDDLE
-                    else -> MouseButton.UNKNOWN
-                },
-                shift,
-                ctrl,
-                alt
-            )
-            when(action){
+            val event =
+                ClickEvent(
+                    when (button) {
+                        0 -> MouseButton.LEFT
+                        1 -> MouseButton.RIGHT
+                        2 -> MouseButton.MIDDLE
+                        else -> MouseButton.UNKNOWN
+                    },
+                    shift,
+                    ctrl,
+                    alt)
+            when (action) {
                 GLFW.GLFW_PRESS -> onMouseClick(event)
                 GLFW.GLFW_RELEASE -> onMouseRelease(event)
             }
         }
 
-        GLFW.glfwSetCharCallback(handle) { _, codepoint ->
-            onKeyTyped(codepoint.toChar())
-        }
+        GLFW.glfwSetCharCallback(handle) { _, codepoint -> onKeyTyped(codepoint.toChar()) }
 
         GLFW.glfwSetCursorPosCallback(handle) { _, x, y ->
             mouseX = x.toFloat()
@@ -110,23 +109,25 @@ actual class Window actual constructor() {
     }
 
     actual fun update() {
-        GLFW.glfwPollEvents();
+        GLFW.glfwPollEvents()
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        val nativeDesc = WgpuSwapChainDescriptor.createDirect();
+        val nativeDesc = WgpuSwapChainDescriptor.createDirect()
         nativeDesc.format = desc.format
         nativeDesc.usage = desc.usage
         nativeDesc.presentMode = WgpuPresentMode.FIFO
         nativeDesc.width = windowSize.width.toLong()
         nativeDesc.height = windowSize.height.toLong()
 
-        val id = WgpuJava.wgpuNative.wgpu_device_create_swap_chain(desc.device.id, surface, nativeDesc.pointerTo)
+        val id =
+            WgpuJava.wgpuNative.wgpu_device_create_swap_chain(
+                desc.device.id, surface, nativeDesc.pointerTo)
 
         return SwapChain(id, this)
     }
 
-    actual fun resize(width: Int, height: Int){
+    actual fun resize(width: Int, height: Int) {
         GLFW.glfwSetWindowSize(handle, width, height)
 
         update()
@@ -142,20 +143,19 @@ internal object GlfwHandler {
             throw RuntimeException("Failed to initialize GLFW!")
         }
 
-        //Do not use opengl
+        // Do not use opengl
         GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API)
     }
 
     fun centerWindow(handle: Long) {
-        val currentDimension = getWindowDimension(handle);
+        val currentDimension = getWindowDimension(handle)
         val vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor())
 
         // Center the window
         GLFW.glfwSetWindowPos(
             handle,
             ((vidmode!!.width() - currentDimension.width) / 2).toInt(),
-            ((vidmode.height() - currentDimension.height) / 2).toInt()
-        )
+            ((vidmode.height() - currentDimension.height) / 2).toInt())
     }
 
     fun getWindowDimension(handle: Long): WindowSize {
@@ -190,37 +190,37 @@ internal object GlfwHandler {
     }
 }
 
-private fun glfwKeyToKgpuKey(glfwKey: Int) : Key {
-    return when(glfwKey) {
+private fun glfwKeyToKgpuKey(glfwKey: Int): Key {
+    return when (glfwKey) {
         GLFW.GLFW_KEY_A -> Key.A
         GLFW.GLFW_KEY_B -> Key.B
         GLFW.GLFW_KEY_C -> Key.C
         GLFW.GLFW_KEY_D -> Key.D
-        GLFW.GLFW_KEY_E -> Key.E 
+        GLFW.GLFW_KEY_E -> Key.E
         GLFW.GLFW_KEY_F -> Key.F
-        GLFW.GLFW_KEY_G -> Key.G 
-        GLFW.GLFW_KEY_H -> Key.H 
-        GLFW.GLFW_KEY_I -> Key.I 
-        GLFW.GLFW_KEY_J -> Key.J 
+        GLFW.GLFW_KEY_G -> Key.G
+        GLFW.GLFW_KEY_H -> Key.H
+        GLFW.GLFW_KEY_I -> Key.I
+        GLFW.GLFW_KEY_J -> Key.J
         GLFW.GLFW_KEY_K -> Key.K
-        GLFW.GLFW_KEY_L -> Key.L 
+        GLFW.GLFW_KEY_L -> Key.L
         GLFW.GLFW_KEY_M -> Key.M
         GLFW.GLFW_KEY_N -> Key.N
-        GLFW.GLFW_KEY_O -> Key.O 
-        GLFW.GLFW_KEY_P -> Key.P 
-        GLFW.GLFW_KEY_Q -> Key.Q 
-        GLFW.GLFW_KEY_R -> Key.R 
+        GLFW.GLFW_KEY_O -> Key.O
+        GLFW.GLFW_KEY_P -> Key.P
+        GLFW.GLFW_KEY_Q -> Key.Q
+        GLFW.GLFW_KEY_R -> Key.R
         GLFW.GLFW_KEY_S -> Key.S
-        GLFW.GLFW_KEY_T -> Key.T 
-        GLFW.GLFW_KEY_U -> Key.U 
-        GLFW.GLFW_KEY_V -> Key.V 
-        GLFW.GLFW_KEY_W -> Key.W 
-        GLFW.GLFW_KEY_X -> Key.X 
-        GLFW.GLFW_KEY_Y -> Key.Y 
+        GLFW.GLFW_KEY_T -> Key.T
+        GLFW.GLFW_KEY_U -> Key.U
+        GLFW.GLFW_KEY_V -> Key.V
+        GLFW.GLFW_KEY_W -> Key.W
+        GLFW.GLFW_KEY_X -> Key.X
+        GLFW.GLFW_KEY_Y -> Key.Y
         GLFW.GLFW_KEY_Z -> Key.Z
         GLFW.GLFW_KEY_LEFT -> Key.LEFT_ARROW
         GLFW.GLFW_KEY_RIGHT -> Key.RIGHT_ARROW
-        GLFW.GLFW_KEY_UP -> Key.UP_ARROW 
+        GLFW.GLFW_KEY_UP -> Key.UP_ARROW
         GLFW.GLFW_KEY_DOWN -> Key.DOWN_ARROW
         GLFW.GLFW_KEY_0 -> Key.DIGIT_0
         GLFW.GLFW_KEY_1 -> Key.DIGIT_1

@@ -1,15 +1,12 @@
 package io.github.kgpu.wgpuj.util;
 
 import io.github.kgpu.wgpuj.WgpuJava;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-
-/**
- * The base class for all wgpuj structs.
- */
+/** The base class for all wgpuj structs. */
 public abstract class WgpuJavaStruct extends Struct {
 
     protected WgpuJavaStruct() {
@@ -21,27 +18,25 @@ public abstract class WgpuJavaStruct extends Struct {
     }
 
     /**
-     * Sets this struct to use direct memory.
-     *
-     * <br>
-     * <b>Note:</b> This does not copy the fields from the previous memory location, so
-     * all fields need to be reset
+     * Sets this struct to use direct memory. <br>
+     * <b>Note:</b> This does not copy the fields from the previous memory location, so all fields
+     * need to be reset
      */
-    public void useDirectMemory(){
+    public void useDirectMemory() {
         int size = Struct.size(this);
 
         jnr.ffi.Pointer pointer = WgpuJava.getRuntime().getMemoryManager().allocateDirect(size);
         useMemory(pointer);
     }
 
-    public jnr.ffi.Pointer getPointerTo(){
+    public jnr.ffi.Pointer getPointerTo() {
         return Struct.getMemory(this);
     }
 
     /**
-     * A rewrite of {@link jnr.ffi.Struct.StructRef} to allow chained
-     * structs. It achieves this by calculating the size of the struct at the time
-     * the memory is used, instead of in the constructor.
+     * A rewrite of {@link jnr.ffi.Struct.StructRef} to allow chained structs. It achieves this by
+     * calculating the size of the struct at the time the memory is used, instead of in the
+     * constructor.
      *
      * @see <a href=https://github.com/DevOrc/wgpu-java/issues/24>Github Issue #24</a>
      */
@@ -80,9 +75,7 @@ public abstract class WgpuJavaStruct extends Struct {
             set(value);
         }
 
-        /**
-         * returns the struct from memory
-         */
+        /** returns the struct from memory */
         public final T get() {
             T struct;
             try {
@@ -95,9 +88,7 @@ public abstract class WgpuJavaStruct extends Struct {
             return struct;
         }
 
-        /**
-         * returns the struct from memory
-         */
+        /** returns the struct from memory */
         public final T[] get(int length) {
             try {
                 @SuppressWarnings("unchecked")
@@ -116,8 +107,7 @@ public abstract class WgpuJavaStruct extends Struct {
 
         @Override
         public java.lang.String toString() {
-            return "struct @ " + super.toString()
-                    + '\n' + get();
+            return "struct @ " + super.toString() + '\n' + get();
         }
     }
 }

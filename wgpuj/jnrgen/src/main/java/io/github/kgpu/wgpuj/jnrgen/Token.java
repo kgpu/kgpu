@@ -34,17 +34,16 @@ public class Token {
         this(type, "");
     }
 
-    public static Token identifier(String text){
+    public static Token identifier(String text) {
         return new Token(TokenType.IDENTIFIER, text);
     }
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof Token)) return false;
+        if (this == o) return true;
+        if (!(o instanceof Token)) return false;
         Token token = (Token) o;
-        return getType() == token.getType() &&
-                Objects.equals(getText(), token.getText());
+        return getType() == token.getType() && Objects.equals(getText(), token.getText());
     }
 
     @Override
@@ -56,8 +55,7 @@ public class Token {
     public String toString() {
         String text = this.text;
 
-        if(text.length() > 50)
-            text = text.substring(0, 50) + "...";
+        if (text.length() > 50) text = text.substring(0, 50) + "...";
 
         return String.format("%s(%s)", type, text);
     }

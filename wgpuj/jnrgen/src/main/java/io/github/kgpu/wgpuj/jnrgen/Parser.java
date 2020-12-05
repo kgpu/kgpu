@@ -22,10 +22,10 @@ public class Parser {
     private void parse() {
         Token token;
 
-        while((token = poll()) != null){
+        while ((token = poll()) != null) {
             var item = createItem(token);
 
-            if(item != null){
+            if (item != null) {
                 System.out.println("Added item: " + item);
                 lastComment = null;
                 items.add(item);
@@ -34,27 +34,27 @@ public class Parser {
     }
 
     private Item createItem(Token token) {
-        if(Token.identifier("typedef").equals(token)){
+        if (Token.identifier("typedef").equals(token)) {
             var next = poll();
 
-            if(Token.identifier("enum").equals(next)){
+            if (Token.identifier("enum").equals(next)) {
                 return createEnum();
-            }else if(Token.identifier("struct").equals(next)){
+            } else if (Token.identifier("struct").equals(next)) {
                 return createStruct();
-            }else if(Token.identifier("void").equals(next)){
-                //Callback definition
-            }else{
+            } else if (Token.identifier("void").equals(next)) {
+                // Callback definition
+            } else {
                 return createTypeAlias(next);
             }
-        }else if(token.getType() == Token.TokenType.HASH){
+        } else if (token.getType() == Token.TokenType.HASH) {
             var macroType = pollExpect(Token.TokenType.IDENTIFIER);
 
-            if(Token.identifier("define").equals(macroType)){
+            if (Token.identifier("define").equals(macroType)) {
                 return createConstant();
             }
-        }else if(token.getType() == Token.TokenType.COMMENT){
+        } else if (token.getType() == Token.TokenType.COMMENT) {
             lastComment = token;
-        }else if(Token.identifier("enum").equals(token)){
+        } else if (Token.identifier("enum").equals(token)) {
             return createEnum();
         }
         return null;
@@ -63,13 +63,13 @@ public class Parser {
     private Item createConstant() {
         var name = pollExpect(Token.TokenType.IDENTIFIER);
 
-        //Skip casts
-        if(Token.TokenType.LEFT_PARENTHESIS == peek().getType()) {
-            while(poll().getType() != Token.TokenType.RIGHT_PARENTHESIS){}
+        // Skip casts
+        if (Token.TokenType.LEFT_PARENTHESIS == peek().getType()) {
+            while (poll().getType() != Token.TokenType.RIGHT_PARENTHESIS) {}
         }
 
-        //TODO: Handle struct constants
-        if(Token.TokenType.OPEN_BRACKET == peek().getType()){
+        // TODO: Handle struct constants
+        if (Token.TokenType.OPEN_BRACKET == peek().getType()) {
             return null;
         }
 
@@ -81,7 +81,7 @@ public class Parser {
     private Item createTypeAlias(Token token) {
         List<Token> tokens = new ArrayList<>();
 
-        while(token != null && token.getType() != Token.TokenType.SEMICOLON){
+        while (token != null && token.getType() != Token.TokenType.SEMICOLON) {
             tokens.add(token);
             token = poll();
         }
@@ -98,21 +98,22 @@ public class Parser {
         pollExpect(Token.TokenType.IDENTIFIER);
         skipWhitespace();
 
-        //might be something like typedef struct WGPUSamplerDescriptor WGPUSamplerDescriptor;
-        if(!new Token(Token.TokenType.OPEN_BRACKET).equals(peek())){
+        // might be something like typedef struct WGPUSamplerDescriptor
+        // WGPUSamplerDescriptor;
+        if (!new Token(Token.TokenType.OPEN_BRACKET).equals(peek())) {
             return null;
         }
 
         pollExpect(Token.TokenType.OPEN_BRACKET);
         skipWhitespace();
 
-        while(!new Token(Token.TokenType.CLOSE_BRACKET).equals(peek())){
-            if(Token.identifier("const").equals(peek())){
+        while (!new Token(Token.TokenType.CLOSE_BRACKET).equals(peek())) {
+            if (Token.identifier("const").equals(peek())) {
                 poll();
             }
 
-            if(Token.identifier("union").equals(peek())){
-                return null; //Unions in structs currently not supported
+            if (Token.identifier("union").equals(peek())) {
+                return null; // Unions in structs currently not supported
             }
 
             Token fieldType = pollExpect(Token.TokenType.IDENTIFIER);
@@ -141,17 +142,21 @@ public class Parser {
         skipWhitespace();
 
         Token token;
-        while((token = poll()).getType() != Token.TokenType.CLOSE_BRACKET){
+        while ((token = poll()).getType() != Token.TokenType.CLOSE_BRACKET) {
             Token identifier = Objects.requireNonNull(token);
             Token equalOrComma = Objects.requireNonNull(poll());
 
-            if(equalOrComma.getType() == Token.TokenType.COMMA){
-                fields.add(new EnumItem.EnumField(identifier.getText(), fields.size(), getLastCommentOrEmpty()));
-            }else{
+            if (equalOrComma.getType() == Token.TokenType.COMMA) {
+                fields.add(
+                        new EnumItem.EnumField(
+                                identifier.getText(), fields.size(), getLastCommentOrEmpty()));
+            } else {
                 Token valueToken = pollExpect(Token.TokenType.IDENTIFIER);
                 int value = Integer.parseInt(valueToken.getText());
 
-                fields.add(new EnumItem.EnumField(identifier.getText(), value, getLastCommentOrEmpty()));
+                fields.add(
+                        new EnumItem.EnumField(
+                                identifier.getText(), value, getLastCommentOrEmpty()));
 
                 pollExpect(Token.TokenType.COMMA);
             }
@@ -163,39 +168,37 @@ public class Parser {
         return new EnumItem(enumIdentifier.getText(), fields);
     }
 
-    private void skipWhitespace(){
-        while(peek().getType() == Token.TokenType.NEWLINE || peek().getType() == Token.TokenType.COMMENT){
-            if(peek().getType() == Token.TokenType.COMMENT)
-                lastComment = peek();
+    private void skipWhitespace() {
+        while (peek().getType() == Token.TokenType.NEWLINE
+                || peek().getType() == Token.TokenType.COMMENT) {
+            if (peek().getType() == Token.TokenType.COMMENT) lastComment = peek();
 
             poll();
         }
     }
 
-    private Token pollExpect(Token.TokenType type){
+    private Token pollExpect(Token.TokenType type) {
         var token = poll();
 
-        if(token == null || token.getType() != type){
+        if (token == null || token.getType() != type) {
             throw new RuntimeException("Expected " + type + " but found " + token);
         }
 
         return token;
     }
 
-    private String getLastCommentOrEmpty(){
+    private String getLastCommentOrEmpty() {
         return lastComment == null ? "" : lastComment.getText();
     }
 
-    private Token poll(){
-        if(index >= tokens.size())
-            return null;
+    private Token poll() {
+        if (index >= tokens.size()) return null;
 
         return tokens.get(index++);
     }
 
-    private Token peek(){
-        if(index >= tokens.size())
-            return null;
+    private Token peek() {
+        if (index >= tokens.size()) return null;
 
         return tokens.get(index);
     }

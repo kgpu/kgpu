@@ -4,14 +4,14 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
-
 actual object KgpuFiles {
 
     actual suspend fun loadInternal(path: String): ByteArray {
         val jarPath = toJvmJarPath(path)
 
-        val inputStream: InputStream = KgpuFiles::class.java.getResourceAsStream(jarPath)
-            ?: throw RuntimeException("Failed to find file: $path")
+        val inputStream: InputStream =
+            KgpuFiles::class.java.getResourceAsStream(jarPath)
+                ?: throw RuntimeException("Failed to find file: $path")
 
         return try {
             inputStream.readAllBytes()
@@ -31,5 +31,4 @@ actual object KgpuFiles {
     actual suspend fun loadInternalUtf8(path: String): String {
         return String(loadInternal(path), StandardCharsets.UTF_8)
     }
-
 }

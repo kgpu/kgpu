@@ -8,81 +8,79 @@ import jnr.ffi.Struct;
 public class WgpuSwapChainDescriptor extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 usage = new Struct.Unsigned32();
-    private final Struct.Enum<WgpuTextureFormat> format = new Struct.Enum<>(WgpuTextureFormat.class);
+    private final Struct.Enum<WgpuTextureFormat> format =
+            new Struct.Enum<>(WgpuTextureFormat.class);
     private final Struct.Unsigned32 width = new Struct.Unsigned32();
     private final Struct.Unsigned32 height = new Struct.Unsigned32();
-    private final Struct.Enum<WgpuPresentMode> presentMode = new Struct.Enum<>(WgpuPresentMode.class);
+    private final Struct.Enum<WgpuPresentMode> presentMode =
+            new Struct.Enum<>(WgpuPresentMode.class);
 
-    protected WgpuSwapChainDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuSwapChainDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuSwapChainDescriptor(Runtime runtime){
+    public WgpuSwapChainDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuSwapChainDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuSwapChainDescriptor createHeap() {
         return new WgpuSwapChainDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuSwapChainDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuSwapChainDescriptor createDirect() {
         return new WgpuSwapChainDescriptor(true);
     }
 
-
-    public long getUsage(){
+    public long getUsage() {
         return usage.get();
     }
 
-    public void setUsage(long x){
+    public void setUsage(long x) {
         this.usage.set(x);
     }
 
-    public WgpuTextureFormat getFormat(){
+    public WgpuTextureFormat getFormat() {
         return format.get();
     }
 
-    public void setFormat(WgpuTextureFormat x){
+    public void setFormat(WgpuTextureFormat x) {
         this.format.set(x);
     }
 
-    public long getWidth(){
+    public long getWidth() {
         return width.get();
     }
 
-    public void setWidth(long x){
+    public void setWidth(long x) {
         this.width.set(x);
     }
 
-    public long getHeight(){
+    public long getHeight() {
         return height.get();
     }
 
-    public void setHeight(long x){
+    public void setHeight(long x) {
         this.height.set(x);
     }
 
-    public WgpuPresentMode getPresentMode(){
+    public WgpuPresentMode getPresentMode() {
         return presentMode.get();
     }
 
-    public void setPresentMode(WgpuPresentMode x){
+    public void setPresentMode(WgpuPresentMode x) {
         this.presentMode.set(x);
     }
-
 }

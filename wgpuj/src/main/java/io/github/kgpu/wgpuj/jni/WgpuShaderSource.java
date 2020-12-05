@@ -10,52 +10,48 @@ public class WgpuShaderSource extends WgpuJavaStruct {
     private final Struct.Pointer bytes = new Struct.Pointer();
     private final Struct.Unsigned64 length = new Struct.Unsigned64();
 
-    protected WgpuShaderSource(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuShaderSource(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuShaderSource(Runtime runtime){
+    public WgpuShaderSource(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuShaderSource createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuShaderSource createHeap() {
         return new WgpuShaderSource(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuShaderSource createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuShaderSource createDirect() {
         return new WgpuShaderSource(true);
     }
 
-
-    public jnr.ffi.Pointer getBytes(){
+    public jnr.ffi.Pointer getBytes() {
         return bytes.get();
     }
 
-    public void setBytes(jnr.ffi.Pointer x){
+    public void setBytes(jnr.ffi.Pointer x) {
         this.bytes.set(x);
     }
 
-    public long getLength(){
+    public long getLength() {
         return length.get();
     }
 
-    public void setLength(long x){
+    public void setLength(long x) {
         this.length.set(x);
     }
-
 }

@@ -1,16 +1,19 @@
 package compute
 
 import flushExampleStatus
-import io.github.kgpu.*;
+import io.github.kgpu.*
 import io.github.kgpu.kshader.*
+import kotlin.math.abs
+import kotlin.random.Random
 import setExampleStatus
 import timeExecution
-import kotlin.random.Random;
-import kotlin.math.abs;
 
-private const val LOCAL_SIZE = 8;
+private const val LOCAL_SIZE = 8
+
 private const val MATRIX_SIZE = 512
-private val SHADER_SOURCE = """
+
+private val SHADER_SOURCE =
+    """
 #version 450
 
 layout(std430, set = 0, binding = 0) readonly buffer MatrixA {
@@ -40,7 +43,7 @@ void main() {
 
 private data class ComputationResult(val time: Long, val result: FloatArray)
 
-suspend fun runComputeCompareExample(){
+suspend fun runComputeCompareExample() {
     setExampleStatus("MatrixSize", "$MATRIX_SIZE")
     setExampleStatus("Status", "Generating matrices")
 
@@ -63,8 +66,8 @@ suspend fun runComputeCompareExample(){
     setExampleStatus("Status", "Test Completed.")
 }
 
-private suspend fun compareResults(cpuMatrix: FloatArray, gpuMatrix: FloatArray){
-    if(cpuMatrix.size != gpuMatrix.size){
+private suspend fun compareResults(cpuMatrix: FloatArray, gpuMatrix: FloatArray) {
+    if (cpuMatrix.size != gpuMatrix.size) {
         setExampleStatus("Result", "ERROR! Matrices don't have the same size!!!")
         return
     }
@@ -77,120 +80,114 @@ private suspend fun compareResults(cpuMatrix: FloatArray, gpuMatrix: FloatArray)
     setExampleStatus("Result", "Matrix Difference = ${abs(cpuTotal - gpuTotal)}")
 }
 
-private suspend fun computeCPU(matrixA: FloatArray, matrixB: FloatArray) : ComputationResult{
+private suspend fun computeCPU(matrixA: FloatArray, matrixB: FloatArray): ComputationResult {
     val output = FloatArray(MATRIX_SIZE * MATRIX_SIZE)
 
-    val time = timeExecution {
-        for(resultX in 0 until MATRIX_SIZE){
-            for(resultY in 0 until MATRIX_SIZE){
-                var sum = 0f 
-                
-                for(i in 0 until MATRIX_SIZE){
-                    val indexA = i + (resultX * MATRIX_SIZE)
-                    val indexB = resultY + (i * MATRIX_SIZE)
+    val time =
+        timeExecution {
+            for (resultX in 0 until MATRIX_SIZE) {
+                for (resultY in 0 until MATRIX_SIZE) {
+                    var sum = 0f
 
-                    sum += matrixA[indexA] * matrixB[indexB]
+                    for (i in 0 until MATRIX_SIZE) {
+                        val indexA = i + (resultX * MATRIX_SIZE)
+                        val indexB = resultY + (i * MATRIX_SIZE)
+
+                        sum += matrixA[indexA] * matrixB[indexB]
+                    }
+
+                    val resultIndex = resultY + (resultX * MATRIX_SIZE)
+                    output[resultIndex] = sum
                 }
 
-                val resultIndex = resultY + (resultX * MATRIX_SIZE)
-                output[resultIndex] = sum
-            }
-
-            if(resultX % 32 == 0){
-                setExampleStatus("Status", "Row $resultX / $MATRIX_SIZE")
-                flushExampleStatus()
+                if (resultX % 32 == 0) {
+                    setExampleStatus("Status", "Row $resultX / $MATRIX_SIZE")
+                    flushExampleStatus()
+                }
             }
         }
-    }
-    
+
     setExampleStatus("Status", "Finished CPU Calculation")
 
     return ComputationResult(time, output)
 }
 
-private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray) : ComputationResult{
+private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray): ComputationResult {
     val adapter = Kgpu.requestAdapterAsync()
     val device = adapter.requestDeviceAsync()
-    val bufferA = BufferUtils.createFloatBuffer(
-        device,
-        "matrix A buffer",
-        matrixA,
-        BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC
-    )
-    val bufferB = BufferUtils.createFloatBuffer(
-        device,
-        "matrix B buffer",
-        matrixB,
-        BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC
-    )
-    val resultBuffer = device.createBuffer(
-        BufferDescriptor(
-            "result buffer",
-            Primitives.FLOAT_BYTES * MATRIX_SIZE * MATRIX_SIZE,
-            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC,
-            false
-        )
-    )
+    val bufferA =
+        BufferUtils.createFloatBuffer(
+            device,
+            "matrix A buffer",
+            matrixA,
+            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC)
+    val bufferB =
+        BufferUtils.createFloatBuffer(
+            device,
+            "matrix B buffer",
+            matrixB,
+            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC)
+    val resultBuffer =
+        device.createBuffer(
+            BufferDescriptor(
+                "result buffer",
+                Primitives.FLOAT_BYTES * MATRIX_SIZE * MATRIX_SIZE,
+                BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC,
+                false))
 
-    val bindGroupLayout = device.createBindGroupLayout(
-        BindGroupLayoutDescriptor(
-            BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
-            BindGroupLayoutEntry(1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
-            BindGroupLayoutEntry(2, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)
-        )
-    )
+    val bindGroupLayout =
+        device.createBindGroupLayout(
+            BindGroupLayoutDescriptor(
+                BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
+                BindGroupLayoutEntry(1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
+                BindGroupLayoutEntry(2, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)))
 
-    val bindGroup = device.createBindGroup(
-        BindGroupDescriptor(
-            bindGroupLayout,
-            BindGroupEntry(0, bufferA),
-            BindGroupEntry(1, bufferB),
-            BindGroupEntry(2, resultBuffer)
-        )
-    )
+    val bindGroup =
+        device.createBindGroup(
+            BindGroupDescriptor(
+                bindGroupLayout,
+                BindGroupEntry(0, bufferA),
+                BindGroupEntry(1, bufferB),
+                BindGroupEntry(2, resultBuffer)))
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader = device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.COMPUTE))
-    val computePipeline = device.createComputePipeline(
-        ComputePipelineDescriptor(
-            pipelineLayout,
-            ProgrammableStageDescriptor(shader, "main")
-        )
-    )
+    val shader =
+        device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.COMPUTE))
+    val computePipeline =
+        device.createComputePipeline(
+            ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main")))
     val cmdEncoder = device.createCommandEncoder()
     val computePass = cmdEncoder.beginComputePass()
 
     computePass.setPipeline(computePipeline)
     computePass.setBindGroup(0, bindGroup)
     computePass.dispatch(MATRIX_SIZE / LOCAL_SIZE, MATRIX_SIZE / LOCAL_SIZE)
-    computePass.endPass();
+    computePass.endPass()
 
-    val readBuffer = device.createBuffer(
-        BufferDescriptor(
-            "read buffer",
-            Primitives.FLOAT_BYTES * MATRIX_SIZE * MATRIX_SIZE,
-            BufferUsage.COPY_DST or BufferUsage.MAP_READ,
-            false
-        )
-    )
+    val readBuffer =
+        device.createBuffer(
+            BufferDescriptor(
+                "read buffer",
+                Primitives.FLOAT_BYTES * MATRIX_SIZE * MATRIX_SIZE,
+                BufferUsage.COPY_DST or BufferUsage.MAP_READ,
+                false))
 
     setExampleStatus("Status", "Starting GPU calculation")
     flushExampleStatus()
     var times: FloatArray? = null
-    val computationTime = timeExecution {
-        cmdEncoder.copyBufferToBuffer(resultBuffer, readBuffer)
-        device.getDefaultQueue().submit(cmdEncoder.finish())
+    val computationTime =
+        timeExecution {
+            cmdEncoder.copyBufferToBuffer(resultBuffer, readBuffer)
+            device.getDefaultQueue().submit(cmdEncoder.finish())
 
-        times = ByteUtils.toFloatArray(readBuffer.mapReadAsync(device).getBytes())
-    }
+            times = ByteUtils.toFloatArray(readBuffer.mapReadAsync(device).getBytes())
+        }
 
     setExampleStatus("Status", "Finished GPU Calculation")
-    
+
     return ComputationResult(computationTime, times!!)
 }
 
-fun generateMatrix(size: Int) : FloatArray {
-    return FloatArray(size) {
-        (Random.nextFloat() - .5f) * 10f
-    }
+fun generateMatrix(size: Int): FloatArray {
+    return FloatArray(size) { (Random.nextFloat() - .5f) * 10f }
 }

@@ -9,98 +9,95 @@ public class WgpuRasterizationStateDescriptor extends WgpuJavaStruct {
 
     private final Struct.Enum<WgpuFrontFace> frontFace = new Struct.Enum<>(WgpuFrontFace.class);
     private final Struct.Enum<WgpuCullMode> cullMode = new Struct.Enum<>(WgpuCullMode.class);
-    private final Struct.Enum<WgpuPolygonMode> polygonMode = new Struct.Enum<>(WgpuPolygonMode.class);
+    private final Struct.Enum<WgpuPolygonMode> polygonMode =
+            new Struct.Enum<>(WgpuPolygonMode.class);
     private final Struct.Boolean clampDepth = new Struct.Boolean();
     private final Struct.Signed32 depthBias = new Struct.Signed32();
     private final Struct.Float depthBiasSlopeScale = new Struct.Float();
     private final Struct.Float depthBiasClamp = new Struct.Float();
 
-    protected WgpuRasterizationStateDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuRasterizationStateDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuRasterizationStateDescriptor(Runtime runtime){
+    public WgpuRasterizationStateDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuRasterizationStateDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuRasterizationStateDescriptor createHeap() {
         return new WgpuRasterizationStateDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuRasterizationStateDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuRasterizationStateDescriptor createDirect() {
         return new WgpuRasterizationStateDescriptor(true);
     }
 
-
-    public WgpuFrontFace getFrontFace(){
+    public WgpuFrontFace getFrontFace() {
         return frontFace.get();
     }
 
-    public void setFrontFace(WgpuFrontFace x){
+    public void setFrontFace(WgpuFrontFace x) {
         this.frontFace.set(x);
     }
 
-    public WgpuCullMode getCullMode(){
+    public WgpuCullMode getCullMode() {
         return cullMode.get();
     }
 
-    public void setCullMode(WgpuCullMode x){
+    public void setCullMode(WgpuCullMode x) {
         this.cullMode.set(x);
     }
 
-    public WgpuPolygonMode getPolygonMode(){
+    public WgpuPolygonMode getPolygonMode() {
         return polygonMode.get();
     }
 
-    public void setPolygonMode(WgpuPolygonMode x){
+    public void setPolygonMode(WgpuPolygonMode x) {
         this.polygonMode.set(x);
     }
 
-    public boolean getClampDepth(){
+    public boolean getClampDepth() {
         return clampDepth.get();
     }
 
-    public void setClampDepth(boolean x){
+    public void setClampDepth(boolean x) {
         this.clampDepth.set(x);
     }
 
-    public int getDepthBias(){
+    public int getDepthBias() {
         return depthBias.get();
     }
 
-    public void setDepthBias(int x){
+    public void setDepthBias(int x) {
         this.depthBias.set(x);
     }
 
-    public float getDepthBiasSlopeScale(){
+    public float getDepthBiasSlopeScale() {
         return depthBiasSlopeScale.get();
     }
 
-    public void setDepthBiasSlopeScale(float x){
+    public void setDepthBiasSlopeScale(float x) {
         this.depthBiasSlopeScale.set(x);
     }
 
-    public float getDepthBiasClamp(){
+    public float getDepthBiasClamp() {
         return depthBiasClamp.get();
     }
 
-    public void setDepthBiasClamp(float x){
+    public void setDepthBiasClamp(float x) {
         this.depthBiasClamp.set(x);
     }
-
 }

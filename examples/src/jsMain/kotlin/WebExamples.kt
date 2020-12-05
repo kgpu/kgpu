@@ -1,29 +1,28 @@
-import io.github.kgpu.Kgpu
-import io.github.kgpu.Window
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import msaa.runMsaaTriangle
 import boid.runBoidExample
-import org.w3c.dom.url.URL
-import kotlinx.browser.document
-import kotlinx.browser.window
 import compute.runComputeCompareExample
-import kotlinx.coroutines.await
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
+import io.github.kgpu.Window
 import kotlin.js.Date
 import kotlin.js.Promise
+import kotlinx.browser.document
+import kotlinx.browser.window
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
+import msaa.runMsaaTriangle
+import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.url.URL
 
-fun main(){
+fun main() {
     io.github.kgpu.kshader.KShader.init()
 
     val kgpuWindow = Window()
     kgpuWindow.setTitle("Kgpu - Web")
 
-    val params = URL(window.location.href).searchParams;
+    val params = URL(window.location.href).searchParams
 
     GlobalScope.launch {
-        when(params.get("example")){
+        when (params.get("example")) {
             "1" -> runCubeExample(kgpuWindow)
             "2" -> runTextureExample(kgpuWindow)
             "3" -> runEarthExample(kgpuWindow)
@@ -43,7 +42,7 @@ fun main(){
     }
 }
 
-fun hideCanvas(){
+fun hideCanvas() {
     document.getElementById("kgpuCanvas")?.setAttribute("hidden", "true")
 }
 
@@ -53,7 +52,7 @@ actual fun setExampleStatus(id: String, msg: String) {
     element.innerHTML = "$id: $msg"
 }
 
-fun createStatusElement(id: String) : Element {
+fun createStatusElement(id: String): Element {
     val element = document.createElement("h3") as HTMLElement
     element.id = id
     element.style.fontFamily = "monospace"
@@ -62,16 +61,14 @@ fun createStatusElement(id: String) : Element {
     return element
 }
 
-actual suspend fun timeExecution(func: suspend () -> Unit)  : Long{
+actual suspend fun timeExecution(func: suspend () -> Unit): Long {
     val start = Date().getTime()
     func()
     return (Date().getTime() - start).toLong()
 }
 
 actual suspend fun flushExampleStatus() {
-    val promise : Promise<Unit> = Promise { resolve, reject ->
-        window.setTimeout(resolve, 0)
-    }
+    val promise: Promise<Unit> = Promise { resolve, reject -> window.setTimeout(resolve, 0) }
 
     promise.await()
 }

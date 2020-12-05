@@ -11,52 +11,48 @@ public class WgpuDepthStencilAttachmentDescriptor extends WgpuJavaStruct {
     private final WgpuPassChannel_f32 depth = inner(WgpuPassChannel_f32.createHeap());
     private final WgpuPassChannel_u32 stencil = inner(WgpuPassChannel_u32.createHeap());
 
-    protected WgpuDepthStencilAttachmentDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuDepthStencilAttachmentDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuDepthStencilAttachmentDescriptor(Runtime runtime){
+    public WgpuDepthStencilAttachmentDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuDepthStencilAttachmentDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuDepthStencilAttachmentDescriptor createHeap() {
         return new WgpuDepthStencilAttachmentDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuDepthStencilAttachmentDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuDepthStencilAttachmentDescriptor createDirect() {
         return new WgpuDepthStencilAttachmentDescriptor(true);
     }
 
-
-    public long getAttachment(){
+    public long getAttachment() {
         return attachment.get();
     }
 
-    public void setAttachment(long x){
+    public void setAttachment(long x) {
         this.attachment.set(x);
     }
 
-    public WgpuPassChannel_f32 getDepth(){
+    public WgpuPassChannel_f32 getDepth() {
         return depth;
     }
 
-    public WgpuPassChannel_u32 getStencil(){
+    public WgpuPassChannel_u32 getStencil() {
         return stencil;
     }
-
 }
