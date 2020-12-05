@@ -3,6 +3,6 @@ var pages = [{'name': 'fun toByteArray(buffer: ArrayBuffer): ByteArray', 'index'
 {'name': 'fun init()', 'index': '2', 'description':'io.github.kgpu.kshader.KShader.init', 'location':'kshader/io.github.kgpu.kshader/-k-shader/init.html', 'searchKey':'init'},
 {'name': 'suspend fun compile(name: String, source: String, type: KShaderType): ByteArray', 'index': '3', 'description':'io.github.kgpu.kshader.KShader.compile', 'location':'kshader/io.github.kgpu.kshader/-k-shader/compile.html', 'searchKey':'compile'},
 {'name': 'enum KShaderType : Enum', 'index': '4', 'description':'io.github.kgpu.kshader.KShaderType', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/index.html', 'searchKey':'KShaderType'},
-{'name': 'COMPUTE()', 'index': '5', 'description':'io.github.kgpu.kshader.KShaderType.COMPUTE', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-c-o-m-p-u-t-e/index.html', 'searchKey':'COMPUTE'},
-{'name': 'VERTEX()', 'index': '6', 'description':'io.github.kgpu.kshader.KShaderType.VERTEX', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-v-e-r-t-e-x/index.html', 'searchKey':'VERTEX'},
-{'name': 'FRAGMENT()', 'index': '7', 'description':'io.github.kgpu.kshader.KShaderType.FRAGMENT', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-f-r-a-g-m-e-n-t/index.html', 'searchKey':'FRAGMENT'}]
+{'name': 'VERTEX()', 'index': '5', 'description':'io.github.kgpu.kshader.KShaderType.VERTEX', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-v-e-r-t-e-x/index.html', 'searchKey':'VERTEX'},
+{'name': 'FRAGMENT()', 'index': '6', 'description':'io.github.kgpu.kshader.KShaderType.FRAGMENT', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-f-r-a-g-m-e-n-t/index.html', 'searchKey':'FRAGMENT'},
+{'name': 'COMPUTE()', 'index': '7', 'description':'io.github.kgpu.kshader.KShaderType.COMPUTE', 'location':'kshader/io.github.kgpu.kshader/-k-shader-type/-c-o-m-p-u-t-e/index.html', 'searchKey':'COMPUTE'}]
