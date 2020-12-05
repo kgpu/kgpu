@@ -26,7 +26,7 @@ public class EnumItem implements Item {
     public void save(OutputHandler outputHandler) throws IOException {
         String className = this.name.replace("WGPU", "Wgpu");
 
-        if(outputHandler.isExcluded(name)) {
+        if (outputHandler.isExcluded(name)) {
             return;
         }
 
@@ -45,8 +45,8 @@ public class EnumItem implements Item {
     }
 
     private void saveFields(BufferedWriter writer) throws IOException {
-        for(EnumField field : fields){
-            if(!field.comment.isEmpty()){
+        for (EnumField field : fields) {
+            if (!field.comment.isEmpty()) {
                 writer.write("     ");
                 writer.write(field.comment.replace("\n", "\n    "));
                 writer.write("\n");
@@ -64,15 +64,15 @@ public class EnumItem implements Item {
     }
 
     private String toFieldName(String fieldName) {
-        //Replace tag due to CBindgen adding "Tag" for enum names, but not for each field for some reason
+        // Replace tag due to CBindgen adding "Tag" for enum names, but not for each
+        // field for some reason
         String cFieldHeader = this.name.replace("Tag", "");
 
         fieldName = fieldName.replace(cFieldHeader, "").replace("_", "");
         StringBuilder output = new StringBuilder();
 
-        for(char c : fieldName.toCharArray()){
-            if(Character.isUpperCase(c) && !output.toString().isEmpty())
-                output.append("_");
+        for (char c : fieldName.toCharArray()) {
+            if (Character.isUpperCase(c) && !output.toString().isEmpty()) output.append("_");
 
             output.append(Character.toUpperCase(c));
         }
@@ -85,7 +85,7 @@ public class EnumItem implements Item {
         return "Enum(" + name + ")";
     }
 
-    static class EnumField{
+    static class EnumField {
         private final String name;
         private final int index;
         private final String comment;

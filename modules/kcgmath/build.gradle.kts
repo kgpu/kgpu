@@ -1,6 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
-plugins{
+plugins {
     kotlin("multiplatform")
     id("maven-publish")
     id("org.jetbrains.dokka")
@@ -16,24 +16,23 @@ version = rootProject.extra["projectVersion"]
 
 kotlin {
     jvm()
-    js(){
+    js() {
         browser()
         nodejs()
     }
 
     sourceSets {
         val commonMain by getting {
-            dependencies{
+            dependencies {
             }
         }
         val commonTest by getting {
-            dependencies{
+            dependencies {
                 implementation(kotlin("test-annotations-common"))
             }
         }
         val jvmMain by getting {
             dependencies {
-                
             }
         }
         val jvmTest by getting {
@@ -42,8 +41,7 @@ kotlin {
                 implementation("org.joml:joml:1.9.25")
             }
         }
-        val jsMain by getting{
-            
+        val jsMain by getting {
         }
         val jsTest by getting {
             dependencies {
@@ -58,20 +56,20 @@ tasks.withType<DokkaTask>().configureEach {
 
     dokkaSourceSets {
         configureEach {
-            includeNonPublic = false 
+            includeNonPublic = false
         }
 
-        register("commonMain"){
+        register("commonMain") {
             displayName = "Common"
             platform = "common"
         }
 
-        register("jvmMain"){
+        register("jvmMain") {
             displayName = "Desktop"
             platform = "jvm"
         }
 
-        register("jsMain"){
+        register("jsMain") {
             displayName = "Web"
             platform = "js"
         }

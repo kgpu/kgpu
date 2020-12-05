@@ -15,84 +15,80 @@ public class WgpuBindGroupEntry extends WgpuJavaStruct {
     private final Struct.Unsigned64 sampler = new Struct.Unsigned64();
     private final Struct.Unsigned64 textureView = new Struct.Unsigned64();
 
-    protected WgpuBindGroupEntry(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuBindGroupEntry(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuBindGroupEntry(Runtime runtime){
+    public WgpuBindGroupEntry(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuBindGroupEntry createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuBindGroupEntry createHeap() {
         return new WgpuBindGroupEntry(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuBindGroupEntry createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuBindGroupEntry createDirect() {
         return new WgpuBindGroupEntry(true);
     }
 
-
-    public long getBinding(){
+    public long getBinding() {
         return binding.get();
     }
 
-    public void setBinding(long x){
+    public void setBinding(long x) {
         this.binding.set(x);
     }
 
-    public long getBuffer(){
+    public long getBuffer() {
         return buffer.get();
     }
 
-    public void setBuffer(long x){
+    public void setBuffer(long x) {
         this.buffer.set(x);
     }
 
-    public long getOffset(){
+    public long getOffset() {
         return offset.get();
     }
 
-    public void setOffset(long x){
+    public void setOffset(long x) {
         this.offset.set(x);
     }
 
-    public long getSize(){
+    public long getSize() {
         return size.get();
     }
 
-    public void setSize(long x){
+    public void setSize(long x) {
         this.size.set(x);
     }
 
-    public long getSampler(){
+    public long getSampler() {
         return sampler.get();
     }
 
-    public void setSampler(long x){
+    public void setSampler(long x) {
         this.sampler.set(x);
     }
 
-    public long getTextureView(){
+    public long getTextureView() {
         return textureView.get();
     }
 
-    public void setTextureView(long x){
+    public void setTextureView(long x) {
         this.textureView.set(x);
     }
-
 }

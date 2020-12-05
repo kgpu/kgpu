@@ -19,16 +19,16 @@ import java.util.zip.CRC32;
 public class SharedLibraryLoader {
 
     private String crc(InputStream input) {
-        if(input == null) throw new IllegalArgumentException("input cannot be null.");
+        if (input == null) throw new IllegalArgumentException("input cannot be null.");
         CRC32 crc = new CRC32();
         byte[] buffer = new byte[4096];
         try {
-            while(true) {
+            while (true) {
                 int length = input.read(buffer);
-                if(length == -1) break;
+                if (length == -1) break;
                 crc.update(buffer, 0, length);
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
         } finally {
             closeQuietly(input);
         }
@@ -36,48 +36,49 @@ public class SharedLibraryLoader {
     }
 
     private String mapLibraryName(String libraryName) {
-        if(Platform.isWindows) return libraryName + ".dll";
-        if(Platform.isLinux) return "lib" + libraryName + ".so";
-        if(Platform.isMac) return "lib" + libraryName + ".dylib";
+        if (Platform.isWindows) return libraryName + ".dll";
+        if (Platform.isLinux) return "lib" + libraryName + ".so";
+        if (Platform.isMac) return "lib" + libraryName + ".dylib";
 
         return libraryName;
     }
 
-    /**
-     * Extracts the source file and calls System.load.
-     */
+    /** Extracts the source file and calls System.load. */
     public File load(String libraryName) {
         String platformName = mapLibraryName(libraryName);
-
 
         try {
             var file = loadFile(platformName);
 
             return file;
-        } catch(Throwable ex) {
-            throw new RuntimeException("Couldn't load shared library '" + platformName + "' for target: "
-                    + System.getProperty("os.name"), ex);
+        } catch (Throwable ex) {
+            throw new RuntimeException(
+                    "Couldn't load shared library '"
+                            + platformName
+                            + "' for target: "
+                            + System.getProperty("os.name"),
+                    ex);
         }
     }
 
     private InputStream readFile(String path) {
-            InputStream input = SharedLibraryLoader.class.getResourceAsStream("/" + path);
-            if(input == null) throw new RuntimeException("Unable to read file for extraction: " + path);
-            return input;
-
+        InputStream input = SharedLibraryLoader.class.getResourceAsStream("/" + path);
+        if (input == null)
+            throw new RuntimeException("Unable to read file for extraction: " + path);
+        return input;
     }
 
     private File extractFile(String sourcePath, String sourceCrc, File extractedFile) {
         String extractedCrc = null;
-        if(extractedFile.exists()) {
+        if (extractedFile.exists()) {
             try {
                 extractedCrc = crc(new FileInputStream(extractedFile));
-            } catch(FileNotFoundException ignored) {
+            } catch (FileNotFoundException ignored) {
             }
         }
 
         // If file doesn't exist or the CRC doesn't match, extract it to the temp dir.
-        if(extractedCrc == null || !extractedCrc.equals(sourceCrc)) {
+        if (extractedCrc == null || !extractedCrc.equals(sourceCrc)) {
             InputStream input = null;
             FileOutputStream output = null;
             try {
@@ -85,13 +86,17 @@ public class SharedLibraryLoader {
                 extractedFile.getParentFile().mkdirs();
                 output = new FileOutputStream(extractedFile);
                 byte[] buffer = new byte[4096];
-                while(true) {
+                while (true) {
                     int length = input.read(buffer);
-                    if(length == -1) break;
+                    if (length == -1) break;
                     output.write(buffer, 0, length);
                 }
-            } catch(IOException ex) {
-                throw new RuntimeException("Error extracting file: " + sourcePath + "\nTo: " + extractedFile.getAbsolutePath(),
+            } catch (IOException ex) {
+                throw new RuntimeException(
+                        "Error extracting file: "
+                                + sourcePath
+                                + "\nTo: "
+                                + extractedFile.getAbsolutePath(),
                         ex);
             } finally {
                 closeQuietly(input);
@@ -102,13 +107,12 @@ public class SharedLibraryLoader {
         return extractedFile;
     }
 
-    private void closeQuietly(Closeable closeable){
-        if(closeable == null)
-            return;
+    private void closeQuietly(Closeable closeable) {
+        if (closeable == null) return;
 
-        try{
+        try {
             closeable.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Failed to close dll: " + e);
         }
     }
@@ -119,29 +123,35 @@ public class SharedLibraryLoader {
         String fileName = new File(sourcePath).getName();
 
         // Temp directory with username in path.
-        File file = new File(System.getProperty("java.io.tmpdir") + "/wgpuj/" + System.getProperty("user.name") + "/" + sourceCrc,
-                fileName);
+        File file =
+                new File(
+                        System.getProperty("java.io.tmpdir")
+                                + "/wgpuj/"
+                                + System.getProperty("user.name")
+                                + "/"
+                                + sourceCrc,
+                        fileName);
         Throwable ex = loadFile(sourcePath, sourceCrc, file);
-        if(ex == null) return file;
+        if (ex == null) return file;
 
         // System provided temp directory.
         try {
             file = File.createTempFile(sourceCrc, null);
-            if(file.delete() && loadFile(sourcePath, sourceCrc, file) == null) return file;
-        } catch(Throwable ignored) {
+            if (file.delete() && loadFile(sourcePath, sourceCrc, file) == null) return file;
+        } catch (Throwable ignored) {
         }
 
         // User home.
         file = new File(System.getProperty("user.home") + "/.wgpuj/" + sourceCrc, fileName);
-        if(loadFile(sourcePath, sourceCrc, file) == null) return file;
+        if (loadFile(sourcePath, sourceCrc, file) == null) return file;
 
         // Relative directory.
         file = new File(".temp/" + sourceCrc, fileName);
-        if(loadFile(sourcePath, sourceCrc, file) == null) return file;
+        if (loadFile(sourcePath, sourceCrc, file) == null) return file;
 
         // Fallback to java.library.path location, eg for applets.
         file = new File(System.getProperty("java.library.path"), sourcePath);
-        if(file.exists()) {
+        if (file.exists()) {
             System.load(file.getAbsolutePath());
             return file;
         }
@@ -153,7 +163,7 @@ public class SharedLibraryLoader {
         try {
             System.load(extractFile(sourcePath, sourceCrc, extractedFile).getAbsolutePath());
             return null;
-        } catch(Throwable ex) {
+        } catch (Throwable ex) {
             return ex;
         }
     }

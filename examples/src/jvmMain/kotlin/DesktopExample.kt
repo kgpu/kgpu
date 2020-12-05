@@ -1,23 +1,23 @@
-
+import boid.runBoidExample
 import compute.runComputeCompareExample
 import io.github.kgpu.Kgpu
 import io.github.kgpu.Window
 import kotlinx.coroutines.runBlocking
 import model.runObjModelExample
 import msaa.runMsaaTriangle
-import boid.runBoidExample
 
 fun main(args: Array<String>) {
     println("Args: ${args.joinToString()}")
 
-    val arg = if(args.isNotEmpty()){
-        args[0]
-    } else {
-        "triangle"
-    }
+    val arg =
+        if (args.isNotEmpty()) {
+            args[0]
+        } else {
+            "triangle"
+        }
 
     runBlocking {
-        when(arg){
+        when (arg) {
             "-triangle" -> runTriangleExample(createWindow())
             "-cube" -> runCubeExample(createWindow())
             "-texture" -> runTextureExample(createWindow())
@@ -34,13 +34,13 @@ fun main(args: Array<String>) {
                 Kgpu.init(false)
                 runComputeCompareExample()
             }
-            else -> throw RuntimeException("Unknown example: $arg");
+            else -> throw RuntimeException("Unknown example: $arg")
         }
     }
 }
 
-private fun createWindow() : Window {
-    Kgpu.init(true);
+private fun createWindow(): Window {
+    Kgpu.init(true)
 
     val window = Window()
     window.setTitle("Kgpu - Desktop")
@@ -48,17 +48,12 @@ private fun createWindow() : Window {
     return window
 }
 
-actual fun setExampleStatus(id: String, msg: String){
+actual fun setExampleStatus(id: String, msg: String) {
     println("$id: $msg")
 }
 
-
-
-suspend actual fun timeExecution(func: suspend () -> Unit)  : Long{
-    return kotlin.system.measureTimeMillis {
-        func()
-    }
+suspend actual fun timeExecution(func: suspend () -> Unit): Long {
+    return kotlin.system.measureTimeMillis { func() }
 }
 
-actual suspend fun flushExampleStatus() {
-}
+actual suspend fun flushExampleStatus() {}

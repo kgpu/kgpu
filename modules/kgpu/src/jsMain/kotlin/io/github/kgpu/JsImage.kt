@@ -1,19 +1,14 @@
 package io.github.kgpu
 
 import io.github.kgpu.internal.ArrayBufferUtils
+import kotlin.js.Promise
+import kotlinx.browser.document
 import kotlinx.coroutines.await
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLImageElement
-import org.w3c.dom.RenderingContext
-import kotlinx.browser.document
-import kotlin.js.Promise
 
-actual class ImageData(
-    actual val width: Int,
-    actual val height: Int,
-    actual val bytes: ByteArray
-) {
+actual class ImageData(actual val width: Int, actual val height: Int, actual val bytes: ByteArray) {
 
     actual companion object {
         actual val FORMAT = TextureFormat.RGBA8_UNORM_SRGB
@@ -31,8 +26,8 @@ actual class ImageData(
             context.drawImage(img, 0.0, 0.0, img.width.toDouble(), img.height.toDouble())
             val pixels = context.getImageData(0.0, 0.0, img.width.toDouble(), img.height.toDouble())
 
-            return ImageData(img.width, img.height, ArrayBufferUtils.toByteArray(pixels.data.buffer))
+            return ImageData(
+                img.width, img.height, ArrayBufferUtils.toByteArray(pixels.data.buffer))
         }
-
     }
 }

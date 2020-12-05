@@ -9,12 +9,12 @@ public class TypeAliasItem implements Item {
 
     public TypeAliasItem(String newType, String originalType) {
         this.newType = newType.replace("*", "");
-        this.originalType = originalType.replace("*", "");;
+        this.originalType = originalType.replace("*", "");
+        ;
     }
 
     @Override
-    public void save(OutputHandler outputHandler) throws IOException {
-    }
+    public void save(OutputHandler outputHandler) throws IOException {}
 
     @Override
     public void preSave(OutputHandler outputHandler) {
@@ -23,12 +23,12 @@ public class TypeAliasItem implements Item {
 
     @Override
     public String getJavaTypeName() {
-        //This function is only called if this item is used as a field
+        // This function is only called if this item is used as a field
         throw new UnsupportedOperationException("This is not a java type.");
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "TypeAlias(new=" + newType + ", original = " + originalType + ")";
     }
 }

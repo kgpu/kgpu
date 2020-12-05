@@ -4,23 +4,22 @@ expect object Kgpu {
     val backendName: String
 
     /**
-     * A cross platform version of undefined. On the JVM, this value is equal to null,
-     * and on the web, this is equal to undefined
+     * A cross platform version of undefined. On the JVM, this value is equal to null, and on the
+     * web, this is equal to undefined
      */
     val undefined: Nothing?
 
     /**
-     * Runs a loop while the window is open. This loop will automatically update
-     * the window while the loop is running. The loop will stop when the window
-     * is requested to be closed.
+     * Runs a loop while the window is open. This loop will automatically update the window while
+     * the loop is running. The loop will stop when the window is requested to be closed.
      */
     fun runLoop(window: Window, func: () -> Unit)
 
     /**
      * Requests an adapter
      *
-     * @param window the window to create the adapter for. This parameter
-     * is only needed for graphics applications
+     * @param window the window to create the adapter for. This parameter is only needed for
+     * graphics applications
      */
     suspend fun requestAdapterAsync(window: Window? = null): Adapter
 }
@@ -48,7 +47,9 @@ expect class Device {
 
     fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout
 
-    @Deprecated(message = "No longer part of the spec, but replacement has not been implemented in browsers!")
+    @Deprecated(
+        message =
+            "No longer part of the spec, but replacement has not been implemented in browsers!")
     fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer
 
     fun createBindGroup(desc: BindGroupDescriptor): BindGroup
@@ -61,11 +62,11 @@ expect class Device {
 expect class Adapter {
 
     suspend fun requestDeviceAsync(): Device
-
 }
 
 expect enum class PowerPreference {
-    LOW_POWER, HIGH_PERFORMANCE
+    LOW_POWER,
+    HIGH_PERFORMANCE
 }
 
 class Color(val r: Double, val g: Double, val b: Double, val a: Double) {
@@ -78,7 +79,6 @@ class Color(val r: Double, val g: Double, val b: Double, val a: Double) {
         val BLUE = Color(0.0, 0.0, 1.0, 1.0)
         val CLEAR = Color(0.0, 0.0, 0.0, 0.0)
     }
-
 }
 
 expect class CommandEncoder {
@@ -87,13 +87,18 @@ expect class CommandEncoder {
 
     fun finish(): CommandBuffer
 
-    fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
+    fun copyBufferToTexture(
+        source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D
+    )
 
     fun beginComputePass(): ComputePassEncoder
 
     fun copyBufferToBuffer(
-        source: Buffer, destination: Buffer, size: Long = destination.size,
-        sourceOffset: Int = 0, destinationOffset: Int = 0
+        source: Buffer,
+        destination: Buffer,
+        size: Long = destination.size,
+        sourceOffset: Int = 0,
+        destinationOffset: Int = 0
     )
 
     fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D)
@@ -110,7 +115,11 @@ expect class RenderPassEncoder {
     fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
 
     fun drawIndexed(
-        indexCount: Int, instanceCount: Int, firstVertex: Int = 0, baseVertex: Int = 0, firstInstance: Int = 0
+        indexCount: Int,
+        instanceCount: Int,
+        firstVertex: Int = 0,
+        baseVertex: Int = 0,
+        firstInstance: Int = 0
     )
 
     fun setIndexBuffer(buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
@@ -127,7 +136,6 @@ expect class ComputePassEncoder {
     fun dispatch(x: Int, y: Int = 1, z: Int = 1)
 
     fun endPass()
-
 }
 
 expect class Queue {
@@ -144,40 +152,55 @@ expect class Queue {
 }
 
 /**
- * Represents something that is a binding resource. Examples
- * include buffer, samplers, and texture views.
+ * Represents something that is a binding resource. Examples include buffer, samplers, and texture
+ * views.
  *
  * __See:__ [Binding Resource Spec](https://gpuweb.github.io/gpuweb/#typedefdef-gpubindingresource)
  */
 expect interface IntoBindingResource
+
 expect class ShaderModule
+
 expect class ProgrammableStageDescriptor(module: ShaderModule, entryPoint: String)
+
 expect class PipelineLayout
+
 expect class BindGroupLayout
+
 expect class PipelineLayoutDescriptor(vararg bindGroupLayouts: BindGroupLayout)
+
 expect class RenderPipeline
+
 expect class ComputePipeline
+
 expect class CommandBuffer
+
 expect class BindGroup
+
 expect class Sampler : IntoBindingResource
 
 expect class Extent3D(width: Long, height: Long, depth: Long)
+
 expect class Origin3D(x: Long, y: Long, z: Long)
 
 /**
- * The usages determine what kind of memory the texture is allocated from and what actions the texture can partake in.
+ * The usages determine what kind of memory the texture is allocated from and what actions the
+ * texture can partake in.
  */
 object TextureUsage {
-    /** Allows a texture to be the source in a copy operation*/
+    /** Allows a texture to be the source in a copy operation */
     const val COPY_SRC: Long = 1
 
-    /** Allows a texture to the destination of a copy operation such as [CommandEncoder.copyBufferToTexture] */
+    /**
+     * Allows a texture to the destination of a copy operation such as
+     * [CommandEncoder.copyBufferToTexture]
+     */
     const val COPY_DST: Long = 2
 
-    /** Allows a texture to be a sampled texture in a bind group*/
+    /** Allows a texture to be a sampled texture in a bind group */
     const val SAMPLED: Long = 4
 
-    /** Allows a texture to be a storage texture in a bind group*/
+    /** Allows a texture to be a storage texture in a bind group */
     const val STORAGE: Long = 8
 
     /** Allows a texture to be a output attachment of a render pass */
@@ -188,12 +211,9 @@ expect class RenderPassColorAttachmentDescriptor(
     attachment: TextureView,
     clearColor: Color?,
     resolveTarget: TextureView? = null,
-    storeOp: StoreOp = StoreOp.STORE
-)
+    storeOp: StoreOp = StoreOp.STORE)
 
-expect class RenderPassDescriptor(
-    vararg colorAttachments: RenderPassColorAttachmentDescriptor
-)
+expect class RenderPassDescriptor(vararg colorAttachments: RenderPassColorAttachmentDescriptor)
 
 expect class SwapChain {
 
@@ -214,7 +234,6 @@ object ShaderVisibility {
     const val VERTEX: Long = 1
     const val FRAGMENT: Long = 2
     const val COMPUTE: Long = 4
-
 }
 
 expect class BindGroupLayoutEntry(
@@ -227,18 +246,9 @@ expect class BindGroupLayoutEntry(
     multisampled: Boolean,
     storageTextureFormat: TextureFormat?
 ) {
-    constructor(
-        binding: Long,
-        visibility: Long,
-        type: BindingType
-    )
+    constructor(binding: Long, visibility: Long, type: BindingType)
 
-    constructor(
-        binding: Long,
-        visibility: Long,
-        type: BindingType,
-        multisampled: Boolean
-    )
+    constructor(binding: Long, visibility: Long, type: BindingType, multisampled: Boolean)
 
     constructor(
         binding: Long,
@@ -246,19 +256,16 @@ expect class BindGroupLayoutEntry(
         type: BindingType,
         multisampled: Boolean,
         dimension: TextureViewDimension,
-        textureComponentType: TextureComponentType
-    )
+        textureComponentType: TextureComponentType)
 }
 
-expect class ComputePipelineDescriptor(layout: PipelineLayout, computeStage: ProgrammableStageDescriptor)
+expect class ComputePipelineDescriptor(
+    layout: PipelineLayout, computeStage: ProgrammableStageDescriptor)
 
 expect class BindGroupLayoutDescriptor(vararg entries: BindGroupLayoutEntry)
 
 expect class SwapChainDescriptor(
-    device: Device,
-    format: TextureFormat,
-    usage: Long = TextureUsage.OUTPUT_ATTACHMENT
-)
+    device: Device, format: TextureFormat, usage: Long = TextureUsage.OUTPUT_ATTACHMENT)
 
 expect class Texture {
     fun createView(desc: TextureViewDescriptor? = null): TextureView
@@ -269,21 +276,27 @@ expect class Texture {
 expect class TextureView : IntoBindingResource {
 
     fun destroy()
-
 }
 
 /**
- * The usages determine what kind of memory the buffer is allocated from and what actions the buffer can partake in.
+ * The usages determine what kind of memory the buffer is allocated from and what actions the buffer
+ * can partake in.
  */
 object BufferUsage {
-    /** Allow a buffer to be mapped for reading. Does not need to be enabled for mapped_at_creation. */
+    /**
+     * Allow a buffer to be mapped for reading. Does not need to be enabled for mapped_at_creation.
+     */
     const val MAP_READ: Long = 1
 
-    /** Allow a buffer to be mapped for writing. Does not need to be enabled for mapped_at_creation. */
+    /**
+     * Allow a buffer to be mapped for writing. Does not need to be enabled for mapped_at_creation.
+     */
     const val MAP_WRITE: Long = 2
 
-    /** Allow a buffer to be the source buffer for [CommandEncoder.copyBufferToBuffer] or
-     * [CommandEncoder.copyBufferToTexture]  */
+    /**
+     * Allow a buffer to be the source buffer for [CommandEncoder.copyBufferToBuffer] or
+     * [CommandEncoder.copyBufferToTexture]
+     */
     const val COPY_SRC: Long = 4
 
     /** Allow a buffer to be the destination buffer for [CommandEncoder.copyBufferToBuffer] */
@@ -307,23 +320,17 @@ object BufferUsage {
     const val QUERY_RESOLVE: Long = 512
 }
 
-expect class BufferDescriptor(
-    label: String,
-    size: Long,
-    usage: Long,
-    mappedAtCreation: Boolean
-)
+expect class BufferDescriptor(label: String, size: Long, usage: Long, mappedAtCreation: Boolean)
 
 expect class Buffer : IntoBindingResource {
 
     val size: Long
 
-    /**
-     * JVM Only
-     */
+    /** JVM Only */
     fun getMappedData(start: Long = 0, size: Long = this.size): BufferData
 
-    @Deprecated("Eventually will be replaced with mapAsync() and getMappedData() but waiting on Wgpu-native!")
+    @Deprecated(
+        "Eventually will be replaced with mapAsync() and getMappedData() but waiting on Wgpu-native!")
     suspend fun mapReadAsync(device: Device): BufferData
 
     fun unmap()
@@ -332,16 +339,14 @@ expect class Buffer : IntoBindingResource {
 }
 
 /**
- * A cross platform representation of mapped buffer data.
- * On the desktop it is backed by a pointer, and on the
- * web it is backed by an ArrayBuffer.
+ * A cross platform representation of mapped buffer data. On the desktop it is backed by a pointer,
+ * and on the web it is backed by an ArrayBuffer.
  */
 expect class BufferData {
 
     fun putBytes(bytes: ByteArray, offset: Int = 0)
 
     fun getBytes(): ByteArray
-
 }
 
 expect class TextureViewDescriptor(
@@ -351,8 +356,7 @@ expect class TextureViewDescriptor(
     baseMipLevel: Long = 0,
     mipLevelCount: Long = 0,
     baseArrayLayer: Long = 0,
-    arrayLayerCount: Long = 0
-)
+    arrayLayerCount: Long = 0)
 
 expect class TextureDescriptor(
     size: Extent3D,
@@ -360,8 +364,7 @@ expect class TextureDescriptor(
     sampleCount: Int,
     dimension: TextureDimension,
     format: TextureFormat,
-    usage: Long
-)
+    usage: Long)
 
 expect class RenderPipelineDescriptor(
     layout: PipelineLayout,
@@ -374,9 +377,7 @@ expect class RenderPipelineDescriptor(
     vertexState: VertexStateDescriptor,
     sampleCount: Int,
     sampleMask: Long,
-    alphaToCoverage: Boolean
-);
-
+    alphaToCoverage: Boolean)
 
 expect enum class PrimitiveTopology {
     POINT_LIST,
@@ -403,48 +404,33 @@ expect class RasterizationStateDescriptor(
     clampDepth: Boolean = false,
     depthBias: Long = 0,
     depthBiasSlopeScale: Float = 0f,
-    depthBiasClamp: Float = 0f
-)
+    depthBiasClamp: Float = 0f)
 
 expect class ColorStateDescriptor(
     format: TextureFormat,
     alphaBlend: BlendDescriptor,
     colorBlend: BlendDescriptor,
-    writeMask: Long
-)
+    writeMask: Long)
 
-expect class VertexAttributeDescriptor(
-    format: VertexFormat,
-    offset: Long,
-    shaderLocation: Int
-)
+expect class VertexAttributeDescriptor(format: VertexFormat, offset: Long, shaderLocation: Int)
 
 expect class VertexBufferLayoutDescriptor(
-    arrayStride: Long,
-    stepMode: InputStepMode,
-    vararg attributes: VertexAttributeDescriptor
-)
+    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttributeDescriptor)
 
 expect class VertexStateDescriptor(
-    indexFormat: IndexFormat,
-    vararg vertexBuffers: VertexBufferLayoutDescriptor
-)
+    indexFormat: IndexFormat, vararg vertexBuffers: VertexBufferLayoutDescriptor)
 
 expect class BlendDescriptor(
     srcFactor: BlendFactor = BlendFactor.ONE,
     dstFactor: BlendFactor = BlendFactor.ZERO,
-    operation: BlendOperation = BlendOperation.ADD
-)
+    operation: BlendOperation = BlendOperation.ADD)
 
 expect class TextureCopyView(
-    texture: Texture,
-    mipLevel: Long = 0,
-    origin: Origin3D = Origin3D(0, 0, 0)
-)
+    texture: Texture, mipLevel: Long = 0, origin: Origin3D = Origin3D(0, 0, 0))
 
-expect class BufferCopyView(buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long = 0) {
-
-}
+expect class BufferCopyView(
+    buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long = 0
+) {}
 
 expect class SamplerDescriptor(
     compare: CompareFunction? = null,
@@ -456,8 +442,7 @@ expect class SamplerDescriptor(
     mipmapFilter: FilterMode = FilterMode.NEAREST,
     lodMinClamp: Float = 0f,
     lodMaxClamp: Float = 100000000f,
-    maxAnisotrophy: Short = 1
-)
+    maxAnisotrophy: Short = 1)
 
 expect enum class TextureViewDimension {
     D1,
@@ -475,7 +460,9 @@ expect enum class TextureAspect {
 }
 
 expect enum class TextureDimension {
-    D1, D2, D3
+    D1,
+    D2,
+    D3
 }
 
 expect enum class TextureFormat {
@@ -500,10 +487,16 @@ expect enum class TextureFormat {
     /** Red channel only. 16 bit float per channel. Float in shader. */
     R16_FLOAT,
 
-    /** Red and green channels. 8 bit integer per channel. `[0, 255]` converted to/from float `[0, 1]` in shader. */
+    /**
+     * Red and green channels. 8 bit integer per channel. `[0, 255]` converted to/from float `[0,
+     * 1]` in shader.
+     */
     RG8_UNORM,
 
-    /** Red and green channels. 8 bit integer per channel. `[-127, 127]` converted to/from float `[-1, 1]` in shader. */
+    /**
+     * Red and green channels. 8 bit integer per channel. `[-127, 127]` converted to/from float
+     * `[-1, 1]` in shader.
+     */
     RG8_SNORM,
 
     /** Red and green channels. 8 bit integer per channel. Unsigned in shader. */
@@ -518,25 +511,34 @@ expect enum class TextureFormat {
     /** Red channel only. 32 bit integer per channel. Signed in shader. */
     R32_SINT,
 
-    /** Red channel only. 32 bit float per channel. Float in shader.*/
+    /** Red channel only. 32 bit float per channel. Float in shader. */
     R32_FLOAT,
 
     /** Red and green channels. 16 bit integer per channel. Unsigned in shader. */
     RG16_UINT,
 
-    /** Red and green channels. 16 bit integer per channel. Signed in shader.*/
+    /** Red and green channels. 16 bit integer per channel. Signed in shader. */
     RG16_SINT,
 
     /** Red and green channels. 16 bit float per channel. Float in shader. */
     RG16_FLOAT,
 
-    /** Red, green, blue, and alpha channels. 8 bit integer per channel. `[0, 255]` converted to/from float `[0, 1]` in shader. */
+    /**
+     * Red, green, blue, and alpha channels. 8 bit integer per channel. `[0, 255]` converted to/from
+     * float `[0, 1]` in shader.
+     */
     RGBA8_UNORM,
 
-    /** Red, green, blue, and alpha channels. 8 bit integer per channel. Srgb-color `[0, 255]` converted to/from linear-color float `[0, 1]` in shader. */
+    /**
+     * Red, green, blue, and alpha channels. 8 bit integer per channel. Srgb-color `[0, 255]`
+     * converted to/from linear-color float `[0, 1]` in shader.
+     */
     RGBA8_UNORM_SRGB,
 
-    /** Red, green, blue, and alpha channels. 8 bit integer per channel. `[-127, 127]` converted to/from float `[-1, 1]` in shader. */
+    /**
+     * Red, green, blue, and alpha channels. 8 bit integer per channel. `[-127, 127]` converted
+     * to/from float `[-1, 1]` in shader.
+     */
     RGBA8_SNORM,
 
     /** Red, green, blue, and alpha channels. 8 bit integer per channel. Unsigned in shader. */
@@ -545,16 +547,28 @@ expect enum class TextureFormat {
     /** Red, green, blue, and alpha channels. 8 bit integer per channel. Signed in shader. */
     RGBA8_SINT,
 
-    /** Blue, green, red, and alpha channels. 8 bit integer per channel. `[0, 255]` converted to/from float `[0, 1]` in shader. */
+    /**
+     * Blue, green, red, and alpha channels. 8 bit integer per channel. `[0, 255]` converted to/from
+     * float `[0, 1]` in shader.
+     */
     BGRA8_UNORM,
 
-    /** Blue, green, red, and alpha channels. 8 bit integer per channel. Srgb-color `[0, 255]` converted to/from linear-color float `[0, 1]` in shader. */
+    /**
+     * Blue, green, red, and alpha channels. 8 bit integer per channel. Srgb-color `[0, 255]`
+     * converted to/from linear-color float `[0, 1]` in shader.
+     */
     BGRA8_UNORM_SRGB,
 
-    /** Red, green, blue, and alpha channels. 10 bit integer for RGB channels, 2 bit integer for alpha channel. `[0, 1023]` (`[0, 3]` for alpha) converted to/from float `[0, 1]` in shader.*/
+    /**
+     * Red, green, blue, and alpha channels. 10 bit integer for RGB channels, 2 bit integer for
+     * alpha channel. `[0, 1023]` (`[0, 3]` for alpha) converted to/from float `[0, 1]` in shader.
+     */
     RGB10A2_UNORM,
 
-    /** Red, green, and blue channels. 11 bit float with no sign bit for RG channels. 10 bit float with no sign bit for blue channel. Float in shader. */
+    /**
+     * Red, green, and blue channels. 11 bit float with no sign bit for RG channels. 10 bit float
+     * with no sign bit for blue channel. Float in shader.
+     */
     RG11B10_FLOAT,
 
     /** Red and green channels. 32 bit integer per channel. Unsigned in shader. */
@@ -587,10 +601,12 @@ expect enum class TextureFormat {
     /** Special depth format with 32 bit floating point depth. */
     DEPTH32_FLOAT,
 
-    /** Special depth format with at least 24 bit integer depth.*/
+    /** Special depth format with at least 24 bit integer depth. */
     DEPTH24_PLUS,
 
-    /** Special depth/stencil format with at least 24 bit integer depth and 8 bits integer stencil.*/
+    /**
+     * Special depth/stencil format with at least 24 bit integer depth and 8 bits integer stencil.
+     */
     DEPTH24_PLUS_STENCIL8,
 }
 
@@ -643,88 +659,88 @@ expect enum class VertexFormat {
     /** Four unsigned bytes. uvec4 in shaders */
     UCHAR4,
 
-    /**Two signed bytes. ivec2 in shaders*/
+    /** Two signed bytes. ivec2 in shaders */
     CHAR2,
 
-    /**Four signed bytes. ivec4 in shaders*/
+    /** Four signed bytes. ivec4 in shaders */
     CHAR4,
 
-    /**Two unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec2 in shaders*/
+    /** Two unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec2 in shaders */
     UCHAR2_NORM,
 
-    /**Four unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec4 in shaders*/
+    /** Four unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec4 in shaders */
     UCHAR4_NORM,
 
-    /**two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
+    /** two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
     CHAR2_NORM,
 
-    /**two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
+    /** two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
     CHAR4_NORM,
 
-    /**two unsigned shorts. uvec2 in shaders*/
+    /** two unsigned shorts. uvec2 in shaders */
     USHORT2,
 
-    /**four unsigned shorts. uvec4 in shaders*/
+    /** four unsigned shorts. uvec4 in shaders */
     USHORT4,
 
-    /**two signed shorts. ivec2 in shaders*/
+    /** two signed shorts. ivec2 in shaders */
     SHORT2,
 
-    /**four signed shorts. ivec4 in shaders */
+    /** four signed shorts. ivec4 in shaders */
     SHORT4,
 
-    /** two unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec2 in shaders*/
+    /** two unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec2 in shaders */
     USHORT2_NORM,
 
-    /** four unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec4 in shaders*/
+    /** four unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec4 in shaders */
     USHORT4_NORM,
 
-    /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec2 in shaders*/
+    /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec2 in shaders */
     SHORT2_NORM,
 
-    /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec4 in shaders*/
+    /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec4 in shaders */
     SHORT4_NORM,
 
-    /**two half precision floats. vec2 in shaders*/
+    /** two half precision floats. vec2 in shaders */
     HALF2,
 
-    /**four half precision floats. vec4 in shaders*/
+    /** four half precision floats. vec4 in shaders */
     HALF4,
 
-    /**one float. float in shaders*/
+    /** one float. float in shaders */
     FLOAT,
 
-    /**two floats. vec2 in shaders*/
+    /** two floats. vec2 in shaders */
     FLOAT2,
 
-    /**three floats. vec3 in shaders*/
+    /** three floats. vec3 in shaders */
     FLOAT3,
 
-    /**four floats. vec4 in shaders*/
+    /** four floats. vec4 in shaders */
     FLOAT4,
 
-    /**one unsigned int. uint in shaders*/
+    /** one unsigned int. uint in shaders */
     UINT,
 
-    /**two unsigned ints. uvec2 in shaders*/
+    /** two unsigned ints. uvec2 in shaders */
     UINT2,
 
-    /**three unsigned ints. uvec3 in shaders*/
+    /** three unsigned ints. uvec3 in shaders */
     UINT3,
 
-    /**four unsigned ints. uvec4 in shaders*/
+    /** four unsigned ints. uvec4 in shaders */
     UINT4,
 
-    /**one signed int. int in shaders*/
+    /** one signed int. int in shaders */
     INT,
 
-    /**two signed ints. ivec2 in shaders*/
+    /** two signed ints. ivec2 in shaders */
     INT2,
 
-    /**three signed ints. ivec2 in shaders*/
+    /** three signed ints. ivec2 in shaders */
     INT3,
 
-    /**four signed ints. ivec2 in shaders*/
+    /** four signed ints. ivec2 in shaders */
     INT4,
 }
 
@@ -777,5 +793,7 @@ expect enum class CompareFunction {
 }
 
 expect enum class TextureComponentType {
-    FLOAT, SINT, UINT
+    FLOAT,
+    SINT,
+    UINT
 }

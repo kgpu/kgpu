@@ -11,60 +11,56 @@ public class WgpuTextureDataLayout extends WgpuJavaStruct {
     private final Struct.Unsigned32 bytesPerRow = new Struct.Unsigned32();
     private final Struct.Unsigned32 rowsPerImage = new Struct.Unsigned32();
 
-    protected WgpuTextureDataLayout(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuTextureDataLayout(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuTextureDataLayout(Runtime runtime){
+    public WgpuTextureDataLayout(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuTextureDataLayout createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuTextureDataLayout createHeap() {
         return new WgpuTextureDataLayout(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuTextureDataLayout createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuTextureDataLayout createDirect() {
         return new WgpuTextureDataLayout(true);
     }
 
-
-    public long getOffset(){
+    public long getOffset() {
         return offset.get();
     }
 
-    public void setOffset(long x){
+    public void setOffset(long x) {
         this.offset.set(x);
     }
 
-    public long getBytesPerRow(){
+    public long getBytesPerRow() {
         return bytesPerRow.get();
     }
 
-    public void setBytesPerRow(long x){
+    public void setBytesPerRow(long x) {
         this.bytesPerRow.set(x);
     }
 
-    public long getRowsPerImage(){
+    public long getRowsPerImage() {
         return rowsPerImage.get();
     }
 
-    public void setRowsPerImage(long x){
+    public void setRowsPerImage(long x) {
         this.rowsPerImage.set(x);
     }
-
 }

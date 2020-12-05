@@ -9,62 +9,59 @@ public class WgpuBlendDescriptor extends WgpuJavaStruct {
 
     private final Struct.Enum<WgpuBlendFactor> srcFactor = new Struct.Enum<>(WgpuBlendFactor.class);
     private final Struct.Enum<WgpuBlendFactor> dstFactor = new Struct.Enum<>(WgpuBlendFactor.class);
-    private final Struct.Enum<WgpuBlendOperation> operation = new Struct.Enum<>(WgpuBlendOperation.class);
+    private final Struct.Enum<WgpuBlendOperation> operation =
+            new Struct.Enum<>(WgpuBlendOperation.class);
 
-    protected WgpuBlendDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuBlendDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuBlendDescriptor(Runtime runtime){
+    public WgpuBlendDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuBlendDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuBlendDescriptor createHeap() {
         return new WgpuBlendDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuBlendDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuBlendDescriptor createDirect() {
         return new WgpuBlendDescriptor(true);
     }
 
-
-    public WgpuBlendFactor getSrcFactor(){
+    public WgpuBlendFactor getSrcFactor() {
         return srcFactor.get();
     }
 
-    public void setSrcFactor(WgpuBlendFactor x){
+    public void setSrcFactor(WgpuBlendFactor x) {
         this.srcFactor.set(x);
     }
 
-    public WgpuBlendFactor getDstFactor(){
+    public WgpuBlendFactor getDstFactor() {
         return dstFactor.get();
     }
 
-    public void setDstFactor(WgpuBlendFactor x){
+    public void setDstFactor(WgpuBlendFactor x) {
         this.dstFactor.set(x);
     }
 
-    public WgpuBlendOperation getOperation(){
+    public WgpuBlendOperation getOperation() {
         return operation.get();
     }
 
-    public void setOperation(WgpuBlendOperation x){
+    public void setOperation(WgpuBlendOperation x) {
         this.operation.set(x);
     }
-
 }

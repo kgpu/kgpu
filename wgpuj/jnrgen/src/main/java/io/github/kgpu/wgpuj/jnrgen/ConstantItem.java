@@ -18,16 +18,14 @@ public class ConstantItem implements Item {
         this.value = value;
         this.comment = comment;
 
-        System.out.println("Constant Item: " + cName +" " + value);
+        System.out.println("Constant Item: " + cName + " " + value);
     }
 
     @Override
-    public void save(OutputHandler outputHandler) throws IOException {
-
-    }
+    public void save(OutputHandler outputHandler) throws IOException {}
 
     public void write(BufferedWriter writer, String indent) throws IOException {
-        if(!comment.isEmpty()){
+        if (!comment.isEmpty()) {
             writer.write(indent);
             writer.write(comment.replace("\n", "\n" + indent));
             writer.write("\n");
@@ -40,11 +38,11 @@ public class ConstantItem implements Item {
         writer.write(variableName);
         writer.write(" = ");
 
-        if(value.contains("ULL")){
+        if (value.contains("ULL")) {
             writer.write("Long.parseUnsignedLong(\"");
             writer.write(value.replace("ULL", ""));
             writer.write("\")");
-        }else{
+        } else {
             writer.write(value);
         }
 
@@ -58,33 +56,34 @@ public class ConstantItem implements Item {
         String[] nameParts = cName.split("_", 2);
         String parentType = nameParts[0];
 
-        if(parentType.equals(parentType.toUpperCase())){
+        if (parentType.equals(parentType.toUpperCase())) {
             outputHandler.registerConstant("", this);
-            variableName = cName.substring(4);//Remove wgpu
-        }else{
+            variableName = cName.substring(4); // Remove wgpu
+        } else {
             variableName = nameParts[1];
             outputHandler.registerConstant(parentType.replace("WGPU", "Wgpu"), this);
         }
     }
 
     private void determineType() {
-        if(value.contains("ULL")){
+        if (value.contains("ULL")) {
             javaType = "long";
             return;
         }
 
-        try{
+        try {
             BigInteger value = new BigInteger(this.value);
 
-            if(value.equals(BigInteger.valueOf(value.intValue()))){
+            if (value.equals(BigInteger.valueOf(value.intValue()))) {
                 javaType = "int";
-            }else if(value.equals(BigInteger.valueOf(value.longValue()))){
+            } else if (value.equals(BigInteger.valueOf(value.longValue()))) {
                 javaType = "long";
-            }else{
+            } else {
                 throw new RuntimeException("Type is too big for java!");
             }
-        }catch(RuntimeException e){
-            throw new RuntimeException("Failed to get type for " + this + ": " + e.getLocalizedMessage());
+        } catch (RuntimeException e) {
+            throw new RuntimeException(
+                    "Failed to get type for " + this + ": " + e.getLocalizedMessage());
         }
     }
 
@@ -95,6 +94,6 @@ public class ConstantItem implements Item {
 
     @Override
     public String toString() {
-        return "Constant(" + cName + " = " + value +")";
+        return "Constant(" + cName + " = " + value + ")";
     }
 }

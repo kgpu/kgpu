@@ -1,8 +1,8 @@
 package io.github.kgpu.wgpuj.jni;
 
-import io.github.kgpu.wgpuj.util.WgpuJavaStruct;
 import io.github.kgpu.wgpuj.util.CStrPointer;
 import io.github.kgpu.wgpuj.util.RustCString;
+import io.github.kgpu.wgpuj.util.WgpuJavaStruct;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
@@ -13,60 +13,56 @@ public class WgpuPipelineLayoutDescriptor extends WgpuJavaStruct {
     private final Struct.Pointer bindGroupLayouts = new Struct.Pointer();
     private final Struct.Unsigned64 bindGroupLayoutsLength = new Struct.Unsigned64();
 
-    protected WgpuPipelineLayoutDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuPipelineLayoutDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuPipelineLayoutDescriptor(Runtime runtime){
+    public WgpuPipelineLayoutDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuPipelineLayoutDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuPipelineLayoutDescriptor createHeap() {
         return new WgpuPipelineLayoutDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuPipelineLayoutDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuPipelineLayoutDescriptor createDirect() {
         return new WgpuPipelineLayoutDescriptor(true);
     }
 
-
-    public java.lang.String getLabel(){
+    public java.lang.String getLabel() {
         return RustCString.fromPointer(label.get());
     }
 
-    public void setLabel(java.lang.String x){
+    public void setLabel(java.lang.String x) {
         this.label.set(RustCString.toPointer(x));
     }
 
-    public jnr.ffi.Pointer getBindGroupLayouts(){
+    public jnr.ffi.Pointer getBindGroupLayouts() {
         return bindGroupLayouts.get();
     }
 
-    public void setBindGroupLayouts(jnr.ffi.Pointer x){
+    public void setBindGroupLayouts(jnr.ffi.Pointer x) {
         this.bindGroupLayouts.set(x);
     }
 
-    public long getBindGroupLayoutsLength(){
+    public long getBindGroupLayoutsLength() {
         return bindGroupLayoutsLength.get();
     }
 
-    public void setBindGroupLayoutsLength(long x){
+    public void setBindGroupLayoutsLength(long x) {
         this.bindGroupLayoutsLength.set(x);
     }
-
 }

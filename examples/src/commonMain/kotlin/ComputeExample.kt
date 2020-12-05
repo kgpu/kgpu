@@ -1,7 +1,8 @@
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
 
-const val COLLATZ_SHADER = """
+const val COLLATZ_SHADER =
+    """
 #version 450
 layout(local_size_x = 1) in;
 
@@ -40,41 +41,34 @@ suspend fun runComputeExample() {
     val device = adapter.requestDeviceAsync()
     val input = intArrayOf(2, 7, 19, 20)
 
-    val stagingBuffer = device.createBuffer(
-        BufferDescriptor(
-            "Staging buffer",
-            Primitives.INT_BYTES * input.size,
-            BufferUsage.MAP_READ or BufferUsage.COPY_DST,
-            false
-        )
-    )
-    val storageBuffer = BufferUtils.createIntBuffer(
-        device,
-        "storage buffer",
-        input,
-        BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC
-    )
+    val stagingBuffer =
+        device.createBuffer(
+            BufferDescriptor(
+                "Staging buffer",
+                Primitives.INT_BYTES * input.size,
+                BufferUsage.MAP_READ or BufferUsage.COPY_DST,
+                false))
+    val storageBuffer =
+        BufferUtils.createIntBuffer(
+            device,
+            "storage buffer",
+            input,
+            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC)
 
-    val bindGroupLayout = device.createBindGroupLayout(
-        BindGroupLayoutDescriptor(
-            BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)
-        )
-    )
-    val bindGroup = device.createBindGroup(
-        BindGroupDescriptor(
-            bindGroupLayout,
-            BindGroupEntry(0, storageBuffer)
-        )
-    )
+    val bindGroupLayout =
+        device.createBindGroupLayout(
+            BindGroupLayoutDescriptor(
+                BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)))
+    val bindGroup =
+        device.createBindGroup(
+            BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, storageBuffer)))
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader = device.createShaderModule(KShader.compile("shader", COLLATZ_SHADER, KShaderType.COMPUTE))
-    val computePipeline = device.createComputePipeline(
-        ComputePipelineDescriptor(
-            pipelineLayout,
-            ProgrammableStageDescriptor(shader, "main")
-        )
-    )
+    val shader =
+        device.createShaderModule(KShader.compile("shader", COLLATZ_SHADER, KShaderType.COMPUTE))
+    val computePipeline =
+        device.createComputePipeline(
+            ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main")))
     val cmdEncoder = device.createCommandEncoder()
     val computePass = cmdEncoder.beginComputePass()
 

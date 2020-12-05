@@ -11,56 +11,52 @@ public class WgpuColorAttachmentDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned64 resolveTarget = new Struct.Unsigned64();
     private final WgpuPassChannel_Color channel = inner(WgpuPassChannel_Color.createHeap());
 
-    protected WgpuColorAttachmentDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuColorAttachmentDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuColorAttachmentDescriptor(Runtime runtime){
+    public WgpuColorAttachmentDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuColorAttachmentDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuColorAttachmentDescriptor createHeap() {
         return new WgpuColorAttachmentDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuColorAttachmentDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuColorAttachmentDescriptor createDirect() {
         return new WgpuColorAttachmentDescriptor(true);
     }
 
-
-    public long getAttachment(){
+    public long getAttachment() {
         return attachment.get();
     }
 
-    public void setAttachment(long x){
+    public void setAttachment(long x) {
         this.attachment.set(x);
     }
 
-    public long getResolveTarget(){
+    public long getResolveTarget() {
         return resolveTarget.get();
     }
 
-    public void setResolveTarget(long x){
+    public void setResolveTarget(long x) {
         this.resolveTarget.set(x);
     }
 
-    public WgpuPassChannel_Color getChannel(){
+    public WgpuPassChannel_Color getChannel() {
         return channel;
     }
-
 }

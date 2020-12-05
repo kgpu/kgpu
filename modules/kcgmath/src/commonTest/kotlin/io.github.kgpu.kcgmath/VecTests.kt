@@ -4,7 +4,7 @@ import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Vec{
+class Vec {
 
     @Test
     internal fun addTest() {
@@ -44,7 +44,7 @@ class Vec{
     }
 
     @Test
-    fun distanceTest(){
+    fun distanceTest() {
         val vec1 = Vec3(1f, 1f, 1f)
         val vec2 = Vec3(3f, 3f, 3f)
 
@@ -53,7 +53,7 @@ class Vec{
     }
 
     @Test
-    fun angleTest(){
+    fun angleTest() {
         val vec1 = Vec3(1f, 0f, 0f)
         val vec2 = Vec3(0f, 1f, 0f)
 
@@ -63,7 +63,7 @@ class Vec{
     @Test
     fun dotTest() {
         val vec1 = Vec3(1f, 2f, 3f)
-        val vec2 = Vec3(3f, 2f, 1f);
+        val vec2 = Vec3(3f, 2f, 1f)
 
         assertEquals(10f, vec1.dot(vec2))
     }
@@ -84,16 +84,16 @@ class Vec{
     }
 
     @Test
-    fun normalizeTest(){
+    fun normalizeTest() {
         val vec = Vec3(sqrt(18f), -3f, -3f)
 
-        assertEquals(Vec3(sqrt(18f) / 6f, -.5f, -.5f), vec.normalize());
+        assertEquals(Vec3(sqrt(18f) / 6f, -.5f, -.5f), vec.normalize())
     }
 
     @Test
-    fun normalizeZeroTest(){
+    fun normalizeZeroTest() {
         val vec = Vec3()
 
-        assertEquals(Vec3(), vec.normalize());
+        assertEquals(Vec3(), vec.normalize())
     }
 }

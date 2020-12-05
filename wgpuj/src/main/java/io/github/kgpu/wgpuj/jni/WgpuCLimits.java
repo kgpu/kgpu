@@ -9,44 +9,40 @@ public class WgpuCLimits extends WgpuJavaStruct {
 
     private final Struct.Unsigned32 maxBindGroups = new Struct.Unsigned32();
 
-    protected WgpuCLimits(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuCLimits(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuCLimits(Runtime runtime){
+    public WgpuCLimits(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuCLimits createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuCLimits createHeap() {
         return new WgpuCLimits(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuCLimits createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuCLimits createDirect() {
         return new WgpuCLimits(true);
     }
 
-
-    public long getMaxBindGroups(){
+    public long getMaxBindGroups() {
         return maxBindGroups.get();
     }
 
-    public void setMaxBindGroups(long x){
+    public void setMaxBindGroups(long x) {
         this.maxBindGroups.set(x);
     }
-
 }

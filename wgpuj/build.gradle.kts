@@ -1,10 +1,8 @@
-import com.diffplug.gradle.spotless.SpotlessExtension
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import de.undercouch.gradle.tasks.download.Download
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("java-library")
-    id("com.diffplug.gradle.spotless") version "4.4.0"
     id("de.undercouch.download")
     id("maven-publish")
 }
@@ -39,7 +37,7 @@ tasks.test {
     testLogging {
         events("skipped", "failed")
 
-        info{
+        info {
             events("skipped", "failed", "passed")
         }
 
@@ -52,9 +50,9 @@ tasks.test {
         override fun beforeSuite(suite: TestDescriptor) {}
         override fun beforeTest(testDescriptor: TestDescriptor) {}
         override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
-            //Fail on skipped tests because sometimes it will skip the test if the JVM crashes in
-            //native code
-            when(result.resultType){
+            // Fail on skipped tests because sometimes it will skip the test if the JVM crashes in
+            // native code
+            when (result.resultType) {
                 TestResult.ResultType.SKIPPED -> throw RuntimeException("Tests cannot be skipped!")
             }
         }
@@ -70,23 +68,16 @@ tasks.test {
     })
 }
 
-configure<SpotlessExtension> {
-    java {
-        removeUnusedImports()
-        indentWithSpaces()
-    }
-}
-
-tasks{
-    register("updateBindings", Copy::class){
+tasks {
+    register("updateBindings", Copy::class) {
         dependsOn("jnrgen:generateBindings")
-        from("${projectDir}/jnrgen/build/jnr-gen")
-        into("${projectDir}/src/main/java/io/github/kgpu/wgpuj/jni")
+        from("$projectDir/jnrgen/build/jnr-gen")
+        into("$projectDir/src/main/java/io/github/kgpu/wgpuj/jni")
 
         finalizedBy("spotlessApply")
     }
 
-    register("downloadWgpuNative", Download::class){
+    register("downloadWgpuNative", Download::class) {
         val wgpuNativeSHA: String by rootProject.extra
         val baseUrl = "https://github.com/kgpu/wgpu-native-builds/releases/download/V.$wgpuNativeSHA/"
         onlyIfModified(true)
@@ -99,23 +90,23 @@ tasks{
         dest("$buildDir")
     }
 
-    register("installWgpuNative", Copy::class){
+    register("installWgpuNative", Copy::class) {
         dependsOn("downloadWgpuNative")
-        //Only include the library files from the releases
-        from(zipTree("$buildDir/wgpu-linux-64-release.zip")){
+        // Only include the library files from the releases
+        from(zipTree("$buildDir/wgpu-linux-64-release.zip")) {
             include("**.so")
         }
-        from(zipTree("$buildDir/wgpu-macos-64-release.zip")){
+        from(zipTree("$buildDir/wgpu-macos-64-release.zip")) {
             include("**.dylib")
         }
-        from(zipTree("$buildDir/wgpu-windows-64-release.zip")){
+        from(zipTree("$buildDir/wgpu-windows-64-release.zip")) {
             include("**.dll")
         }
 
-        into("${projectDir}/src/main/resources")
+        into("$projectDir/src/main/resources")
     }
 
-    val compileJava by getting{
+    val compileJava by getting {
         dependsOn("installWgpuNative")
     }
 }

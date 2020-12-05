@@ -1,8 +1,7 @@
 import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackOutput.Target.UMD
 
-plugins{
-    kotlin("multiplatform") 
+plugins {
+    kotlin("multiplatform")
 }
 
 repositories {
@@ -14,9 +13,9 @@ group = rootProject.extra["projectGroup"]
 version = rootProject.extra["projectVersion"]
 
 kotlin {
-    jvm(){
+    jvm() {
         withJava()
-        tasks{
+        tasks {
             register<Jar>("jvmFatJar") {
                 dependsOn("jvmJar")
 
@@ -31,13 +30,12 @@ kotlin {
             }
         }
     }
-    js().browser(){
-
+    js().browser() {
     }
 
     sourceSets {
         val commonMain by getting {
-            dependencies{
+            dependencies {
                 implementation(project(":modules:kgpu"))
                 implementation(project(":modules:kshader"))
                 implementation(project(":modules:kcgmath"))
@@ -47,7 +45,7 @@ kotlin {
             dependencies {
             }
         }
-        val jsMain by getting{
+        val jsMain by getting {
             dependencies {
             }
         }
@@ -60,8 +58,8 @@ tasks {
         dependsOn("jsBrowserWebpack")
     }
 
-    register("startWebServer"){
-        val port = 8080;
+    register("startWebServer") {
+        val port = 8080
         val path = "$buildDir/distributions"
 
         doLast {
@@ -72,70 +70,70 @@ tasks {
         }
     }
 
-    register("runTriangleExample", Exec::class){
+    register("runTriangleExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle")
     }
 
-    register("runCubeExample", Exec::class){
+    register("runCubeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-cube")
     }
 
-    register("runTextureExample", Exec::class){
+    register("runTextureExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-texture")
     }
 
-    register("runEarthExample", Exec::class){
+    register("runEarthExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-earth")
     }
 
-    register("runComputeExample", Exec::class){
+    register("runComputeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-compute")
     }
 
-    register("runMsaaExample", Exec::class){
+    register("runMsaaExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-msaa")
     }
 
-    register("runCompareExample", Exec::class){
+    register("runCompareExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-computeCompare")
     }
 
-    register("runWindowExample", Exec::class){
+    register("runWindowExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-window")
     }
 
-    register("runModelExample", Exec::class){
+    register("runModelExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
         commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-model")
     }
 
-    register("runBoidExample", Exec::class){
+    register("runBoidExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")

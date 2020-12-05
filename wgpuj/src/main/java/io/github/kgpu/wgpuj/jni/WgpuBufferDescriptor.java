@@ -1,8 +1,8 @@
 package io.github.kgpu.wgpuj.jni;
 
-import io.github.kgpu.wgpuj.util.WgpuJavaStruct;
 import io.github.kgpu.wgpuj.util.CStrPointer;
 import io.github.kgpu.wgpuj.util.RustCString;
+import io.github.kgpu.wgpuj.util.WgpuJavaStruct;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
@@ -14,68 +14,64 @@ public class WgpuBufferDescriptor extends WgpuJavaStruct {
     private final Struct.Unsigned32 usage = new Struct.Unsigned32();
     private final Struct.Boolean mappedAtCreation = new Struct.Boolean();
 
-    protected WgpuBufferDescriptor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuBufferDescriptor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuBufferDescriptor(Runtime runtime){
+    public WgpuBufferDescriptor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuBufferDescriptor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuBufferDescriptor createHeap() {
         return new WgpuBufferDescriptor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuBufferDescriptor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuBufferDescriptor createDirect() {
         return new WgpuBufferDescriptor(true);
     }
 
-
-    public java.lang.String getLabel(){
+    public java.lang.String getLabel() {
         return RustCString.fromPointer(label.get());
     }
 
-    public void setLabel(java.lang.String x){
+    public void setLabel(java.lang.String x) {
         this.label.set(RustCString.toPointer(x));
     }
 
-    public long getSize(){
+    public long getSize() {
         return size.get();
     }
 
-    public void setSize(long x){
+    public void setSize(long x) {
         this.size.set(x);
     }
 
-    public long getUsage(){
+    public long getUsage() {
         return usage.get();
     }
 
-    public void setUsage(long x){
+    public void setUsage(long x) {
         this.usage.set(x);
     }
 
-    public boolean getMappedAtCreation(){
+    public boolean getMappedAtCreation() {
         return mappedAtCreation.get();
     }
 
-    public void setMappedAtCreation(boolean x){
+    public void setMappedAtCreation(boolean x) {
         this.mappedAtCreation.set(x);
     }
-
 }

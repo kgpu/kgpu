@@ -17,10 +17,10 @@ public class Scanner {
     }
 
     private void parse() {
-        while(index < text.length()){
+        while (index < text.length()) {
             Token token = parseToken(poll());
 
-            if(token != null){
+            if (token != null) {
                 tokens.add(token);
             }
         }
@@ -29,7 +29,7 @@ public class Scanner {
     }
 
     private Token parseToken(char c) {
-        switch(c){
+        switch (c) {
             case '#':
                 return new Token(Token.TokenType.HASH);
             case '(':
@@ -59,20 +59,20 @@ public class Scanner {
                 return null;
             case '/':
                 char next = poll();
-                if(next == '*'){
+                if (next == '*') {
                     String comment = readComment();
 
                     return new Token(Token.TokenType.COMMENT, comment);
-                }else{
+                } else {
                     System.out.println("Expected * after / but found: " + next);
                     return null;
                 }
             default:
-                if(isIdentifierCharacter(c)){
+                if (isIdentifierCharacter(c)) {
                     String text = readIdentifier(c);
 
                     return Token.identifier(text);
-                }else{
+                } else {
                     System.out.println("Unknown character: " + c);
 
                     return null;
@@ -86,10 +86,10 @@ public class Scanner {
         char c;
         char prev = 0;
 
-        while((c = poll()) != 0){
+        while ((c = poll()) != 0) {
             builder.append(c);
 
-            if(c == '/' && prev == '*'){
+            if (c == '/' && prev == '*') {
                 break;
             }
 
@@ -102,7 +102,7 @@ public class Scanner {
     private String readIdentifier(char c) {
         StringBuilder builder = new StringBuilder(String.valueOf(c));
 
-        while(index < text.length() && isIdentifierCharacter(peek())){
+        while (index < text.length() && isIdentifierCharacter(peek())) {
             builder.append(poll());
         }
 
@@ -113,16 +113,14 @@ public class Scanner {
         return Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '*';
     }
 
-    private char poll(){
-        if(index >= text.length())
-            return 0;
+    private char poll() {
+        if (index >= text.length()) return 0;
 
         return text.charAt(index++);
     }
 
-    private char peek(){
-        if(index >= text.length())
-            return 0;
+    private char peek() {
+        if (index >= text.length()) return 0;
 
         return text.charAt(index);
     }

@@ -1,11 +1,10 @@
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("multiplatform") version "1.4.0"
     id("org.jetbrains.dokka") version "1.4.0-rc"
     id("maven-publish")
+    id("com.diffplug.spotless") version "5.8.2"
 }
 
 repositories {
@@ -14,7 +13,7 @@ repositories {
 }
 
 kotlin {
-    jvm() //Needed to satisfy multiplatform plugin
+    jvm() // Needed to satisfy multiplatform plugin
 }
 
 group = rootProject.extra["projectGroup"]
@@ -23,6 +22,32 @@ version = rootProject.extra["projectVersion"]
 tasks.dokkaHtmlMultimodule {
     outputDirectory = "$rootDir/docs/book/dokka"
     documentationFileName = "README.md"
+}
+
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        val files = project.fileTree(rootDir)
+        files.include("**/*.kt")
+
+        target(files)
+        ktfmt("0.18").dropboxStyle()
+    }
+    java {
+        val files = project.fileTree(rootDir)
+        files.include("**/*.java")
+
+        target(files)
+        googleJavaFormat().aosp()
+        removeUnusedImports()
+        indentWithSpaces()
+    }
+    kotlinGradle {
+        val files = project.fileTree(rootDir)
+        files.include("**/*.gradle.kts")
+
+        target(files)
+        ktlint()
+    }
 }
 
 tasks {
@@ -45,7 +70,7 @@ tasks {
     }
 
     register("generateBook", Exec::class) {
-        workingDir("${rootDir}/docs")
+        workingDir("$rootDir/docs")
         commandLine("mdbook", "build")
     }
 }

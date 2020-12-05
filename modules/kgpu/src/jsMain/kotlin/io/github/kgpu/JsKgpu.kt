@@ -1,12 +1,10 @@
 package io.github.kgpu
 
 import io.github.kgpu.internal.ArrayBufferUtils
+import kotlin.js.Promise
+import kotlinx.browser.window as jsWindow
 import kotlinx.coroutines.await
 import org.khronos.webgl.*
-import org.w3c.dom.HTMLCanvasElement
-import kotlin.js.Promise
-import kotlinx.browser.document as jsDocument
-import kotlinx.browser.window as jsWindow
 
 actual object Kgpu {
     actual val backendName: String = "Web"
@@ -16,9 +14,7 @@ actual object Kgpu {
         window.update()
         func()
 
-        jsWindow.requestAnimationFrame {
-            runLoop(window, func)
-        };
+        jsWindow.requestAnimationFrame { runLoop(window, func) }
     }
 
     actual suspend fun requestAdapterAsync(window: Window?): Adapter {
@@ -34,7 +30,6 @@ open external class GPUObjectDescriptorBase {
     val label: String
 }
 
-
 actual class Adapter(val jsType: GPUAdapter) {
 
     actual suspend fun requestDeviceAsync(): Device {
@@ -44,7 +39,6 @@ actual class Adapter(val jsType: GPUAdapter) {
     override fun toString(): String {
         return "Adapter($jsType)"
     }
-
 }
 
 open external class GPUAdapter {
@@ -54,9 +48,7 @@ open external class GPUAdapter {
     fun requestDevice(): Promise<GPUDevice>
 }
 
-/**
- * Eventually will be external once implemented in browsers
- */
+/** Eventually will be external once implemented in browsers */
 enum class GPUExtensionName {
     TextureCompressionBC,
     PipelineStatisticsQuery,
@@ -69,11 +61,10 @@ actual enum class PowerPreference(jsType: GPUPowerPreference?) {
     HIGH_PERFORMANCE(GPUPowerPreference.HIGH_PERFORMANCE)
 }
 
-/**
- * Eventually will be external once implemented in browsers
- */
+/** Eventually will be external once implemented in browsers */
 enum class GPUPowerPreference {
-    LOW_POWER, HIGH_PERFORMANCE
+    LOW_POWER,
+    HIGH_PERFORMANCE
 }
 
 actual class Device(val jsType: GPUDevice) {
@@ -107,7 +98,7 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun getDefaultQueue(): Queue {
-        val queue = jsType.asDynamic().defaultQueue as GPUQueue;
+        val queue = jsType.asDynamic().defaultQueue as GPUQueue
 
         return Queue(queue)
     }
@@ -121,7 +112,7 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
-        if(!desc.mappedAtCreation){
+        if (!desc.mappedAtCreation) {
             throw IllegalArgumentException("Buffer descriptor must be mapped at creation!")
         }
 
@@ -143,7 +134,6 @@ actual class Device(val jsType: GPUDevice) {
     actual fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline {
         return jsType.createComputePipeline(desc)
     }
-
 }
 
 external class GPUDevice {
@@ -183,7 +173,9 @@ actual class CommandEncoder(val jsType: GPUCommandEncoder) {
         return CommandBuffer(jsType.finish())
     }
 
-    actual fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D) {
+    actual fun copyBufferToTexture(
+        source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D
+    ) {
         jsType.copyBufferToTexture(source, destination, copySize)
     }
 
@@ -192,16 +184,13 @@ actual class CommandEncoder(val jsType: GPUCommandEncoder) {
     }
 
     actual fun copyBufferToBuffer(
-        source: Buffer,
-        destination: Buffer,
-        size: Long,
-        sourceOffset: Int,
-        destinationOffset: Int
+        source: Buffer, destination: Buffer, size: Long, sourceOffset: Int, destinationOffset: Int
     ) {
-        jsType.copyBufferToBuffer(source.jsType, sourceOffset, destination.jsType, destinationOffset, size)
+        jsType.copyBufferToBuffer(
+            source.jsType, sourceOffset, destination.jsType, destinationOffset, size)
     }
 
-    actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D){
+    actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D) {
         jsType.copyTextureToBuffer(source, dest, size)
     }
 }
@@ -212,7 +201,9 @@ external class GPUCommandEncoder {
 
     fun finish(): GPUCommandBuffer
 
-    fun copyBufferToTexture(source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D)
+    fun copyBufferToTexture(
+        source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D
+    )
 
     fun beginComputePass(): GPUComputePassEncoder
 
@@ -224,7 +215,9 @@ external class GPUCommandEncoder {
         size: Long
     )
 
-    fun copyTextureToBuffer(source: TextureCopyView, destination: BufferCopyView, copySize: Extent3D)
+    fun copyTextureToBuffer(
+        source: TextureCopyView, destination: BufferCopyView, copySize: Extent3D
+    )
 }
 
 actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
@@ -244,12 +237,14 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
         jsType.setVertexBuffer(slot, buffer.jsType, offset, size)
     }
 
-    actual fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int) {
+    actual fun drawIndexed(
+        indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
+    ) {
         jsType.drawIndexed(indexCount, instanceCount, firstVertex, baseVertex, firstInstance)
     }
 
     actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType,offset, size)
+        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
@@ -266,7 +261,9 @@ external class GPURenderPassEncoder {
 
     fun setVertexBuffer(slot: Long, buffer: GPUBuffer, offset: Long, size: Long)
 
-    fun drawIndexed(indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int)
+    fun drawIndexed(
+        indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
+    )
 
     fun setIndexBuffer(buffer: GPUBuffer, format: String, offset: Long, size: Long)
 
@@ -290,7 +287,6 @@ actual class ComputePassEncoder(val jsType: GPUComputePassEncoder) {
     actual fun endPass() {
         jsType.endPass()
     }
-
 }
 
 external class GPUComputePassEncoder {
@@ -309,7 +305,7 @@ actual class Texture(val jsType: GPUTexture) {
         return TextureView(jsType.createView(desc))
     }
 
-    actual fun destroy(){
+    actual fun destroy() {
         jsType.destroy()
     }
 }
@@ -324,14 +320,15 @@ external class GPUTexture {
 external class GPUShaderModule : GPUObjectBase {
     val compilationInfo: Any
 }
+
 actual typealias ShaderModule = GPUShaderModule
 
-actual class ProgrammableStageDescriptor actual constructor(
-    val module: ShaderModule,
-    val entryPoint: String
-)
+actual class ProgrammableStageDescriptor
+    actual constructor(val module: ShaderModule, val entryPoint: String)
 
-actual enum class PrimitiveTopology(val jsType: GPUPrimitiveTopology = GPUPrimitiveTopology._NotImplemented) {
+actual enum class PrimitiveTopology(
+    val jsType: GPUPrimitiveTopology = GPUPrimitiveTopology._NotImplemented
+) {
     POINT_LIST,
     LINE_LIST,
     LINE_STRIP,
@@ -359,102 +356,101 @@ actual enum class CullMode(val jsType: String) {
     BACK("back"),
 }
 
-actual class RasterizationStateDescriptor actual constructor(
-    frontFace: FrontFace,
-    cullMode: CullMode,
-    val clampDepth: Boolean,
-    val depthBias: Long,
-    val depthBiasSlopeScale: Float,
-    val depthBiasClamp: Float
-) {
+actual class RasterizationStateDescriptor
+    actual constructor(
+        frontFace: FrontFace,
+        cullMode: CullMode,
+        val clampDepth: Boolean,
+        val depthBias: Long,
+        val depthBiasSlopeScale: Float,
+        val depthBiasClamp: Float
+    ) {
 
     val frontFace = frontFace.jsType
     val cullMode = cullMode.jsType
 }
 
-actual class BlendDescriptor actual constructor(
-    srcFactor: BlendFactor,
-    dstFactor: BlendFactor,
-    operation: BlendOperation
-) {
+actual class BlendDescriptor
+    actual constructor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation) {
 
     val operation = operation.jsType
     val srcFactor = srcFactor.jsType
     val dstFactor = dstFactor.jsType
 }
 
-actual class ColorStateDescriptor actual constructor(
-    format: TextureFormat,
-    val alphaBlend: BlendDescriptor,
-    val colorBlend: BlendDescriptor,
-    val writeMask: Long
-) {
+actual class ColorStateDescriptor
+    actual constructor(
+        format: TextureFormat,
+        val alphaBlend: BlendDescriptor,
+        val colorBlend: BlendDescriptor,
+        val writeMask: Long
+    ) {
 
     val format = format.jsType
 }
 
-actual class RenderPipelineDescriptor actual constructor(
-    val layout: PipelineLayout,
-    val vertexStage: ProgrammableStageDescriptor,
-    val fragmentStage: ProgrammableStageDescriptor,
-    primitiveTopology: PrimitiveTopology,
-    val rasterizationState: RasterizationStateDescriptor,
-    val colorStates: Array<ColorStateDescriptor>,
-    val depthStencilState: Any?,
-    val vertexState: VertexStateDescriptor,
-    val sampleCount: Int,
-    val sampleMask: Long,
-    val alphaToCoverage: Boolean
-) {
+actual class RenderPipelineDescriptor
+    actual constructor(
+        val layout: PipelineLayout,
+        val vertexStage: ProgrammableStageDescriptor,
+        val fragmentStage: ProgrammableStageDescriptor,
+        primitiveTopology: PrimitiveTopology,
+        val rasterizationState: RasterizationStateDescriptor,
+        val colorStates: Array<ColorStateDescriptor>,
+        val depthStencilState: Any?,
+        val vertexState: VertexStateDescriptor,
+        val sampleCount: Int,
+        val sampleMask: Long,
+        val alphaToCoverage: Boolean
+    ) {
 
     val primitiveTopology = "triangle-list"
 }
 
-actual class VertexAttributeDescriptor actual constructor(
-    format: VertexFormat,
-    val offset: Long,
-    val shaderLocation: Int
-) {
+actual class VertexAttributeDescriptor
+    actual constructor(format: VertexFormat, val offset: Long, val shaderLocation: Int) {
     val format = format.jsType
 }
 
-actual class VertexBufferLayoutDescriptor actual constructor(
-    val arrayStride: Long,
-    stepMode: InputStepMode,
-    vararg val attributes: VertexAttributeDescriptor
-) {
+actual class VertexBufferLayoutDescriptor
+    actual constructor(
+        val arrayStride: Long,
+        stepMode: InputStepMode,
+        vararg val attributes: VertexAttributeDescriptor
+    ) {
     val stepMode = stepMode.jsType
 }
 
-actual class VertexStateDescriptor actual constructor(
-    indexFormat: IndexFormat,
-    vararg val vertexBuffers: VertexBufferLayoutDescriptor
-) {
+actual class VertexStateDescriptor
+    actual constructor(
+        indexFormat: IndexFormat, vararg val vertexBuffers: VertexBufferLayoutDescriptor
+    ) {
 
     val indexFormat = indexFormat.jsType
 }
 
-actual class BindGroupLayoutEntry actual constructor(
-    val binding: Long,
-    val visibility: Long,
-    type: BindingType,
-    val hasDynamicOffset: Boolean,
-    viewDimension: TextureViewDimension?,
-    textureComponentType: TextureComponentType?,
-    val multisampled: Boolean,
-    storageTextureFormat: TextureFormat?
-) {
+actual class BindGroupLayoutEntry
+    actual constructor(
+        val binding: Long,
+        val visibility: Long,
+        type: BindingType,
+        val hasDynamicOffset: Boolean,
+        viewDimension: TextureViewDimension?,
+        textureComponentType: TextureComponentType?,
+        val multisampled: Boolean,
+        storageTextureFormat: TextureFormat?
+    ) {
     val type = type.jsType
     val viewDimension = viewDimension?.jsType ?: undefined
     val textureComponentType = textureComponentType?.jsType ?: undefined
     val storageTextureFormat = storageTextureFormat?.jsType ?: undefined
 
-    actual constructor(binding: Long, visibility: Long, type: BindingType) :
-            this(binding, visibility, type, false, null, null, false, null)
+    actual constructor(binding: Long, visibility: Long, type: BindingType) : this(
+        binding, visibility, type, false, null, null, false, null)
 
-    actual constructor(binding: Long, visibility: Long, type: BindingType, multisampled: kotlin.Boolean) :
-            this(binding, visibility, type, false, null, null, multisampled, null)
-
+    actual constructor(
+        binding: Long, visibility: Long, type: BindingType, multisampled: kotlin.Boolean
+    ) : this(binding, visibility, type, false, null, null, multisampled, null)
 
     actual constructor(
         binding: Long,
@@ -466,22 +462,20 @@ actual class BindGroupLayoutEntry actual constructor(
     ) : this(binding, visibility, type, false, dimension, textureComponentType, multisampled, null)
 }
 
-actual class BindGroupLayout(val jsType: GPUBindGroupLayout) {
+actual class BindGroupLayout(val jsType: GPUBindGroupLayout) {}
 
-}
-
-external class GPUBindGroupLayout {
-
-}
+external class GPUBindGroupLayout {}
 
 actual class PipelineLayoutDescriptor actual constructor(vararg bindGroupLayouts: BindGroupLayout) {
     val bindGroupLayouts = bindGroupLayouts.map { it.jsType }.toTypedArray()
 }
 
 external class GPUPipelineLayout
+
 actual typealias PipelineLayout = GPUPipelineLayout
 
 actual class RenderPipeline
+
 actual class ComputePipeline
 
 actual enum class InputStepMode(val jsType: String) {
@@ -489,11 +483,7 @@ actual enum class InputStepMode(val jsType: String) {
     INSTANCE("instance"),
 }
 
-actual class Extent3D actual constructor(
-    val width: Long,
-    val height: Long,
-    val depth: Long
-)
+actual class Extent3D actual constructor(val width: Long, val height: Long, val depth: Long)
 
 actual enum class TextureDimension(val jsType: String) {
     D1("1d"),
@@ -501,28 +491,30 @@ actual enum class TextureDimension(val jsType: String) {
     D3("3d")
 }
 
-actual class TextureDescriptor actual constructor(
-    val size: Extent3D,
-    val mipLevelCount: Long,
-    val sampleCount: Int,
-    dimension: TextureDimension,
-    format: TextureFormat,
-    val usage: Long
-) {
+actual class TextureDescriptor
+    actual constructor(
+        val size: Extent3D,
+        val mipLevelCount: Long,
+        val sampleCount: Int,
+        dimension: TextureDimension,
+        format: TextureFormat,
+        val usage: Long
+    ) {
 
     val dimension = dimension.jsType
     val format = format.jsType
 }
 
-actual class TextureViewDescriptor actual constructor(
-    format: TextureFormat,
-    dimension: TextureViewDimension,
-    aspect: TextureAspect,
-    val baseMipLevel: Long,
-    val mipLevelCount: Long,
-    val baseArrayLayer: Long,
-    val arrayLayerCount: Long
-) {
+actual class TextureViewDescriptor
+    actual constructor(
+        format: TextureFormat,
+        dimension: TextureViewDimension,
+        aspect: TextureAspect,
+        val baseMipLevel: Long,
+        val mipLevelCount: Long,
+        val baseArrayLayer: Long,
+        val arrayLayerCount: Long
+    ) {
 
     val format = format.jsType
     val dimension = dimension.jsType
@@ -538,10 +530,9 @@ actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource {
     actual fun destroy() {
         jsType.destroy()
     }
-
 }
 
-external class GPUTextureView{
+external class GPUTextureView {
     fun destroy()
 }
 
@@ -554,7 +545,7 @@ actual class SwapChain(val jsType: GPUSwapChain) {
     }
 
     actual fun present() {
-        //Not needed on WebGPU
+        // Not needed on WebGPU
     }
 
     actual fun isOutOfDate(): Boolean {
@@ -566,32 +557,27 @@ external class GPUSwapChain {
     fun getCurrentTexture(): GPUTexture
 }
 
-actual class SwapChainDescriptor actual constructor(
-    device: Device,
-    format: TextureFormat,
-    val usage: Long
-) {
+actual class SwapChainDescriptor
+    actual constructor(device: Device, format: TextureFormat, val usage: Long) {
     val device = device.jsType
     val format = format.jsType
 }
 
-actual class RenderPassColorAttachmentDescriptor actual constructor(
-    attachment: TextureView,
-    clearColor: Color?,
-    resolveTarget: TextureView?,
-    storeOp: StoreOp
-) {
+actual class RenderPassColorAttachmentDescriptor
+    actual constructor(
+        attachment: TextureView, clearColor: Color?, resolveTarget: TextureView?, storeOp: StoreOp
+    ) {
     val attachment = attachment.jsType
     val storeOp = storeOp.jsType
     val loadValue = clearColor ?: LoadOp.LOAD
     val resolveTarget = resolveTarget?.jsType ?: undefined
 }
 
-actual class RenderPassDescriptor actual constructor(
-    vararg val colorAttachments: RenderPassColorAttachmentDescriptor
-)
+actual class RenderPassDescriptor
+    actual constructor(vararg val colorAttachments: RenderPassColorAttachmentDescriptor)
 
 actual class CommandBuffer(val jsType: GPUCommandBuffer)
+
 external class GPUCommandBuffer
 
 actual class Queue(val jsType: GPUQueue) {
@@ -600,7 +586,9 @@ actual class Queue(val jsType: GPUQueue) {
         jsType.submit(cmdBuffers.map { it.jsType }.toTypedArray())
     }
 
-    actual fun writeBuffer(buffer: Buffer, data: ByteArray, offset: Long, dataOffset: Long, size: Long) {
+    actual fun writeBuffer(
+        buffer: Buffer, data: ByteArray, offset: Long, dataOffset: Long, size: Long
+    ) {
         val arrayBuffer = ArrayBuffer(data.size)
         Uint8Array(arrayBuffer).set(data.toTypedArray())
 
@@ -612,15 +600,14 @@ external class GPUQueue {
 
     fun submit(cmdBuffers: Array<GPUCommandBuffer>)
 
-    fun writeBuffer(buffer: GPUBuffer, offset: Long, data: ArrayBuffer, dataOffset: Long, size: Long)
+    fun writeBuffer(
+        buffer: GPUBuffer, offset: Long, data: ArrayBuffer, dataOffset: Long, size: Long
+    )
 }
 
-actual class BufferDescriptor actual constructor(
-    val label: String,
-    val size: Long,
-    val usage: Long,
-    val mappedAtCreation: Boolean
-)
+actual class BufferDescriptor
+    actual constructor(
+        val label: String, val size: Long, val usage: Long, val mappedAtCreation: Boolean)
 
 actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingResource {
 
@@ -662,18 +649,17 @@ external class GPUBuffer {
 
     fun mapAsync(mode: Long): Promise<dynamic>
 
-    fun getMappedRange() : ArrayBuffer
+    fun getMappedRange(): ArrayBuffer
 
     fun unmap()
 
     fun destroy()
 }
 
-
 actual class BufferData(val data: Uint8Array) {
 
     actual fun putBytes(bytes: ByteArray, offset: Int) {
-//        data.set(bytes.toTypedArray(), offset)
+        //        data.set(bytes.toTypedArray(), offset)
 
         TODO("Unsupported on the Web!")
     }
@@ -681,22 +667,18 @@ actual class BufferData(val data: Uint8Array) {
     actual fun getBytes(): ByteArray {
         return ArrayBufferUtils.toByteArray(data.buffer)
     }
-
 }
 
-actual class BindGroupLayoutDescriptor actual constructor(vararg val entries: BindGroupLayoutEntry) {
-}
+actual class BindGroupLayoutDescriptor
+    actual constructor(vararg val entries: BindGroupLayoutEntry) {}
 
 actual class BindGroupEntry actual constructor(val binding: Long, resource: IntoBindingResource) {
 
     val resource = resource.intoBindingResource()
-
 }
 
-actual class BindGroupDescriptor actual constructor(
-    layout: BindGroupLayout,
-    vararg val entries: BindGroupEntry
-) {
+actual class BindGroupDescriptor
+    actual constructor(layout: BindGroupLayout, vararg val entries: BindGroupEntry) {
     val layout = layout.jsType
 }
 
@@ -707,42 +689,36 @@ external class GPUBindGroup
 actual interface IntoBindingResource {
 
     fun intoBindingResource(): dynamic
-
 }
 
 actual class Origin3D actual constructor(val x: Long, val y: Long, val z: Long)
 
-actual class TextureCopyView actual constructor(
-    texture: Texture,
-    val mipLevel: Long,
-    val origin: Origin3D
-) {
+actual class TextureCopyView
+    actual constructor(texture: Texture, val mipLevel: Long, val origin: Origin3D) {
     val texture = texture.jsType
 }
 
-actual class BufferCopyView actual constructor(
-    buffer: Buffer,
-    val bytesPerRow: Int,
-    val rowsPerImage: Int,
-    val offset: Long
-) {
+actual class BufferCopyView
+    actual constructor(
+        buffer: Buffer, val bytesPerRow: Int, val rowsPerImage: Int, val offset: Long
+    ) {
 
     val buffer = buffer.jsType
-
 }
 
-actual class SamplerDescriptor actual constructor(
-    compare: CompareFunction?,
-    addressModeU: AddressMode,
-    addressModeV: AddressMode,
-    addressModeW: AddressMode,
-    magFilter: FilterMode,
-    minFilter: FilterMode,
-    mipmapFilter: FilterMode,
-    val lodMinClamp: Float,
-    val lodMaxClamp: Float,
-    val maxAnisotrophy: Short
-) {
+actual class SamplerDescriptor
+    actual constructor(
+        compare: CompareFunction?,
+        addressModeU: AddressMode,
+        addressModeV: AddressMode,
+        addressModeW: AddressMode,
+        magFilter: FilterMode,
+        minFilter: FilterMode,
+        mipmapFilter: FilterMode,
+        val lodMinClamp: Float,
+        val lodMaxClamp: Float,
+        val maxAnisotrophy: Short
+    ) {
 
     // compare not needed on web because its not a comparison sampler
     val compare = compare?.jsType ?: undefined
@@ -752,7 +728,6 @@ actual class SamplerDescriptor actual constructor(
     val magFilter = magFilter.jsType
     val minFilter = minFilter.jsType
     val mipmapFilter = mipmapFilter.jsType
-
 }
 
 actual class Sampler(val jsType: GPUSampler) : IntoBindingResource {
@@ -760,15 +735,12 @@ actual class Sampler(val jsType: GPUSampler) : IntoBindingResource {
     override fun intoBindingResource(): dynamic {
         return jsType
     }
-
 }
 
 external class GPUSampler
 
-actual class ComputePipelineDescriptor actual constructor(
-    val layout: PipelineLayout,
-    val computeStage: ProgrammableStageDescriptor
-)
+actual class ComputePipelineDescriptor
+    actual constructor(val layout: PipelineLayout, val computeStage: ProgrammableStageDescriptor)
 
 actual enum class TextureFormat(val jsType: String) {
     R8_UNORM("r8unorm"),

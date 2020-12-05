@@ -12,68 +12,64 @@ public class WgpuPassChannel_u32 extends WgpuJavaStruct {
     private final Struct.Unsigned32 clearValue = new Struct.Unsigned32();
     private final Struct.Boolean readOnly = new Struct.Boolean();
 
-    protected WgpuPassChannel_u32(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuPassChannel_u32(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuPassChannel_u32(Runtime runtime){
+    public WgpuPassChannel_u32(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuPassChannel_u32 createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuPassChannel_u32 createHeap() {
         return new WgpuPassChannel_u32(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuPassChannel_u32 createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuPassChannel_u32 createDirect() {
         return new WgpuPassChannel_u32(true);
     }
 
-
-    public WgpuLoadOp getLoadOp(){
+    public WgpuLoadOp getLoadOp() {
         return loadOp.get();
     }
 
-    public void setLoadOp(WgpuLoadOp x){
+    public void setLoadOp(WgpuLoadOp x) {
         this.loadOp.set(x);
     }
 
-    public WgpuStoreOp getStoreOp(){
+    public WgpuStoreOp getStoreOp() {
         return storeOp.get();
     }
 
-    public void setStoreOp(WgpuStoreOp x){
+    public void setStoreOp(WgpuStoreOp x) {
         this.storeOp.set(x);
     }
 
-    public long getClearValue(){
+    public long getClearValue() {
         return clearValue.get();
     }
 
-    public void setClearValue(long x){
+    public void setClearValue(long x) {
         this.clearValue.set(x);
     }
 
-    public boolean getReadOnly(){
+    public boolean getReadOnly() {
         return readOnly.get();
     }
 
-    public void setReadOnly(boolean x){
+    public void setReadOnly(boolean x) {
         this.readOnly.set(x);
     }
-
 }

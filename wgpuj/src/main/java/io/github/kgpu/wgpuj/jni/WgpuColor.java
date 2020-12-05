@@ -12,68 +12,64 @@ public class WgpuColor extends WgpuJavaStruct {
     private final Struct.Double b = new Struct.Double();
     private final Struct.Double a = new Struct.Double();
 
-    protected WgpuColor(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuColor(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuColor(Runtime runtime){
+    public WgpuColor(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuColor createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuColor createHeap() {
         return new WgpuColor(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuColor createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuColor createDirect() {
         return new WgpuColor(true);
     }
 
-
-    public double getR(){
+    public double getR() {
         return r.get();
     }
 
-    public void setR(double x){
+    public void setR(double x) {
         this.r.set(x);
     }
 
-    public double getG(){
+    public double getG() {
         return g.get();
     }
 
-    public void setG(double x){
+    public void setG(double x) {
         this.g.set(x);
     }
 
-    public double getB(){
+    public double getB() {
         return b.get();
     }
 
-    public void setB(double x){
+    public void setB(double x) {
         this.b.set(x);
     }
 
-    public double getA(){
+    public double getA() {
         return a.get();
     }
 
-    public void setA(double x){
+    public void setA(double x) {
         this.a.set(x);
     }
-
 }

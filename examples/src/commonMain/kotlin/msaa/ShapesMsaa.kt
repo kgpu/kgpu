@@ -3,42 +3,47 @@ package msaa
 import io.github.kgpu.*
 import io.github.kgpu.kshader.*
 
-const val SAMPLE_COUNT = 4;
+const val SAMPLE_COUNT = 4
 
 suspend fun runMsaaTriangle(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
-    val device = adapter.requestDeviceAsync();
-    val vertexShader = device.createShaderModule(KShader.compile("vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
-    val fragShader = device.createShaderModule(KShader.compile("frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
+    val device = adapter.requestDeviceAsync()
+    val vertexShader =
+        device.createShaderModule(
+            KShader.compile(
+                "vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
+    val fragShader =
+        device.createShaderModule(
+            KShader.compile(
+                "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
 
-    val vertices = floatArrayOf(
-        -.5f, .5f, 0f, 1f, 0f, 0f,
-        .5f, .5f, 0f, 0f, 1f, 0f,
-        0f, -.5f, 0f, 0f, 0f, 1f
-    )
+    val vertices =
+        floatArrayOf(-.5f, .5f, 0f, 1f, 0f, 0f, .5f, .5f, 0f, 0f, 1f, 0f, 0f, -.5f, 0f, 0f, 0f, 1f)
     val buffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
 
     val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE)
     val pipeline = device.createRenderPipeline(pipelineDesc)
-    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
+    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
     var texture = createAttachmentTexture(device, window.windowSize)
     var textureView = texture.createView()
-    window.onResize = { size : WindowSize ->
-        texture.destroy()
-        textureView.destroy()
-        texture = createAttachmentTexture(device, size)
-        textureView = texture.createView()
-        swapChain = window.configureSwapChain(swapChainDescriptor)
-    }
+    window.onResize =
+        { size: WindowSize ->
+            texture.destroy()
+            textureView.destroy()
+            texture = createAttachmentTexture(device, size)
+            textureView = texture.createView()
+            swapChain = window.configureSwapChain(swapChainDescriptor)
+        }
 
     Kgpu.runLoop(window) {
-        val swapChainTexture = swapChain.getCurrentTextureView();
-        val cmdEncoder = device.createCommandEncoder();
+        val swapChainTexture = swapChain.getCurrentTextureView()
+        val cmdEncoder = device.createCommandEncoder()
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(textureView, Color.WHITE, swapChainTexture)
+        val colorAttachment =
+            RenderPassColorAttachmentDescriptor(textureView, Color.WHITE, swapChainTexture)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setVertexBuffer(0, buffer)
@@ -48,14 +53,11 @@ suspend fun runMsaaTriangle(window: Window) {
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
         queue.submit(cmdBuffer)
-        swapChain.present();
+        swapChain.present()
     }
 }
 
-private fun createAttachmentTexture(
-    device: Device,
-    windowSize: WindowSize
-): Texture {
+private fun createAttachmentTexture(device: Device, windowSize: WindowSize): Texture {
     return device.createTexture(
         TextureDescriptor(
             Extent3D(windowSize.width.toLong(), windowSize.height.toLong(), 1),
@@ -63,9 +65,7 @@ private fun createAttachmentTexture(
             SAMPLE_COUNT,
             TextureDimension.D2,
             TextureFormat.BGRA8_UNORM,
-            TextureUsage.OUTPUT_ATTACHMENT
-        )
-    )
+            TextureUsage.OUTPUT_ATTACHMENT))
 }
 
 private fun createRenderPipeline(
@@ -79,29 +79,19 @@ private fun createRenderPipeline(
         ProgrammableStageDescriptor(vertexModule, "main"),
         ProgrammableStageDescriptor(fragModule, "main"),
         PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(
-            FrontFace.CCW,
-            cullMode
-        ),
+        RasterizationStateDescriptor(FrontFace.CCW, cullMode),
         arrayOf(
             ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(),
-                BlendDescriptor(),
-                0xF
-            )
-        ),
+                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16, VertexBufferLayoutDescriptor(
+            IndexFormat.UINT16,
+            VertexBufferLayoutDescriptor(
                 6 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
                 VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 3 * Primitives.FLOAT_BYTES, 1)
-            )
-        ),
+                VertexAttributeDescriptor(VertexFormat.FLOAT3, 3 * Primitives.FLOAT_BYTES, 1))),
         SAMPLE_COUNT,
         0xFFFFFFFF,
-        false
-    )
+        false)
 }

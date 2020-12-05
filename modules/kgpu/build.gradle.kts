@@ -33,7 +33,7 @@ kotlin {
 
         jvm().compilations["main"].defaultSourceSet {
             dependencies {
-                //Needed or else build fails
+                // Needed or else build fails
                 implementation(kotlin("stdlib-jdk8"))
                 api(project(":wgpuj"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
@@ -78,20 +78,20 @@ tasks.withType<DokkaTask>().configureEach {
 
     dokkaSourceSets {
         configureEach {
-            includeNonPublic = false 
+            includeNonPublic = false
         }
 
-        register("commonMain"){
+        register("commonMain") {
             displayName = "Common"
             platform = "common"
         }
 
-        register("jvmMain"){
+        register("jvmMain") {
             displayName = "Desktop"
             platform = "jvm"
         }
 
-        register("jsMain"){
+        register("jsMain") {
             displayName = "Web"
             platform = "js"
         }

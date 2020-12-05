@@ -10,48 +10,44 @@ public class WgpuBufferCopyView extends WgpuJavaStruct {
     private final WgpuTextureDataLayout layout = inner(WgpuTextureDataLayout.createHeap());
     private final Struct.Unsigned64 buffer = new Struct.Unsigned64();
 
-    protected WgpuBufferCopyView(boolean direct){
-         if(direct){
-             useDirectMemory();
+    protected WgpuBufferCopyView(boolean direct) {
+        if (direct) {
+            useDirectMemory();
         }
     }
 
     @Deprecated
-    public WgpuBufferCopyView(Runtime runtime){
+    public WgpuBufferCopyView(Runtime runtime) {
         super(runtime);
     }
 
     /**
-    * Creates this struct on the java heap.
-    * In general, this should <b>not</b> be used because these structs
-    * cannot be directly passed into native code. 
-    */
-    public static WgpuBufferCopyView createHeap(){
+     * Creates this struct on the java heap. In general, this should <b>not</b> be used because
+     * these structs cannot be directly passed into native code.
+     */
+    public static WgpuBufferCopyView createHeap() {
         return new WgpuBufferCopyView(false);
     }
 
     /**
-    * Creates this struct in direct memory.
-    * This is how most structs should be created (unless, they
-    * are members of a nothing struct)
-    * 
-    * @see WgpuJavaStruct#useDirectMemory
-    */
-    public static WgpuBufferCopyView createDirect(){
+     * Creates this struct in direct memory. This is how most structs should be created (unless,
+     * they are members of a nothing struct)
+     *
+     * @see WgpuJavaStruct#useDirectMemory
+     */
+    public static WgpuBufferCopyView createDirect() {
         return new WgpuBufferCopyView(true);
     }
 
-
-    public WgpuTextureDataLayout getLayout(){
+    public WgpuTextureDataLayout getLayout() {
         return layout;
     }
 
-    public long getBuffer(){
+    public long getBuffer() {
         return buffer.get();
     }
 
-    public void setBuffer(long x){
+    public void setBuffer(long x) {
         this.buffer.set(x);
     }
-
 }

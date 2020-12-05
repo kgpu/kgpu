@@ -1,13 +1,14 @@
 import io.github.kgpu.*
-import io.github.kgpu.kshader.*;
+import io.github.kgpu.kcgmath.*
+import io.github.kgpu.kcgmath.MathUtils
+import io.github.kgpu.kshader.*
 import kotlin.math.cos
 import kotlin.math.sin
-import io.github.kgpu.kcgmath.*;
-import io.github.kgpu.kcgmath.MathUtils;
 
 private object EarthShaderSource {
 
-    val vertex = """
+    val vertex =
+        """
         #version 450
 
         out gl_PerVertex {
@@ -40,7 +41,8 @@ private object EarthShaderSource {
         }
     """.trimIndent()
 
-    val frag = """
+    val frag =
+        """
         #version 450
 
         layout(location=0) in vec2 tex_coords;
@@ -75,14 +77,12 @@ suspend fun runEarthExample(window: Window) {
         return modelMatrix.clone().invert().transpose().mul(viewMatrix)
     }
 
-
     fun createMatrixBuffer(device: Device, matrix: Matrix4, label: String): Buffer {
         return BufferUtils.createBufferFromData(
             device,
             label,
             createTransformationMatrix(matrix).toBytes(),
-            BufferUsage.UNIFORM or BufferUsage.COPY_DST
-        )
+            BufferUsage.UNIFORM or BufferUsage.COPY_DST)
     }
 
     val earth = Sphere(40, 40)
@@ -92,74 +92,74 @@ suspend fun runEarthExample(window: Window) {
     val device = adapter.requestDeviceAsync()
     val image = ImageData.load("earth3D.png")
     val modelMatrix = Matrix4().rotate(0f, .1f, 0f)
-    val viewMatrix = Matrix4().lookAt(
-        Vec3(-5f, -5f, 3.5f),
-        Vec3(),
-        Vec3.UNIT_Z
-    )
+    val viewMatrix = Matrix4().lookAt(Vec3(-5f, -5f, 3.5f), Vec3(), Vec3.UNIT_Z)
 
-    val vertexShader = device.createShaderModule(KShader.compile("vertex", EarthShaderSource.vertex, KShaderType.VERTEX))
-    val fragShader = device.createShaderModule(KShader.compile("frag", EarthShaderSource.frag, KShaderType.FRAGMENT))
-    val vertexBuffer = BufferUtils.createFloatBuffer(device, "indices", vertices, BufferUsage.VERTEX)
+    val vertexShader =
+        device.createShaderModule(
+            KShader.compile("vertex", EarthShaderSource.vertex, KShaderType.VERTEX))
+    val fragShader =
+        device.createShaderModule(
+            KShader.compile("frag", EarthShaderSource.frag, KShaderType.FRAGMENT))
+    val vertexBuffer =
+        BufferUtils.createFloatBuffer(device, "indices", vertices, BufferUsage.VERTEX)
     val indexBuffer = BufferUtils.createShortBuffer(device, "vertices", indices, BufferUsage.INDEX)
     val modelMatrixBuffer = createMatrixBuffer(device, modelMatrix, "model matrix")
-    val normalMatrixBuffer = createMatrixBuffer(device, createNormalMatrix(modelMatrix, viewMatrix), "normal matrix")
-    val transformationMatrixBuffer = createMatrixBuffer(device, createTransformationMatrix(viewMatrix), "trans matrix")
+    val normalMatrixBuffer =
+        createMatrixBuffer(device, createNormalMatrix(modelMatrix, viewMatrix), "normal matrix")
+    val transformationMatrixBuffer =
+        createMatrixBuffer(device, createTransformationMatrix(viewMatrix), "trans matrix")
 
-    val textureDesc = TextureDescriptor(
-        Extent3D(image.width.toLong(), image.height.toLong(), 1),
-        1,
-        1,
-        TextureDimension.D2,
-        TextureFormat.RGBA8_UNORM_SRGB,
-        TextureUsage.COPY_DST or TextureUsage.SAMPLED
-    )
+    val textureDesc =
+        TextureDescriptor(
+            Extent3D(image.width.toLong(), image.height.toLong(), 1),
+            1,
+            1,
+            TextureDimension.D2,
+            TextureFormat.RGBA8_UNORM_SRGB,
+            TextureUsage.COPY_DST or TextureUsage.SAMPLED)
     val texture = device.createTexture(textureDesc)
-    val textureBuffer = BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
+    val textureBuffer =
+        BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
 
     var cmdEncoder = device.createCommandEncoder()
     cmdEncoder.copyBufferToTexture(
         BufferCopyView(textureBuffer, image.width * 4, image.height),
         TextureCopyView(texture),
-        Extent3D(image.width.toLong(), image.height.toLong(), 1)
-    )
+        Extent3D(image.width.toLong(), image.height.toLong(), 1))
     device.getDefaultQueue().submit(cmdEncoder.finish())
     textureBuffer.destroy()
 
     val sampler = device.createSampler(SamplerDescriptor())
     val textureView = texture.createView()
 
-    val bindGroupLayout = device.createBindGroupLayout(
-        BindGroupLayoutDescriptor(
-            BindGroupLayoutEntry(
-                0,
-                ShaderVisibility.FRAGMENT,
-                BindingType.SAMPLED_TEXTURE,
-                false,
-                TextureViewDimension.D2,
-                TextureComponentType.FLOAT
-            ),
-            BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, BindingType.SAMPLER, false),
-            BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
-            BindGroupLayoutEntry(3, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
-            BindGroupLayoutEntry(4, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
-        )
-    )
-    val bindGroup = device.createBindGroup(
-        BindGroupDescriptor(
-            bindGroupLayout,
-            BindGroupEntry(0, textureView),
-            BindGroupEntry(1, sampler),
-            BindGroupEntry(2, transformationMatrixBuffer),
-            BindGroupEntry(3, normalMatrixBuffer),
-            BindGroupEntry(4, modelMatrixBuffer)
-        )
-    )
+    val bindGroupLayout =
+        device.createBindGroupLayout(
+            BindGroupLayoutDescriptor(
+                BindGroupLayoutEntry(
+                    0,
+                    ShaderVisibility.FRAGMENT,
+                    BindingType.SAMPLED_TEXTURE,
+                    false,
+                    TextureViewDimension.D2,
+                    TextureComponentType.FLOAT),
+                BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, BindingType.SAMPLER, false),
+                BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
+                BindGroupLayoutEntry(3, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
+                BindGroupLayoutEntry(4, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)))
+    val bindGroup =
+        device.createBindGroup(
+            BindGroupDescriptor(
+                bindGroupLayout,
+                BindGroupEntry(0, textureView),
+                BindGroupEntry(1, sampler),
+                BindGroupEntry(2, transformationMatrixBuffer),
+                BindGroupEntry(3, normalMatrixBuffer),
+                BindGroupEntry(4, modelMatrixBuffer)))
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
     val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader)
     val pipeline = device.createRenderPipeline(pipelineDesc)
-    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM);
+    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
 
@@ -168,8 +168,8 @@ suspend fun runEarthExample(window: Window) {
             swapChain = window.configureSwapChain(swapChainDescriptor)
         }
 
-        val swapChainTexture = swapChain.getCurrentTextureView();
-        cmdEncoder = device.createCommandEncoder();
+        val swapChainTexture = swapChain.getCurrentTextureView()
+        cmdEncoder = device.createCommandEncoder()
 
         val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
@@ -184,49 +184,38 @@ suspend fun runEarthExample(window: Window) {
         val queue = device.getDefaultQueue()
         modelMatrix.rotate(0f, 0f, .01f)
         queue.writeBuffer(modelMatrixBuffer, modelMatrix.toBytes())
-        queue.writeBuffer(transformationMatrixBuffer, createTransformationMatrix(viewMatrix).toBytes())
+        queue.writeBuffer(
+            transformationMatrixBuffer, createTransformationMatrix(viewMatrix).toBytes())
         queue.writeBuffer(normalMatrixBuffer, createNormalMatrix(modelMatrix, viewMatrix).toBytes())
         queue.submit(cmdBuffer)
-        swapChain.present();
+        swapChain.present()
     }
 }
 
 private fun createRenderPipeline(
-    pipelineLayout: PipelineLayout,
-    vertexModule: ShaderModule,
-    fragModule: ShaderModule
+    pipelineLayout: PipelineLayout, vertexModule: ShaderModule, fragModule: ShaderModule
 ): RenderPipelineDescriptor {
     return RenderPipelineDescriptor(
         pipelineLayout,
         ProgrammableStageDescriptor(vertexModule, "main"),
         ProgrammableStageDescriptor(fragModule, "main"),
         PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(
-            FrontFace.CCW,
-            CullMode.BACK
-        ),
+        RasterizationStateDescriptor(FrontFace.CCW, CullMode.BACK),
         arrayOf(
             ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(),
-                BlendDescriptor(),
-                0xF
-            )
-        ),
+                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16, VertexBufferLayoutDescriptor(
+            IndexFormat.UINT16,
+            VertexBufferLayoutDescriptor(
                 8 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
                 VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
                 VertexAttributeDescriptor(VertexFormat.FLOAT2, 3 * Primitives.FLOAT_BYTES, 1),
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 5 * Primitives.FLOAT_BYTES, 2)
-            )
-        ),
+                VertexAttributeDescriptor(VertexFormat.FLOAT3, 5 * Primitives.FLOAT_BYTES, 2))),
         1,
         0xFFFFFFFF,
-        false
-    )
+        false)
 }
 
 private class Sphere(private val chunks: Int, private val slices: Int, val radius: Float = 2f) {
@@ -247,15 +236,13 @@ private class Sphere(private val chunks: Int, private val slices: Int, val radiu
         for (slice in 0..slices) {
             angleZ = MathUtils.PIf / slices * slice - MathUtils.PIf / 2f
 
-            //last vertex overlaps the first one, but with the other end of the texture
+            // last vertex overlaps the first one, but with the other end of the texture
             for (chunk in 0..chunks) {
                 val index: Int = (slice * (chunks + 1) + chunk) * FLOATS_PER_VERTEX
                 angleXY = MathUtils.PIf * 2f / chunks * chunk
-                val pos: Vec3 = Vec3(
-                    cos(angleZ) * cos(angleXY),
-                    cos(angleZ) * sin(angleXY),
-                    sin(angleZ)
-                ).mul(radius)
+                val pos: Vec3 =
+                    Vec3(cos(angleZ) * cos(angleXY), cos(angleZ) * sin(angleXY), sin(angleZ))
+                        .mul(radius)
                 vertices[index] = pos.x
                 vertices[index + 1] = pos.y
                 vertices[index + 2] = pos.z

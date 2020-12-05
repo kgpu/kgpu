@@ -1,11 +1,12 @@
 package model
 
 import io.github.kgpu.*
+import io.github.kgpu.kcgmath.*
+import io.github.kgpu.kcgmath.MathUtils
 import io.github.kgpu.kshader.*
-import io.github.kgpu.kcgmath.*;
-import io.github.kgpu.kcgmath.MathUtils;
 
-val VERTEX_SHADER = """
+val VERTEX_SHADER =
+    """
 #version 450
 
 out gl_PerVertex {
@@ -23,7 +24,8 @@ void main() {
 }
 """.trimIndent()
 
-val FRAG_SHADER = """
+val FRAG_SHADER =
+    """
 #version 450
 
 layout(location = 0) out vec4 outColor;
@@ -44,44 +46,47 @@ suspend fun runObjModelExample(window: Window) {
     val text = KgpuFiles.loadInternalUtf8("models/model.obj")
     val model = Model(text)
     val projMatrix = getProjectionMatrix()
-    val viewMatrix = Matrix4().lookAt(
-        Vec3(3.5f, 5f, 3f),
-        Vec3(0f, 0f, 0f),
-        Vec3(0f, 1f, 0f)
-    )
+    val viewMatrix = Matrix4().lookAt(Vec3(3.5f, 5f, 3f), Vec3(0f, 0f, 0f), Vec3(0f, 1f, 0f))
     val transMatrix = projMatrix.mul(viewMatrix)
-    
+
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val indices = BufferUtils.createIntBuffer(device, "Model Indices", model.indices.toIntArray(), BufferUsage.INDEX)
-    val vertices = BufferUtils.createFloatBuffer(device, "Model Indices", model.getVertexArray(), BufferUsage.VERTEX)
-    val matrixBuffer = BufferUtils.createFloatBuffer(
-        device,
-        "transformation matrix",
-        transMatrix.toFloats(),
-        BufferUsage.UNIFORM or BufferUsage.COPY_DST
-    )
+    val indices =
+        BufferUtils.createIntBuffer(
+            device, "Model Indices", model.indices.toIntArray(), BufferUsage.INDEX)
+    val vertices =
+        BufferUtils.createFloatBuffer(
+            device, "Model Indices", model.getVertexArray(), BufferUsage.VERTEX)
+    val matrixBuffer =
+        BufferUtils.createFloatBuffer(
+            device,
+            "transformation matrix",
+            transMatrix.toFloats(),
+            BufferUsage.UNIFORM or BufferUsage.COPY_DST)
 
-    val vertexShader = device.createShaderModule(KShader.compile("vertex", VERTEX_SHADER, KShaderType.VERTEX))
-    val fragShader = device.createShaderModule(KShader.compile("frag", FRAG_SHADER, KShaderType.FRAGMENT))
+    val vertexShader =
+        device.createShaderModule(KShader.compile("vertex", VERTEX_SHADER, KShaderType.VERTEX))
+    val fragShader =
+        device.createShaderModule(KShader.compile("frag", FRAG_SHADER, KShaderType.FRAGMENT))
 
-    val descriptor = BindGroupLayoutDescriptor(
-        BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
-    )
-    val bindGroupLayout = device.createBindGroupLayout(descriptor);
-    val bindGroup = device.createBindGroup(BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, matrixBuffer)))
+    val descriptor =
+        BindGroupLayoutDescriptor(
+            BindGroupLayoutEntry(0, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER))
+    val bindGroupLayout = device.createBindGroupLayout(descriptor)
+    val bindGroup =
+        device.createBindGroup(
+            BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, matrixBuffer)))
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val pipeline = device.createRenderPipeline(createRenderPipeline(pipelineLayout, vertexShader, fragShader))
+    val pipeline =
+        device.createRenderPipeline(createRenderPipeline(pipelineLayout, vertexShader, fragShader))
     val swapChainDesc = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
     var swapChain = window.configureSwapChain(swapChainDesc)
 
-    window.onResize = {
-        swapChain = window.configureSwapChain(swapChainDesc)
-    }
+    window.onResize = { swapChain = window.configureSwapChain(swapChainDesc) }
 
     Kgpu.runLoop(window) {
-        val swapChainTexture = swapChain.getCurrentTextureView();
-        val cmdEncoder = device.createCommandEncoder();
+        val swapChainTexture = swapChain.getCurrentTextureView()
+        val cmdEncoder = device.createCommandEncoder()
 
         val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
@@ -98,42 +103,30 @@ suspend fun runObjModelExample(window: Window) {
         viewMatrix.rotate(.01f, 0f, .01f)
         queue.writeBuffer(matrixBuffer, getProjectionMatrix().mul(viewMatrix).toBytes())
         queue.submit(cmdBuffer)
-        swapChain.present();
+        swapChain.present()
     }
 }
 
 private fun createRenderPipeline(
-    pipelineLayout: PipelineLayout,
-    vertexModule: ShaderModule,
-    fragModule: ShaderModule
+    pipelineLayout: PipelineLayout, vertexModule: ShaderModule, fragModule: ShaderModule
 ): RenderPipelineDescriptor {
     return RenderPipelineDescriptor(
         pipelineLayout,
         ProgrammableStageDescriptor(vertexModule, "main"),
         ProgrammableStageDescriptor(fragModule, "main"),
         PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(
-            FrontFace.CCW,
-            CullMode.BACK
-        ),
+        RasterizationStateDescriptor(FrontFace.CCW, CullMode.BACK),
         arrayOf(
             ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(),
-                BlendDescriptor(),
-                0xF
-            )
-        ),
+                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT32, VertexBufferLayoutDescriptor(
+            IndexFormat.UINT32,
+            VertexBufferLayoutDescriptor(
                 3 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0)
-            )
-        ),
+                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0))),
         1,
         0xFFFFFFFF,
-        false
-    )
+        false)
 }

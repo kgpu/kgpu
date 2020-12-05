@@ -2,9 +2,7 @@ package model
 
 import io.github.kgpu.kcgmath.Vec3
 
-/**
- * Represents an obj model
- */
+/** Represents an obj model */
 class Model(text: String) {
 
     val vertices: MutableList<Vec3> = mutableListOf()
@@ -26,7 +24,7 @@ class Model(text: String) {
     }
 
     private fun addFace(command: List<String>) {
-        fun parseIndex(text: String) : Int{
+        fun parseIndex(text: String): Int {
             val index = text.split("/").firstOrNull() ?: text
 
             return index.toIntOrNull() ?: throw ModelLoadException("Failed to parse int: $index")
@@ -34,8 +32,7 @@ class Model(text: String) {
 
         if (command.size != 4)
             throw ModelLoadException(
-                "face did not have 3 arguments. Line: ${command.joinToString(" ")}"
-            )
+                "face did not have 3 arguments. Line: ${command.joinToString(" ")}")
 
         indices.add(parseIndex(command[1]) - 1)
         indices.add(parseIndex(command[2]) - 1)
@@ -45,8 +42,7 @@ class Model(text: String) {
     private fun addVertex(command: List<String>) {
         if (command.size != 4)
             throw ModelLoadException(
-                "Vertex did not have 3 arguments. Line: ${command.joinToString(" ")}"
-            )
+                "Vertex did not have 3 arguments. Line: ${command.joinToString(" ")}")
 
         val vertex = Vec3()
         vertex.x = parseFloat(command[1])
@@ -69,14 +65,14 @@ class Model(text: String) {
         """.trimIndent()
     }
 
-    fun getVertexArray() : FloatArray{
-        val out = FloatArray(vertices.size * 3);
+    fun getVertexArray(): FloatArray {
+        val out = FloatArray(vertices.size * 3)
 
-       vertices.forEachIndexed{ index, it ->
-           out[index * 3] = it.x
-           out[index * 3 + 1] = it.y
-           out[index * 3 + 2] = it.z
-       }
+        vertices.forEachIndexed { index, it ->
+            out[index * 3] = it.x
+            out[index * 3 + 1] = it.y
+            out[index * 3 + 2] = it.z
+        }
 
         return out
     }

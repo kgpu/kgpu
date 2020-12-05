@@ -1,6 +1,6 @@
 package io.github.kgpu
 
-expect object KgpuFiles{
+expect object KgpuFiles {
 
     /**
      * Loads a file into bytes
@@ -10,8 +10,7 @@ expect object KgpuFiles{
      *
      * @see loadInternalUtf8
      */
-    suspend fun loadInternal(path: String) : ByteArray
+    suspend fun loadInternal(path: String): ByteArray
 
-    suspend fun loadInternalUtf8(path: String) : String
-
+    suspend fun loadInternalUtf8(path: String): String
 }

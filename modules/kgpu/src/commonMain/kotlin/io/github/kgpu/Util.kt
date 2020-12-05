@@ -4,14 +4,7 @@ object BufferUtils {
 
     fun createBufferFromData(device: Device, label: String, data: ByteArray, usage: Long): Buffer {
         return device.createBufferWithData(
-            BufferDescriptor(
-                label,
-                data.size.toLong(),
-                usage,
-                true
-            ),
-            data
-        )
+            BufferDescriptor(label, data.size.toLong(), usage, true), data)
     }
 
     fun createFloatBuffer(device: Device, label: String, data: FloatArray, usage: Long): Buffer {
@@ -50,7 +43,8 @@ object ByteUtils {
 
         for (i in floats.indices) {
             val byteI = i * 4
-            val bits = (byteArray[byteI].toInt() and 0xFF) or
+            val bits =
+                (byteArray[byteI].toInt() and 0xFF) or
                     ((byteArray[byteI + 1].toInt() and 0xFF) shl 8) or
                     ((byteArray[byteI + 2].toInt() and 0xFF) shl 16) or
                     ((byteArray[byteI + 3].toInt() and 0xFF) shl 24)
@@ -66,7 +60,8 @@ object ByteUtils {
 
         for (i in ints.indices) {
             val byteI = i * 4
-            ints[i] = byteArray[byteI].toInt() or
+            ints[i] =
+                byteArray[byteI].toInt() or
                     (byteArray[byteI + 1].toInt() shl 8) or
                     (byteArray[byteI + 2].toInt() shl 16) or
                     (byteArray[byteI + 3].toInt() shl 24)
