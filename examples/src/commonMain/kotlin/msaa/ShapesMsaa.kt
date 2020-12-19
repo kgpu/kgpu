@@ -17,8 +17,13 @@ suspend fun runMsaaTriangle(window: Window) {
             KShader.compile(
                 "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
 
-    val vertices =
-        floatArrayOf(-.5f, .5f, 0f, 1f, 0f, 0f, .5f, .5f, 0f, 0f, 1f, 0f, 0f, -.5f, 0f, 0f, 0f, 1f)
+    // spotless:off
+    val vertices = floatArrayOf(
+        -.5f, .5f, 0f, 1f, 0f, 0f,
+        .5f, .5f, 0f, 0f, 1f, 0f,
+        0f, -.5f, 0f, 0f, 0f, 1f
+    )
+    //spotless:on
     val buffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
 
@@ -85,7 +90,7 @@ private fun createRenderPipeline(
                 TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16,
+            null,
             VertexBufferLayoutDescriptor(
                 6 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,

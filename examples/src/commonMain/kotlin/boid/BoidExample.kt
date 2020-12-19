@@ -262,7 +262,7 @@ private fun createRenderPipeline(
                 TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16,
+            null,
             VertexBufferLayoutDescriptor(
                 2 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,

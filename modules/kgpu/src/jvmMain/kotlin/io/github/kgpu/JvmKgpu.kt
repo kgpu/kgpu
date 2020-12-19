@@ -59,13 +59,13 @@ actual class Adapter(val id: Long) {
     }
 
     actual suspend fun requestDeviceAsync(): Device {
-        val limits = WgpuCLimits.createDirect()
-        limits.maxBindGroups = 4
-        val deviceId =
-            WgpuJava.wgpuNative.wgpu_adapter_request_device(
-                id, 0, limits.pointerTo, false, WgpuJava.createNullPointer())
+        val desc = WgpuDeviceDescriptor.createDirect()
+        desc.limits.maxBindGroups = 4
+        desc.features = 0
+        desc.shaderValidation = false
+        desc.tracePath = null
 
-        return Device(deviceId)
+        return Device(WgpuJava.wgpuNative.wgpu_adapter_request_device(id, desc.pointerTo))
     }
 }
 
@@ -78,9 +78,8 @@ actual class Device(val id: Long) {
     }
 
     actual fun createShaderModule(data: ByteArray): ShaderModule {
-        val src = WgpuShaderSource.createDirect()
-        val codePtr = WgpuJava.createByteArrayPointer(data)
-        src.bytes = codePtr
+        val src = WgpuShaderModuleDescriptor.createDirect()
+        src.bytes = WgpuJava.createByteArrayPointer(data)
         src.length = data.size.toLong() / 4 // length is in terms of u32s
 
         val module = WgpuJava.wgpuNative.wgpu_device_create_shader_module(id, src.pointerTo)
@@ -243,8 +242,9 @@ actual class RenderPassEncoder(val pass: Pointer) {
             pass, indexCount, instanceCount, firstVertex, baseVertex, firstInstance)
     }
 
-    actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        WgpuJava.wgpuNative.wgpu_render_pass_set_index_buffer(pass, buffer.id, offset, size)
+    actual fun setIndexBuffer(buffer: Buffer, indexFormat: IndexFormat, offset: Long, size: Long) {
+        WgpuJava.wgpuNative.wgpu_render_pass_set_index_buffer(
+            pass, buffer.id, indexFormat, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
@@ -479,10 +479,10 @@ actual class VertexBufferLayoutDescriptor
 
 actual class VertexStateDescriptor
     actual constructor(
-        indexFormat: IndexFormat, vararg vertexBuffers: VertexBufferLayoutDescriptor
+        indexFormat: IndexFormat?, vararg vertexBuffers: VertexBufferLayoutDescriptor
     ) : WgpuVertexStateDescriptor(true) {
     init {
-        this.indexFormat = indexFormat
+        this.indexFormat = indexFormat ?: WgpuIndexFormat.UNDEFINED
         this.vertexBuffers.set(vertexBuffers)
         this.vertexBuffersLength = vertexBuffers.size.toLong()
     }

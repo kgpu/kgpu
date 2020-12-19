@@ -176,7 +176,7 @@ suspend fun runEarthExample(window: Window) {
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
         renderPassEncoder.setVertexBuffer(0, vertexBuffer)
-        renderPassEncoder.setIndexBuffer(indexBuffer)
+        renderPassEncoder.setIndexBuffer(indexBuffer, IndexFormat.UINT16)
         renderPassEncoder.drawIndexed(indices.size, 1)
         renderPassEncoder.endPass()
 

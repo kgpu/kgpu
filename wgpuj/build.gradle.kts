@@ -74,7 +74,7 @@ tasks {
         from("$projectDir/jnrgen/build/jnr-gen")
         into("$projectDir/src/main/java/io/github/kgpu/wgpuj/jni")
 
-        finalizedBy("spotlessApply")
+        finalizedBy(":spotlessApply")
     }
 
     register("downloadWgpuNative", Download::class) {

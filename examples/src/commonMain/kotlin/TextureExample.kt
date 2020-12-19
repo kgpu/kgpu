@@ -46,29 +46,15 @@ suspend fun runTextureExample(window: Window) {
         return Matrix4().ortho(-width, width, -height, height, 10f, -10f)
     }
 
-    val vertices =
-        floatArrayOf(
-            -128f,
-            -128f,
-            1f,
-            0f,
-            0f,
-            -128f,
-            128f,
-            1f,
-            0f,
-            1f,
-            128f,
-            128f,
-            1f,
-            1f,
-            1f,
-            128f,
-            -128f,
-            1f,
-            1f,
-            0f)
+    // spotless:off
+    val vertices = floatArrayOf(
+        -128f, -128f, 1f, 0f, 0f,
+        -128f, 128f, 1f, 0f, 1f,
+        128f, 128f, 1f, 1f, 1f,
+        128f, -128f, 1f, 1f, 0f
+    )
     val indices = shortArrayOf(0, 1, 2, 0, 2, 3)
+    //spotless:on
 
     val image = ImageData.load("earth2D.png")
 
@@ -151,7 +137,7 @@ suspend fun runTextureExample(window: Window) {
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
         renderPassEncoder.setVertexBuffer(0, vertexBuffer)
-        renderPassEncoder.setIndexBuffer(indexBuffer)
+        renderPassEncoder.setIndexBuffer(indexBuffer, IndexFormat.UINT16)
         renderPassEncoder.drawIndexed(indices.size, 1)
         renderPassEncoder.endPass()
 

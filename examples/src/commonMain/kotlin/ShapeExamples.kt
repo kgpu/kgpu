@@ -4,191 +4,48 @@ import io.github.kgpu.kcgmath.MathUtils
 import io.github.kgpu.kshader.*
 
 suspend fun runCubeExample(window: Window) {
-    val vertices =
-        floatArrayOf(
-            -1f,
-            -1f,
-            1f,
-            1f,
-            0f,
-            0f,
-            1f,
-            -1f,
-            1f,
-            1f,
-            0f,
-            0f,
-            1f,
-            1f,
-            1f,
-            1f,
-            0f,
-            0f,
-            -1f,
-            1f,
-            1f,
-            1f,
-            0f,
-            0f,
-            -1f,
-            1f,
-            -1f,
-            0f,
-            0f,
-            1f,
-            1f,
-            1f,
-            -1f,
-            0f,
-            0f,
-            1f,
-            1f,
-            -1f,
-            -1f,
-            0f,
-            0f,
-            1f,
-            -1f,
-            -1f,
-            -1f,
-            0f,
-            0f,
-            1f,
-            1f,
-            -1f,
-            -1f,
-            .25f,
-            .4f,
-            .5f,
-            1f,
-            1f,
-            -1f,
-            .25f,
-            .4f,
-            .5f,
-            1f,
-            1f,
-            1f,
-            .25f,
-            .4f,
-            .5f,
-            1f,
-            -1f,
-            1f,
-            .25f,
-            .4f,
-            .5f,
-            -1f,
-            -1f,
-            1f,
-            .7f,
-            .7f,
-            .2f,
-            -1f,
-            1f,
-            1f,
-            .7f,
-            .7f,
-            .2f,
-            -1f,
-            1f,
-            -1f,
-            .7f,
-            .7f,
-            .2f,
-            -1f,
-            -1f,
-            -1f,
-            .7f,
-            .7f,
-            .2f,
-            1f,
-            1f,
-            -1f,
-            .1f,
-            .4f,
-            .1f,
-            -1f,
-            1f,
-            -1f,
-            .1f,
-            .4f,
-            .1f,
-            -1f,
-            1f,
-            1f,
-            .1f,
-            .4f,
-            .1f,
-            1f,
-            1f,
-            1f,
-            .1f,
-            .4f,
-            .1f,
-            1f,
-            -1f,
-            1f,
-            .9f,
-            .5f,
-            .5f,
-            -1f,
-            -1f,
-            1f,
-            .9f,
-            .5f,
-            .5f,
-            -1f,
-            -1f,
-            -1f,
-            .9f,
-            .5f,
-            .5f,
-            1f,
-            -1f,
-            -1f,
-            .9f,
-            .5f,
-            .5f)
+    // spotless:off
+    val vertices = floatArrayOf(
+        -1f, -1f, 1f, 1f, 0f, 0f,
+        1f, -1f, 1f, 1f, 0f, 0f,
+        1f, 1f, 1f, 1f, 0f, 0f,
+        -1f, 1f, 1f, 1f, 0f, 0f,
 
-    val indices =
-        shortArrayOf(
-            0,
-            1,
-            2,
-            2,
-            3,
-            0,
-            4,
-            5,
-            6,
-            6,
-            7,
-            4,
-            8,
-            9,
-            10,
-            10,
-            11,
-            8,
-            12,
-            13,
-            14,
-            14,
-            15,
-            12,
-            16,
-            17,
-            18,
-            18,
-            19,
-            16,
-            20,
-            21,
-            22,
-            22,
-            23,
-            20)
+        -1f, 1f, -1f, 0f, 0f, 1f,
+        1f, 1f, -1f, 0f, 0f, 1f,
+        1f, -1f, -1f, 0f, 0f, 1f,
+        -1f, -1f, -1f, 0f, 0f, 1f,
+
+        1f, -1f, -1f, .25f, .4f, .5f,
+        1f, 1f, -1f, .25f, .4f, .5f,
+        1f, 1f, 1f, .25f, .4f, .5f,
+        1f, -1f, 1f, .25f, .4f, .5f,
+
+        -1f, -1f, 1f, .7f, .7f, .2f,
+        -1f, 1f, 1f, .7f, .7f, .2f,
+        -1f, 1f, -1f, .7f, .7f, .2f,
+        -1f, -1f, -1f, .7f, .7f, .2f,
+
+        1f, 1f, -1f, .1f, .4f, .1f,
+        -1f, 1f, -1f, .1f, .4f, .1f,
+        -1f, 1f, 1f, .1f, .4f, .1f,
+        1f, 1f, 1f, .1f, .4f, .1f,
+
+        1f, -1f, 1f, .9f, .5f, .5f,
+        -1f, -1f, 1f, .9f, .5f, .5f,
+        -1f, -1f, -1f, .9f, .5f, .5f,
+        1f, -1f, -1f, .9f, .5f, .5f
+    )
+
+    val indices = shortArrayOf(
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4,
+        8, 9, 10, 10, 11, 8,
+        12, 13, 14, 14, 15, 12,
+        16, 17, 18, 18, 19, 16,
+        20, 21, 22, 22, 23, 20
+    )
+    //spotless:on
 
     fun getProjectionMatrix(): Matrix4 {
         val windowSize = window.windowSize
@@ -231,7 +88,9 @@ suspend fun runCubeExample(window: Window) {
         device.createBindGroup(
             BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, matrixBuffer)))
 
-    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.BACK)
+    val pipelineDesc =
+        createRenderPipeline(
+            pipelineLayout, vertexShader, fragShader, CullMode.BACK, IndexFormat.UINT16)
     val pipeline = device.createRenderPipeline(pipelineDesc)
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
@@ -250,7 +109,7 @@ suspend fun runCubeExample(window: Window) {
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
         renderPassEncoder.setVertexBuffer(0, vertexBuffer)
-        renderPassEncoder.setIndexBuffer(indexBuffer)
+        renderPassEncoder.setIndexBuffer(indexBuffer, IndexFormat.UINT16)
         renderPassEncoder.drawIndexed(indices.size, 1)
         renderPassEncoder.endPass()
 
@@ -276,12 +135,18 @@ suspend fun runTriangleExample(window: Window) {
             KShader.compile(
                 "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
 
-    val vertices =
-        floatArrayOf(-.5f, .5f, 0f, 1f, 0f, 0f, .5f, .5f, 0f, 0f, 1f, 0f, 0f, -.5f, 0f, 0f, 0f, 1f)
+    // spotless:off
+    val vertices = floatArrayOf(
+        -.5f, .5f, 0f, 1f, 0f, 0f,
+        .5f, .5f, 0f, 0f, 1f, 0f,
+        0f, -.5f, 0f, 0f, 0f, 1f
+    )
+    //spotless:on
     val buffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
 
-    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE)
+    val pipelineDesc =
+        createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE, null)
     val pipeline = device.createRenderPipeline(pipelineDesc)
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
@@ -313,7 +178,8 @@ private fun createRenderPipeline(
     pipelineLayout: PipelineLayout,
     vertexModule: ShaderModule,
     fragModule: ShaderModule,
-    cullMode: CullMode
+    cullMode: CullMode,
+    indexFormat: IndexFormat?
 ): RenderPipelineDescriptor {
     return RenderPipelineDescriptor(
         pipelineLayout,
@@ -326,7 +192,7 @@ private fun createRenderPipeline(
                 TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
         Kgpu.undefined,
         VertexStateDescriptor(
-            IndexFormat.UINT16,
+            indexFormat,
             VertexBufferLayoutDescriptor(
                 6 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
