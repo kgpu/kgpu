@@ -29,6 +29,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         val files = project.fileTree(rootDir)
         files.include("**/*.kt")
 
+        toggleOffOn()
         target(files)
         ktfmt("0.18").dropboxStyle()
     }

@@ -243,8 +243,8 @@ actual class RenderPassEncoder(val jsType: GPURenderPassEncoder) {
         jsType.drawIndexed(indexCount, instanceCount, firstVertex, baseVertex, firstInstance)
     }
 
-    actual fun setIndexBuffer(buffer: Buffer, offset: Long, size: Long) {
-        jsType.setIndexBuffer(buffer.jsType, IndexFormat.UINT16.jsType, offset, size)
+    actual fun setIndexBuffer(buffer: Buffer, indexFormat: IndexFormat, offset: Long, size: Long) {
+        jsType.setIndexBuffer(buffer.jsType, indexFormat.jsType, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
@@ -265,7 +265,7 @@ external class GPURenderPassEncoder {
         indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
     )
 
-    fun setIndexBuffer(buffer: GPUBuffer, format: String, offset: Long, size: Long)
+    fun setIndexBuffer(buffer: GPUBuffer, format: String?, offset: Long, size: Long)
 
     fun setBindGroup(index: Int, bindGroup: GPUBindGroup)
 }
@@ -423,10 +423,12 @@ actual class VertexBufferLayoutDescriptor
 
 actual class VertexStateDescriptor
     actual constructor(
-        indexFormat: IndexFormat, vararg val vertexBuffers: VertexBufferLayoutDescriptor
+        indexFormat: IndexFormat?, vararg val vertexBuffers: VertexBufferLayoutDescriptor
     ) {
 
-    val indexFormat = indexFormat.jsType
+    // Chrome only wants the indexFormat when you call RenderPass#setIndexBuffer
+    // So for the web backend we will force the index format to undefined
+    val indexFormat = undefined
 }
 
 actual class BindGroupLayoutEntry

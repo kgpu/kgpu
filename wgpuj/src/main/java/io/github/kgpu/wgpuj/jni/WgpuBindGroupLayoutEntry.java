@@ -13,6 +13,7 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
     private final Struct.Boolean hasDynamicOffset = new Struct.Boolean();
     private final Struct.Unsigned64 minBufferBindingSize = new Struct.Unsigned64();
     private final Struct.Boolean multisampled = new Struct.Boolean();
+    private final Struct.Boolean filtering = new Struct.Boolean();
     private final Struct.Enum<WgpuTextureViewDimension> viewDimension =
             new Struct.Enum<>(WgpuTextureViewDimension.class);
     private final Struct.Enum<WgpuTextureComponentType> textureComponentType =
@@ -97,6 +98,14 @@ public class WgpuBindGroupLayoutEntry extends WgpuJavaStruct {
 
     public void setMultisampled(boolean x) {
         this.multisampled.set(x);
+    }
+
+    public boolean getFiltering() {
+        return filtering.get();
+    }
+
+    public void setFiltering(boolean x) {
+        this.filtering.set(x);
     }
 
     public WgpuTextureViewDimension getViewDimension() {

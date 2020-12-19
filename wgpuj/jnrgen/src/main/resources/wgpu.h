@@ -247,19 +247,12 @@ typedef enum WGPUFrontFace {
   WGPUFrontFace_Cw = 1,
 } WGPUFrontFace;
 
-/**
- * Format of indices used with pipeline.
- */
-typedef enum WGPUIndexFormat {
-  /**
-   * Indices are 16 bit unsigned integers.
-   */
-  WGPUIndexFormat_Uint16 = 0,
-  /**
-   * Indices are 32 bit unsigned integers.
-   */
-  WGPUIndexFormat_Uint32 = 1,
-} WGPUIndexFormat;
+enum WGPUIndexFormat {
+  WGPUIndexFormat_Undefined = 0,
+  WGPUIndexFormat_Uint16 = 1,
+  WGPUIndexFormat_Uint32 = 2,
+};
+typedef uint32_t WGPUIndexFormat;
 
 /**
  * Rate that determines when vertex data is advanced.
@@ -496,29 +489,13 @@ typedef enum WGPUTextureAspect {
   WGPUTextureAspect_DepthOnly,
 } WGPUTextureAspect;
 
-/**
- * Type of data shaders will read from a texture.
- *
- * Only relevant for [`BindingType::SampledTexture`] bindings. See [`TextureFormat`] for more information.
- */
-typedef enum WGPUTextureComponentType {
-  /**
-   * They see it as a floating point number `texture1D`, `texture2D` etc
-   */
-  WGPUTextureComponentType_Float,
-  /**
-   * They see it as a signed integer `itexture1D`, `itexture2D` etc
-   */
-  WGPUTextureComponentType_Sint,
-  /**
-   * They see it as a unsigned integer `utexture1D`, `utexture2D` etc
-   */
-  WGPUTextureComponentType_Uint,
-  /**
-   * They see it as a floating point 0-1 result of comparison, i.e. `shadowTexture2D`
-   */
-  WGPUTextureComponentType_DepthComparison,
-} WGPUTextureComponentType;
+enum WGPUTextureComponentType {
+  WGPUTextureComponentType_Float = 0,
+  WGPUTextureComponentType_Sint = 1,
+  WGPUTextureComponentType_Uint = 2,
+  WGPUTextureComponentType_DepthComparison = 3,
+};
+typedef uint32_t WGPUTextureComponentType;
 
 /**
  * Dimensionality of a texture.
@@ -1454,6 +1431,14 @@ typedef struct WGPUCLimits {
   uint32_t max_bind_groups;
 } WGPUCLimits;
 
+typedef struct WGPUDeviceDescriptor {
+  WGPULabel label;
+  WGPUFeatures features;
+  WGPUCLimits limits;
+  bool shader_validation;
+  const char *trace_path;
+} WGPUDeviceDescriptor;
+
 /**
  * Different ways that you can use a buffer.
  *
@@ -1496,11 +1481,11 @@ typedef uint32_t WGPUBufferUsage;
  */
 #define WGPUBufferUsage_VERTEX (uint32_t)32
 /**
- * Allow a buffer to be a [`BindingType::UniformBuffer`] inside a bind group.
+ * Allow a buffer to be a [`BufferBindingType::Uniform`] inside a bind group.
  */
 #define WGPUBufferUsage_UNIFORM (uint32_t)64
 /**
- * Allow a buffer to be a [`BindingType::StorageBuffer`] inside a bind group.
+ * Allow a buffer to be a [`BufferBindingType::Storage`] inside a bind group.
  */
 #define WGPUBufferUsage_STORAGE (uint32_t)128
 /**
@@ -1550,7 +1535,7 @@ typedef uint32_t WGPUTextureUsage;
  */
 #define WGPUTextureUsage_COPY_DST (uint32_t)2
 /**
- * Allows a texture to be a [`BindingType::SampledTexture`] in a bind group.
+ * Allows a texture to be a [`BindingType::Texture`] in a bind group.
  */
 #define WGPUTextureUsage_SAMPLED (uint32_t)4
 /**
@@ -1580,7 +1565,7 @@ typedef struct WGPUTextureDescriptor {
    */
   uint32_t mip_level_count;
   /**
-   * Sample count of texture. If this is not 1, texture must have [`BindingType::SampledTexture::multisampled`] set to true.
+   * Sample count of texture. If this is not 1, texture must have [`BindingType::Texture::multisampled`] set to true.
    */
   uint32_t sample_count;
   /**
@@ -1668,6 +1653,7 @@ typedef struct WGPUBindGroupLayoutEntry {
   bool has_dynamic_offset;
   uint64_t min_buffer_binding_size;
   bool multisampled;
+  bool filtering;
   WGPUTextureViewDimension view_dimension;
   WGPUTextureComponentType texture_component_type;
   WGPUTextureFormat storage_texture_format;
@@ -1719,10 +1705,11 @@ typedef WGPUNonZeroU64 WGPUId_ShaderModule_Dummy;
 
 typedef WGPUId_ShaderModule_Dummy WGPUShaderModuleId;
 
-typedef struct WGPUShaderSource {
+typedef struct WGPUShaderModuleDescriptor {
+  WGPULabel label;
   const uint32_t *bytes;
   uintptr_t length;
-} WGPUShaderSource;
+} WGPUShaderModuleDescriptor;
 
 /**
  * Describes a [`CommandEncoder`].
@@ -2186,10 +2173,7 @@ void wgpu_request_adapter_async(const WGPURequestAdapterOptions *desc,
                                 void *userdata);
 
 WGPUDeviceId wgpu_adapter_request_device(WGPUAdapterId adapter_id,
-                                         WGPUFeatures features,
-                                         const WGPUCLimits *limits,
-                                         bool shader_validation,
-                                         const char *trace_path);
+                                         const WGPUDeviceDescriptor *desc);
 
 WGPUFeatures wgpu_adapter_features(WGPUAdapterId adapter_id);
 
@@ -2234,7 +2218,7 @@ WGPUBindGroupId wgpu_device_create_bind_group(WGPUDeviceId device_id,
 void wgpu_bind_group_destroy(WGPUBindGroupId bind_group_id);
 
 WGPUShaderModuleId wgpu_device_create_shader_module(WGPUDeviceId device_id,
-                                                    const WGPUShaderSource *source);
+                                                    const WGPUShaderModuleDescriptor *source);
 
 void wgpu_shader_module_destroy(WGPUShaderModuleId shader_module_id);
 
@@ -2362,6 +2346,7 @@ void wgpu_render_bundle_set_pipeline(WGPURenderBundleEncoder *bundle,
 
 void wgpu_render_bundle_set_index_buffer(WGPURenderBundleEncoder *bundle,
                                          WGPUBufferId buffer_id,
+                                         WGPUIndexFormat index_format,
                                          WGPUBufferAddress offset,
                                          WGPUOption_BufferSize size);
 
@@ -2456,6 +2441,7 @@ void wgpu_render_pass_set_pipeline(WGPURenderPass *pass, WGPURenderPipelineId pi
 
 void wgpu_render_pass_set_index_buffer(WGPURenderPass *pass,
                                        WGPUBufferId buffer_id,
+                                       WGPUIndexFormat index_format,
                                        WGPUBufferAddress offset,
                                        WGPUOption_BufferSize size);
 

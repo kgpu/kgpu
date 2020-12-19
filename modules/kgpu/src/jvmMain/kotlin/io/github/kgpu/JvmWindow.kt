@@ -5,10 +5,7 @@ import io.github.kgpu.wgpuj.jni.WgpuPresentMode
 import io.github.kgpu.wgpuj.jni.WgpuSwapChainDescriptor
 import io.github.kgpu.wgpuj.util.Platform
 import java.nio.IntBuffer
-import org.lwjgl.glfw.GLFW
-import org.lwjgl.glfw.GLFWErrorCallback
-import org.lwjgl.glfw.GLFWNativeWin32
-import org.lwjgl.glfw.GLFWNativeX11
+import org.lwjgl.glfw.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 
@@ -40,8 +37,7 @@ actual class Window actual constructor() {
                 WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
             } else {
                 println(
-                    "[WARNING] Platform not tested. See " +
-                        "https://github.com/DevOrc/wgpu-java/issues/4")
+                    "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1")
                 0
             }
 

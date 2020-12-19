@@ -24,12 +24,7 @@ public interface WgpuJNI {
             Pointer userdata);
 
     @u_int64_t
-    long wgpu_adapter_request_device(
-            @u_int64_t long adapter,
-            @u_int64_t long extensions,
-            Pointer limits,
-            boolean shaderValidation,
-            Pointer tracePath);
+    long wgpu_adapter_request_device(@u_int64_t long adapter, Pointer deviceDesc);
 
     @u_int64_t
     long wgpu_device_create_shader_module(@u_int64_t long device, Pointer shaderModuleDescriptor);
@@ -154,7 +149,11 @@ public interface WgpuJNI {
             @u_int64_t long size);
 
     void wgpu_render_pass_set_index_buffer(
-            Pointer rawPass, @u_int64_t long buffer, @u_int64_t long offset, @u_int64_t long size);
+            Pointer rawPass,
+            @u_int64_t long buffer,
+            WgpuIndexFormat format,
+            @u_int64_t long offset,
+            @u_int64_t long size);
 
     void wgpu_render_pass_draw_indexed(
             Pointer rawPass,

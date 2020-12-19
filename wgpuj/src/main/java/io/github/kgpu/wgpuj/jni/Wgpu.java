@@ -259,9 +259,9 @@ public final class Wgpu {
         public static final int INDEX = 16;
         /** Allow a buffer to be the vertex buffer in a draw operation. */
         public static final int VERTEX = 32;
-        /** Allow a buffer to be a [`BindingType::UniformBuffer`] inside a bind group. */
+        /** Allow a buffer to be a [`BufferBindingType::Uniform`] inside a bind group. */
         public static final int UNIFORM = 64;
-        /** Allow a buffer to be a [`BindingType::StorageBuffer`] inside a bind group. */
+        /** Allow a buffer to be a [`BufferBindingType::Storage`] inside a bind group. */
         public static final int STORAGE = 128;
         /** Allow a buffer to be the indirect buffer in an indirect draw call. */
         public static final int INDIRECT = 256;
@@ -278,7 +278,7 @@ public final class Wgpu {
          * [`CommandEncoder::copy_texture_to_texture`], or [`Queue::write_texture`] operation.
          */
         public static final int COPY_DST = 2;
-        /** Allows a texture to be a [`BindingType::SampledTexture`] in a bind group. */
+        /** Allows a texture to be a [`BindingType::Texture`] in a bind group. */
         public static final int SAMPLED = 4;
         /** Allows a texture to be a [`BindingType::StorageTexture`] in a bind group. */
         public static final int STORAGE = 8;

@@ -122,7 +122,9 @@ expect class RenderPassEncoder {
         firstInstance: Int = 0
     )
 
-    fun setIndexBuffer(buffer: Buffer, offset: Long = 0, size: Long = buffer.size)
+    fun setIndexBuffer(
+        buffer: Buffer, indexFormat: IndexFormat, offset: Long = 0, size: Long = buffer.size
+    )
 
     fun setBindGroup(index: Int, bindGroup: BindGroup)
 }
@@ -418,7 +420,7 @@ expect class VertexBufferLayoutDescriptor(
     arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttributeDescriptor)
 
 expect class VertexStateDescriptor(
-    indexFormat: IndexFormat, vararg vertexBuffers: VertexBufferLayoutDescriptor)
+    indexFormat: IndexFormat?, vararg vertexBuffers: VertexBufferLayoutDescriptor)
 
 expect class BlendDescriptor(
     srcFactor: BlendFactor = BlendFactor.ONE,
