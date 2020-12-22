@@ -12,10 +12,9 @@ private const val glslangUrl =
 
 private const val scriptSrc =
     """
-    import * as glslang from '$glslangUrl'
-
-    $glslangGlobalVariable = glslang.default()
-    console.log("KShader loaded glslang: ", $glslangGlobalVariable)
+    $glslangGlobalVariable = import('$glslangUrl').then((module) => {
+        return module.default();
+    });
 """
 
 internal object GlslangLibrary {

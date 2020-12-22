@@ -65,7 +65,7 @@ class Matrix4 internal constructor(private val values: FloatArray){
          * 
          * 
          * ```kotlin
-         * fromCols(
+         * fromRows(
          *   A, B, C, D,
          *   E, F, G, H,
          *   I, J, K, L,

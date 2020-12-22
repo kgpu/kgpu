@@ -10,12 +10,9 @@ suspend fun runMsaaTriangle(window: Window) {
     val device = adapter.requestDeviceAsync()
     val vertexShader =
         device.createShaderModule(
-            KShader.compile(
-                "vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
+            KShader.compile("vertex", ShapeShaders.TRIANGLE, KShaderType.VERTEX))
     val fragShader =
-        device.createShaderModule(
-            KShader.compile(
-                "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
+        device.createShaderModule(KShader.compile("frag", ShapeShaders.FRAG, KShaderType.FRAGMENT))
 
     // spotless:off
     val vertices = floatArrayOf(

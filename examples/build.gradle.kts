@@ -36,9 +36,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                val korlibVersion = rootProject.extra["korlibVersion"]
+
                 implementation(project(":modules:kgpu"))
                 implementation(project(":modules:kshader"))
                 implementation(project(":modules:kcgmath"))
+                implementation("com.soywiz.korlibs.korim:korim:$korlibVersion")
             }
         }
         val jvmMain by getting {
@@ -65,8 +68,8 @@ tasks {
         doLast {
             val server = SimpleHttpFileServerFactory().start(File(path), port)
 
-            println("Server started in directory " + server.getContentRoot())
-            println("Link: http://localhost:" + server.getPort() + "/index.html\n\n")
+            println("Server started in directory " + server.contentRoot)
+            println("Link: http://localhost:" + server.port + "/index.html\n\n")
         }
     }
 

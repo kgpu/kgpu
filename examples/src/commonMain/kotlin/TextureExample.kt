@@ -56,7 +56,7 @@ suspend fun runTextureExample(window: Window) {
     val indices = shortArrayOf(0, 1, 2, 0, 2, 3)
     //spotless:on
 
-    val image = ImageData.load("earth2D.png")
+    val (image, imageBytes) = loadImage("earth2d.png")
 
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
@@ -83,11 +83,11 @@ suspend fun runTextureExample(window: Window) {
             1,
             1,
             TextureDimension.D2,
-            TextureFormat.RGBA8_UNORM_SRGB,
+            TEXTURE_FORMAT,
             TextureUsage.COPY_DST or TextureUsage.SAMPLED)
     val texture = device.createTexture(textureDesc)
     val textureBuffer =
-        BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
+        BufferUtils.createBufferFromData(device, "texture temp", imageBytes, BufferUsage.COPY_SRC)
 
     var cmdEncoder = device.createCommandEncoder()
     cmdEncoder.copyBufferToTexture(
