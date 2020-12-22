@@ -3,6 +3,63 @@ import io.github.kgpu.kcgmath.*
 import io.github.kgpu.kcgmath.MathUtils
 import io.github.kgpu.kshader.*
 
+object ShapeShaders {
+    const val TRIANGLE =
+        """
+        #version 450
+
+        out gl_PerVertex {
+            vec4 gl_Position;
+        };
+        
+        layout(location=0) in vec3 positions;
+        layout(location=1) in vec3 v_colors;
+        
+        layout(location=0) out vec3 f_colors;
+        
+        
+        void main() {
+            f_colors = v_colors;
+            gl_Position = vec4(positions, 1.0);
+        }
+    """
+
+    const val CUBE =
+        """
+        #version 450
+
+        out gl_PerVertex {
+            vec4 gl_Position;
+        };
+        
+        layout(location=0) in vec3 positions;
+        layout(location=1) in vec3 v_colors;
+        
+        layout(location=0) out vec3 f_colors;
+        
+        layout(set = 0, binding = 0) uniform Locals {
+            mat4 u_Transform;
+        };
+        
+        void main() {
+            f_colors = v_colors;
+            gl_Position = u_Transform * vec4(positions, 1.0);
+        }
+    """
+
+    const val FRAG =
+        """
+        #version 450
+
+        layout(location = 0) in vec3 color;
+        layout(location = 0) out vec4 outColor;
+        
+        void main() {
+            outColor = vec4(color, 1.0);
+        }
+    """
+}
+
 suspend fun runCubeExample(window: Window) {
     // spotless:off
     val vertices = floatArrayOf(
@@ -62,12 +119,9 @@ suspend fun runCubeExample(window: Window) {
     val device = adapter.requestDeviceAsync()
 
     val vertexShader =
-        device.createShaderModule(
-            KShader.compile("vertex", KgpuFiles.loadInternalUtf8("cube.vert"), KShaderType.VERTEX))
+        device.createShaderModule(KShader.compile("vertex", ShapeShaders.CUBE, KShaderType.VERTEX))
     val fragShader =
-        device.createShaderModule(
-            KShader.compile(
-                "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
+        device.createShaderModule(KShader.compile("frag", ShapeShaders.FRAG, KShaderType.FRAGMENT))
 
     val vertexBuffer =
         BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
@@ -96,7 +150,7 @@ suspend fun runCubeExample(window: Window) {
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
     window.onResize =
-        { size: WindowSize ->
+        { _: WindowSize ->
             swapChain = window.configureSwapChain(swapChainDescriptor)
         }
 
@@ -128,12 +182,9 @@ suspend fun runTriangleExample(window: Window) {
     val device = adapter.requestDeviceAsync()
     val vertexShader =
         device.createShaderModule(
-            KShader.compile(
-                "vertex", KgpuFiles.loadInternalUtf8("triangle.vert"), KShaderType.VERTEX))
+            KShader.compile("vertex", ShapeShaders.TRIANGLE, KShaderType.VERTEX))
     val fragShader =
-        device.createShaderModule(
-            KShader.compile(
-                "frag", KgpuFiles.loadInternalUtf8("shared.frag"), KShaderType.FRAGMENT))
+        device.createShaderModule(KShader.compile("frag", ShapeShaders.FRAG, KShaderType.FRAGMENT))
 
     // spotless:off
     val vertices = floatArrayOf(

@@ -90,7 +90,7 @@ suspend fun runEarthExample(window: Window) {
     val vertices = earth.generateVertices()
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val image = ImageData.load("earth3D.png")
+    val (image, imageBytes) = loadImage("earth3D.png")
     val modelMatrix = Matrix4().rotate(0f, .1f, 0f)
     val viewMatrix = Matrix4().lookAt(Vec3(-5f, -5f, 3.5f), Vec3(), Vec3.UNIT_Z)
 
@@ -119,7 +119,7 @@ suspend fun runEarthExample(window: Window) {
             TextureUsage.COPY_DST or TextureUsage.SAMPLED)
     val texture = device.createTexture(textureDesc)
     val textureBuffer =
-        BufferUtils.createBufferFromData(device, "texture temp", image.bytes, BufferUsage.COPY_SRC)
+        BufferUtils.createBufferFromData(device, "texture temp", imageBytes, BufferUsage.COPY_SRC)
 
     var cmdEncoder = device.createCommandEncoder()
     cmdEncoder.copyBufferToTexture(
