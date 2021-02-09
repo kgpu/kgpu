@@ -38,7 +38,7 @@ actual class Window actual constructor() {
             } else if (Platform.isLinux) {
                 val display = GLFWNativeX11.glfwGetX11Display()
                 WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-            } else {
+            } else if (Platform.isMac) {
                 val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
                 val CAMetalLayer = objc_getClass("CAMetalLayer")
                 val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
@@ -49,6 +49,10 @@ actual class Window actual constructor() {
                 //[ns_window.contentView setLayer:metal_layer];
                 invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend);
                 WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
+            } else {
+                println(
+                    "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1")
+                0
             }
 
         if (handle == MemoryUtil.NULL)
@@ -189,8 +193,11 @@ internal object GlfwHandler {
             Platform.isLinux -> {
                 GLFWNativeX11.glfwGetX11Window(handle)
             }
-            else -> {
+            Platform.isMac -> {
                 GLFWNativeCocoa.glfwGetCocoaWindow(handle)
+            }
+            else -> {
+                0
             }
         }
     }

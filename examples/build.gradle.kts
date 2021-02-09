@@ -77,7 +77,7 @@ tasks {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-XstartOnFirstThread", "-DRUST_BACKTRACE=1", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle",  "-version")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle",  "-version")
     }
 
     register("runCubeExample", Exec::class) {
