@@ -6,11 +6,11 @@ import io.github.kgpu.wgpuj.jni.WgpuSwapChainDescriptor
 import io.github.kgpu.wgpuj.util.Platform
 import java.nio.IntBuffer
 import org.lwjgl.glfw.*
+import org.lwjgl.system.JNI.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.macosx.ObjCRuntime
 import org.lwjgl.system.macosx.ObjCRuntime.*
-import org.lwjgl.system.JNI.*
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
@@ -42,12 +42,12 @@ actual class Window actual constructor() {
                 val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
                 val CAMetalLayer = objc_getClass("CAMetalLayer")
                 val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
-                //[ns_window.contentView setWantsLayer:YES];
-                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend);
-                //metal_layer = [CAMetalLayer layer];
+                // [ns_window.contentView setWantsLayer:YES];
+                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend)
+                // metal_layer = [CAMetalLayer layer];
                 val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
-                //[ns_window.contentView setLayer:metal_layer];
-                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend);
+                // [ns_window.contentView setLayer:metal_layer];
+                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
                 WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
             } else {
                 println(
