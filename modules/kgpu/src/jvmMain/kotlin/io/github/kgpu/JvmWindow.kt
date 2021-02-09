@@ -8,6 +8,9 @@ import java.nio.IntBuffer
 import org.lwjgl.glfw.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
+import org.lwjgl.system.macosx.ObjCRuntime
+import org.lwjgl.system.macosx.ObjCRuntime.*
+import org.lwjgl.system.JNI.*
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
@@ -36,9 +39,16 @@ actual class Window actual constructor() {
                 val display = GLFWNativeX11.glfwGetX11Display()
                 WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
             } else {
-                println(
-                    "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1")
-                0
+                val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
+                val CAMetalLayer = objc_getClass("CAMetalLayer")
+                val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
+                //[ns_window.contentView setWantsLayer:YES];
+                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend);
+                //metal_layer = [CAMetalLayer layer];
+                val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
+                //[ns_window.contentView setLayer:metal_layer];
+                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend);
+                WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
             }
 
         if (handle == MemoryUtil.NULL)
@@ -180,7 +190,7 @@ internal object GlfwHandler {
                 GLFWNativeX11.glfwGetX11Window(handle)
             }
             else -> {
-                0
+                GLFWNativeCocoa.glfwGetCocoaWindow(handle)
             }
         }
     }

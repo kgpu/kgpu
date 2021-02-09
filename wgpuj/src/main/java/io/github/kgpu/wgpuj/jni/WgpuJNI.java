@@ -188,6 +188,9 @@ public interface WgpuJNI {
     @u_int64_t
     long wgpu_create_surface_from_xlib(@u_int64_t long display, @u_int64_t long window);
 
+    @u_int64_t
+    long wgpu_create_surface_from_metal_layer(@u_int64_t long layer);
+
     void wgpu_buffer_destroy(@u_int64_t long buffer);
 
     void wgpu_texture_destroy(@u_int64_t long texture);

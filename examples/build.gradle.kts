@@ -77,42 +77,42 @@ tasks {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle")
+        commandLine("java", "-XstartOnFirstThread", "-DRUST_BACKTRACE=1", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle",  "-version")
     }
 
     register("runCubeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-cube")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-cube")
     }
 
     register("runTextureExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-texture")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-texture")
     }
 
     register("runEarthExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-earth")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-earth")
     }
 
     register("runComputeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-compute")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-compute")
     }
 
     register("runMsaaExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-msaa")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-msaa")
     }
 
     register("runCompareExample", Exec::class) {
@@ -133,6 +133,6 @@ tasks {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-boid")
+        commandLine("java", "-XstartOnFirstThread", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-boid")
     }
 }
