@@ -6,6 +6,10 @@ import kotlinx.coroutines.runBlocking
 import msaa.runMsaaTriangle
 
 fun main(args: Array<String>) {
+    // This is required for macOS else things will hang on anything texture related
+    // See https://github.com/LWJGL/lwjgl3/issues/68#issuecomment-113727632
+    System.setProperty("java.awt.headless", "true")
+
     println("Args: ${args.joinToString()}")
 
     val arg =

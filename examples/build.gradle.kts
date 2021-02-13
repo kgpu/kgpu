@@ -55,6 +55,17 @@ kotlin {
     }
 }
 
+fun exampleArgs(arg: String): List<String> {
+    var startOnFirstThread: String? = null
+    if (System.getProperty("os.name").contains("Mac")) {
+        startOnFirstThread = "-XstartOnFirstThread"
+    }
+
+    return listOf("java", startOnFirstThread, null, "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", arg)
+        .filterNotNull()
+        .toList()
+}
+
 tasks {
     register("buildWebExample") {
         dependsOn("jsBrowserDistribution")
@@ -77,62 +88,62 @@ tasks {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-triangle")
+        commandLine(exampleArgs("-triangle"))
     }
 
     register("runCubeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-cube")
+        commandLine(exampleArgs("-cube"))
     }
 
     register("runTextureExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-texture")
+        commandLine(exampleArgs("-texture"))
     }
 
     register("runEarthExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-earth")
+        commandLine(exampleArgs("-earth"))
     }
 
     register("runComputeExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-compute")
+        commandLine(exampleArgs("-compute"))
     }
 
     register("runMsaaExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-msaa")
+        commandLine(exampleArgs("-msaa"))
     }
 
     register("runCompareExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-computeCompare")
+        commandLine(exampleArgs("-computeCompare"))
     }
 
     register("runWindowExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-window")
+        commandLine(exampleArgs("-window"))
     }
 
     register("runBoidExample", Exec::class) {
         dependsOn("jvmFatJar")
 
         workingDir("$projectDir")
-        commandLine("java", "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", "-boid")
+        commandLine(exampleArgs("-boid"))
     }
 }
