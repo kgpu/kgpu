@@ -11,11 +11,19 @@ repositories {
     jcenter()
 }
 
-group = rootProject.extra["projectGroup"]
-version = rootProject.extra["projectVersion"]
+group = rootProject.extra["projectGroup"]!!
+version = rootProject.extra["projectVersion"]!!
 
 kotlin {
-    jvm()
+    jvm().withJava()
+    jvm().compilations.all {
+        kotlinOptions {
+            jvmTarget = "11"
+        }
+
+        compileJavaTaskProvider?.get()?.options?.compilerArgs?.add("--add-modules")
+        compileJavaTaskProvider?.get()?.options?.compilerArgs?.add("jdk.incubator.foreign")
+    }
     js().browser()
 
     sourceSets {
@@ -35,7 +43,7 @@ kotlin {
             dependencies {
                 // Needed or else build fails
                 implementation(kotlin("stdlib-jdk8"))
-                api(project(":wgpuj"))
+                api(project(":wgpuj-natives"))
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
 
                 val lwjglVersion = rootProject.extra["lwjglVersion"]

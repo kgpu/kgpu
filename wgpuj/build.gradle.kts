@@ -5,10 +5,11 @@ plugins {
     id("java-library")
     id("de.undercouch.download")
     id("maven-publish")
+    id("com.diffplug.spotless")
 }
 
-group = rootProject.extra["projectGroup"]
-version = rootProject.extra["projectVersion"]
+group = rootProject.extra["projectGroup"]!!
+version = rootProject.extra["projectVersion"]!!
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -18,14 +19,9 @@ java {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    api("com.github.jnr:jnr-ffi:2.1.15")
-    api("com.github.jnr:jffi:1.2.23")
-
-    testImplementation(project("jnrgen"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")

@@ -7,7 +7,6 @@ import kotlinx.coroutines.await
 import org.khronos.webgl.*
 
 actual object Kgpu {
-    actual val backendName: String = "Web"
     actual val undefined = kotlin.js.undefined
 
     actual fun runLoop(window: Window, func: () -> Unit) {
@@ -54,11 +53,6 @@ enum class GPUExtensionName {
     PipelineStatisticsQuery,
     TimestampQuery,
     DepthClamping
-}
-
-actual enum class PowerPreference(jsType: GPUPowerPreference?) {
-    LOW_POWER(GPUPowerPreference.LOW_POWER),
-    HIGH_PERFORMANCE(GPUPowerPreference.HIGH_PERFORMANCE)
 }
 
 /** Eventually will be external once implemented in browsers */

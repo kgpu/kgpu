@@ -16,40 +16,41 @@ kotlin {
     jvm() // Needed to satisfy multiplatform plugin
 }
 
-group = rootProject.extra["projectGroup"]
-version = rootProject.extra["projectVersion"]
+group = rootProject.extra["projectGroup"]!!
+version = rootProject.extra["projectVersion"]!!
 
 tasks.dokkaHtmlMultimodule {
     outputDirectory = "$rootDir/docs/book/dokka"
     documentationFileName = "README.md"
 }
 
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-    kotlin {
-        val files = project.fileTree(rootDir)
-        files.include("**/*.kt")
-
-        toggleOffOn()
-        target(files)
-        ktfmt("0.18").dropboxStyle()
-    }
-    java {
-        val files = project.fileTree(rootDir)
-        files.include("**/*.java")
-
-        target(files)
-        googleJavaFormat().aosp()
-        removeUnusedImports()
-        indentWithSpaces()
-    }
-    kotlinGradle {
-        val files = project.fileTree(rootDir)
-        files.include("**/*.gradle.kts")
-
-        target(files)
-        ktlint()
-    }
-}
+//configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+//    kotlin {
+//        val files = project.fileTree(rootDir)
+//        files.include("**/*.kt")
+//
+//        toggleOffOn()
+//        target(files)
+//        ktfmt("0.18").dropboxStyle()
+//    }
+// Temporarily disable until Google format is fixed on Java16
+//    java {
+//        val files = project.fileTree(rootDir)
+//        files.include("**/*.java")
+//
+//        target(files)
+//        googleJavaFormat("1.10.0")
+//        removeUnusedImports()
+//        indentWithSpaces()
+//    }
+//    kotlinGradle {
+//        val files = project.fileTree(rootDir)
+//        files.include("**/*.gradle.kts")
+//
+//        target(files)
+//        ktlint()
+//    }
+//}
 
 tasks {
     register("startDocServer") {

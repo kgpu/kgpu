@@ -1,9 +1,7 @@
 package io.github.kgpu
 
-import io.github.kgpu.wgpuj.WgpuJava
-import io.github.kgpu.wgpuj.jni.WgpuPresentMode
-import io.github.kgpu.wgpuj.jni.WgpuSwapChainDescriptor
-import io.github.kgpu.wgpuj.util.Platform
+import io.github.kgpu.wgpuj.wgpu_h
+import jdk.incubator.foreign.MemoryAddress
 import java.nio.IntBuffer
 import org.lwjgl.glfw.*
 import org.lwjgl.system.JNI.*
@@ -14,7 +12,7 @@ import org.lwjgl.system.macosx.ObjCRuntime.*
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
-    internal val surface: Long
+    internal val surface: MemoryAddress
     actual var windowSize: WindowSize = WindowSize(0, 0)
         private set
     actual var onResize: (size: WindowSize) -> Unit = {}
@@ -32,29 +30,49 @@ actual class Window actual constructor() {
     init {
         val osHandle = GlfwHandler.getOsWindowHandle(handle)
         surface =
-            if (Platform.isWindows) {
-                WgpuJava.wgpuNative.wgpu_create_surface_from_windows_hwnd(
-                    WgpuJava.createNullPointer(), osHandle)
-            } else if (Platform.isLinux) {
-                val display = GLFWNativeX11.glfwGetX11Display()
-                WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-            } else if (Platform.isMac) {
-                val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
-                val CAMetalLayer = objc_getClass("CAMetalLayer")
-                val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
-                // [ns_window.contentView setWantsLayer:YES];
-                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend)
-                // metal_layer = [CAMetalLayer layer];
-                val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
-                // [ns_window.contentView setLayer:metal_layer];
-                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
-                WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
-            } else {
-                println(
-                    "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1")
-                0
-            }
+            when {
+                Platform.isWindows -> {
+                    val desc = wgpu_h.WGPUSurfaceDescriptor.allocate()
+                    val windowsDesc = wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.allocate()
+                    wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.`hinstance$set`(
+                        windowsDesc,
+                        MemoryAddress.ofLong(osHandle)
+                    )
+                    wgpu_h.WGPUChainedStruct.`sType$set`(
+                        wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.`chain$slice`(
+                            windowsDesc
+                        ), wgpu_h.WGPUSType_SurfaceDescriptorFromWindowsHWND()
+                    )
+                    wgpu_h.WGPUSurfaceDescriptor.`label$set`(desc, CUtils.NULL)
+                    wgpu_h.WGPUSurfaceDescriptor.`nextInChain$set`(desc, windowsDesc.address())
 
+                    wgpu_h.wgpuInstanceCreateSurface(CUtils.NULL, desc.address())
+                }
+                Platform.isLinux -> {
+                    //                val display = GLFWNativeX11.glfwGetX11Display()
+                    //                WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
+                    TODO()
+                }
+                Platform.isMac -> {
+                    //                val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
+                    //                val CAMetalLayer = objc_getClass("CAMetalLayer")
+                    //                val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
+                    //                // [ns_window.contentView setWantsLayer:YES];
+                    //                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend)
+                    //                // metal_layer = [CAMetalLayer layer];
+                    //                val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
+                    //                // [ns_window.contentView setLayer:metal_layer];
+                    //                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
+                    //                WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
+                    TODO()
+                }
+                else -> {
+                    println(
+                        "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1"
+                    )
+                    CUtils.NULL
+                }
+            }
         if (handle == MemoryUtil.NULL)
             throw java.lang.RuntimeException("Failed to create the window!")
 
@@ -94,7 +112,8 @@ actual class Window actual constructor() {
                     },
                     shift,
                     ctrl,
-                    alt)
+                    alt
+                )
             when (action) {
                 GLFW.GLFW_PRESS -> onMouseClick(event)
                 GLFW.GLFW_RELEASE -> onMouseRelease(event)
@@ -123,18 +142,7 @@ actual class Window actual constructor() {
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        val nativeDesc = WgpuSwapChainDescriptor.createDirect()
-        nativeDesc.format = desc.format
-        nativeDesc.usage = desc.usage
-        nativeDesc.presentMode = WgpuPresentMode.FIFO
-        nativeDesc.width = windowSize.width.toLong()
-        nativeDesc.height = windowSize.height.toLong()
-
-        val id =
-            WgpuJava.wgpuNative.wgpu_device_create_swap_chain(
-                desc.device.id, surface, nativeDesc.pointerTo)
-
-        return SwapChain(id, this)
+        TODO()
     }
 
     actual fun resize(width: Int, height: Int) {
@@ -165,7 +173,8 @@ internal object GlfwHandler {
         GLFW.glfwSetWindowPos(
             handle,
             ((vidmode!!.width() - currentDimension.width) / 2).toInt(),
-            ((vidmode.height() - currentDimension.height) / 2).toInt())
+            ((vidmode.height() - currentDimension.height) / 2).toInt()
+        )
     }
 
     fun getWindowDimension(handle: Long): WindowSize {
@@ -197,6 +206,7 @@ internal object GlfwHandler {
                 GLFWNativeCocoa.glfwGetCocoaWindow(handle)
             }
             else -> {
+                println("Warning: Could not determine OS handle")
                 0
             }
         }

@@ -19,6 +19,15 @@ fun main(args: Array<String>) {
             "triangle"
         }
 
+    val wgpuPath = System.getenv("WGPU_NATIVE_PATH")
+    if(wgpuPath != null){
+        println("Loading wgpu-native from $wgpuPath")
+        System.load(wgpuPath)
+    } else {
+        println("Extracting wgpu-native from classpath")
+        Kgpu.loadNativesFromClasspath()
+    }
+
     runBlocking {
         when (arg) {
             "-triangle" -> runTriangleExample(createWindow())
@@ -28,21 +37,15 @@ fun main(args: Array<String>) {
             "-msaa" -> runMsaaTriangle(createWindow())
             "-window" -> runWindowEventExample(createWindow())
             "-boid" -> runBoidExample(createWindow())
-            "-compute" -> {
-                Kgpu.init(false)
-                runComputeExample()
-            }
-            "-computeCompare" -> {
-                Kgpu.init(false)
-                runComputeCompareExample()
-            }
+            "-compute" -> runComputeExample()
+            "-computeCompare" -> runComputeCompareExample()
             else -> throw RuntimeException("Unknown example: $arg")
         }
     }
 }
 
 private fun createWindow(): Window {
-    Kgpu.init(true)
+    Kgpu.initGlfw()
 
     val window = Window()
     window.setTitle("Kgpu - Desktop")
@@ -54,7 +57,7 @@ actual fun setExampleStatus(id: String, msg: String) {
     println("$id: $msg")
 }
 
-suspend actual fun timeExecution(func: suspend () -> Unit): Long {
+actual suspend fun timeExecution(func: suspend () -> Unit): Long {
     return kotlin.system.measureTimeMillis { func() }
 }
 

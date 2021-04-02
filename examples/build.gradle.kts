@@ -9,8 +9,8 @@ repositories {
     jcenter()
 }
 
-group = rootProject.extra["projectGroup"]
-version = rootProject.extra["projectVersion"]
+group = rootProject.extra["projectGroup"]!!
+version = rootProject.extra["projectVersion"]!!
 
 kotlin {
     jvm() {
@@ -61,9 +61,16 @@ fun exampleArgs(arg: String): List<String> {
         startOnFirstThread = "-XstartOnFirstThread"
     }
 
-    return listOf("java", startOnFirstThread, null, "-jar", "$buildDir/libs/examples-fat-${project.version}.jar", arg)
-        .filterNotNull()
-        .toList()
+    return listOfNotNull(
+        "java",
+        startOnFirstThread,
+        "-Dforeign.restricted=permit",
+        "--add-modules",
+        "jdk.incubator.foreign",
+        "-jar",
+        "$buildDir/libs/examples-fat-${project.version}.jar",
+        arg
+    )
 }
 
 tasks {

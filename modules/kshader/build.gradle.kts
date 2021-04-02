@@ -11,8 +11,8 @@ repositories {
     jcenter()
 }
 
-group = rootProject.extra["projectGroup"]
-version = rootProject.extra["projectVersion"]
+group = rootProject.extra["projectGroup"]!!
+version = rootProject.extra["projectVersion"]!!
 
 kotlin {
     jvm()

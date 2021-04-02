@@ -179,6 +179,7 @@ suspend fun runCubeExample(window: Window) {
 
 suspend fun runTriangleExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
+    println("Adapter: $adapter")
     val device = adapter.requestDeviceAsync()
     val vertexShader =
         device.createShaderModule(
