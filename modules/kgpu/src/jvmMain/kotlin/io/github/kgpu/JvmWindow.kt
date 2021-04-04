@@ -1,6 +1,6 @@
 package io.github.kgpu
 
-import io.github.kgpu.wgpuj.wgpu_h
+import io.github.kgpu.wgpuj.wgpu_h.*
 import jdk.incubator.foreign.MemoryAddress
 import java.nio.IntBuffer
 import org.lwjgl.glfw.*
@@ -32,26 +32,25 @@ actual class Window actual constructor() {
         surface =
             when {
                 Platform.isWindows -> {
-                    val desc = wgpu_h.WGPUSurfaceDescriptor.allocate()
-                    val windowsDesc = wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.allocate()
-                    wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.`hinstance$set`(
+                    val desc = WGPUSurfaceDescriptor.allocate()
+                    val windowsDesc = WGPUSurfaceDescriptorFromWindowsHWND.allocate()
+                    WGPUSurfaceDescriptorFromWindowsHWND.`hinstance$set`(
                         windowsDesc,
                         MemoryAddress.ofLong(osHandle)
                     )
-                    wgpu_h.WGPUChainedStruct.`sType$set`(
-                        wgpu_h.WGPUSurfaceDescriptorFromWindowsHWND.`chain$slice`(
-                            windowsDesc
-                        ), wgpu_h.WGPUSType_SurfaceDescriptorFromWindowsHWND()
+                    WGPUChainedStruct.`sType$set`(
+                        WGPUSurfaceDescriptorFromWindowsHWND.`chain$slice`(windowsDesc),
+                        WGPUSType_SurfaceDescriptorFromWindowsHWND()
                     )
-                    wgpu_h.WGPUSurfaceDescriptor.`label$set`(desc, CUtils.NULL)
-                    wgpu_h.WGPUSurfaceDescriptor.`nextInChain$set`(desc, windowsDesc.address())
+                    WGPUSurfaceDescriptor.`label$set`(desc, CUtils.NULL)
+                    WGPUSurfaceDescriptor.`nextInChain$set`(desc, windowsDesc.address())
 
-                    wgpu_h.wgpuInstanceCreateSurface(CUtils.NULL, desc.address())
+                    wgpuInstanceCreateSurface(CUtils.NULL, desc.address())
                 }
                 Platform.isLinux -> {
                     //                val display = GLFWNativeX11.glfwGetX11Display()
                     //                WgpuJava.wgpuNative.wgpu_create_surface_from_xlib(display, osHandle)
-                    TODO()
+                    TODO("Linux Surfaces are not implemented in the Panama rewrite")
                 }
                 Platform.isMac -> {
                     //                val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
@@ -64,11 +63,11 @@ actual class Window actual constructor() {
                     //                // [ns_window.contentView setLayer:metal_layer];
                     //                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
                     //                WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
-                    TODO()
+                    TODO("Mac surfaces are not implemented in the Panama rewrite")
                 }
                 else -> {
                     println(
-                        "[WARNING] Platform not tested. See " + "https://github.com/kgpu/kgpu/issues/1"
+                        "[WARNING] Platform not supported. See " + "https://github.com/kgpu/kgpu/issues/1"
                     )
                     CUtils.NULL
                 }

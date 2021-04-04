@@ -27,6 +27,7 @@ fun main(args: Array<String>) {
         println("Extracting wgpu-native from classpath")
         Kgpu.loadNativesFromClasspath()
     }
+    Kgpu.initializeLogging()
 
     runBlocking {
         when (arg) {

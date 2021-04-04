@@ -2,10 +2,14 @@ package io.github.kgpu
 
 import io.github.kgpu.wgpuj.wgpu_h
 import io.github.kgpu.wgpuj.wgpu_h.*
+import jdk.incubator.foreign.CLinker
 import jdk.incubator.foreign.MemorySegment
 import java.nio.ByteOrder
 import jdk.incubator.foreign.MemoryHandles
 import jdk.incubator.foreign.MemoryAddress
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicLong
 
 object Platform {
     val isWindows = System.getProperty("os.name").contains("Windows")
@@ -22,6 +26,24 @@ actual object Kgpu {
 
     fun initGlfw() {
         GlfwHandler.glfwInit()
+    }
+
+    // TODO: Create proper logging API
+    fun initializeLogging() {
+        val callback = WGPULogCallback.allocate { level, msg ->
+            val msgJvm = CLinker.toJavaStringRestricted(msg, StandardCharsets.UTF_8)
+            val levelStr = when(level){
+                WGPULogLevel_Error() -> "Error"
+                WGPULogLevel_Warn() -> "Warn"
+                WGPULogLevel_Info() -> "Info"
+                WGPULogLevel_Debug() -> "Debug"
+                WGPULogLevel_Trace() -> "Trace"
+                else -> "UnknownLevel($level)"
+            }
+            println("$levelStr: $msgJvm")
+        }
+        wgpuSetLogCallback(callback)
+        wgpuSetLogLevel(WGPULogLevel_Warn())
     }
 
     /**
@@ -44,26 +66,17 @@ actual object Kgpu {
     }
 
     actual suspend fun requestAdapterAsync(window: Window?): Adapter {
-        println("Adapter request")
         val options = WGPURequestAdapterOptions.allocate()
-        WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface ?: CUtils.NULL)
-        WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
-        val longHandle = MemoryHandles.varHandle(Long::class.javaPrimitiveType, ByteOrder.nativeOrder())
-        val adapter = MemorySegment.allocateNative(8)
-        val callback = WGPURequestAdapterCallback.allocate { result: MemoryAddress, userData: MemoryAddress? ->
-            println("Callback Start: $result")
-            println("Callback: ${result.toRawLongValue()}")
-            println("Callback: $longHandle")
-            println("Callback: $userData")
-            println("Callback: ${userData?.address()}")
-            val output = result.toRawLongValue()
-            longHandle.set(userData, output)
-            println("Callback End")
+        val output = AtomicLong()
+        val callback = WGPURequestAdapterCallback.allocate { result: MemoryAddress, _: MemoryAddress? ->
+            output.set(result.toRawLongValue())
         }
 
-        wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, adapter.address())
+        WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface ?: CUtils.NULL)
+        WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
+        wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, CUtils.NULL)
 
-        return Adapter(longHandle.get(adapter) as Long)
+        return Adapter(output.get())
     }
 }
 
