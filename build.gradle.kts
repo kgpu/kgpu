@@ -1,7 +1,7 @@
 import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
 
 plugins {
-    kotlin("multiplatform") version "1.4.0"
+    kotlin("multiplatform") version "1.5.0-M2"
     id("org.jetbrains.dokka") version "1.4.0-rc"
     id("maven-publish")
     id("com.diffplug.spotless") version "5.8.2"
