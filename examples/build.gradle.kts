@@ -1,5 +1,3 @@
-import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
-
 plugins {
     kotlin("multiplatform")
 }
@@ -27,6 +25,7 @@ kotlin {
                     compilations.getByName("main").output.classesDirs,
                     compilations.getByName("main").output.resourcesDir
                 )
+                duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.WARN
             }
         }
     }
@@ -84,10 +83,11 @@ tasks {
         val path = "$buildDir/distributions"
 
         doLast {
-            val server = SimpleHttpFileServerFactory().start(File(path), port)
-
-            println("Server started in directory " + server.contentRoot)
-            println("Link: http://localhost:" + server.port + "/index.html\n\n")
+//            val server = SimpleHttpFileServerFactory().start(File(path), port)
+//
+//            println("Server started in directory " + server.contentRoot)
+//            println("Link: http://localhost:" + server.port + "/index.html\n\n")
+            TODO("Web server needs to be updated for Gradle 7")
         }
     }
 

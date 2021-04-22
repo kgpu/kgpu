@@ -1,7 +1,5 @@
-import org.gradle.plugins.javascript.envjs.http.simple.SimpleHttpFileServerFactory
-
 plugins {
-    kotlin("multiplatform") version "1.5.0-M2"
+    kotlin("multiplatform") version "1.5.0-RC"
     id("org.jetbrains.dokka") version "1.4.0-rc"
     id("maven-publish")
     id("com.diffplug.spotless") version "5.8.2"
@@ -58,10 +56,11 @@ tasks {
         val path = "$rootDir/docs/book"
 
         doLast {
-            val server = SimpleHttpFileServerFactory().start(File(path), port)
-
-            println("Server started in directory " + server.getContentRoot())
-            println("Link: http://localhost:" + server.getPort() + "/index.html\n\n")
+//            val server = SimpleHttpFileServerFactory().start(File(path), port)
+//
+//            println("Server started in directory " + server.getContentRoot())
+//            println("Link: http://localhost:" + server.getPort() + "/index.html\n\n")
+            TODO("Web server needs to be updated for Gradle 7")
         }
     }
 
