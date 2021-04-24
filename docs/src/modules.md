@@ -31,11 +31,3 @@ you may want to consider one of the following:
 
 - [JOML](https://joml-ci.github.io/JOML/): JVM Only, More Complex, Faster
 - [Korma](https://github.com/korlibs/korma/blob/master/korma/src/commonMain/kotlin/com/soywiz/korma/geom/Matrix3D.kt): Built for OpenGL
-
-## kshader
-
-A library to help compile GLSL to SPIR-V
-
-On the JVM/Desktop it uses [Shaderc](https://github.com/LWJGL/lwjgl3/tree/master/modules/lwjgl/shaderc) via LWJGL.
-
-For JS/Web it uses the [glslang](https://www.npmjs.com/package/@webgpu/glslang) library.

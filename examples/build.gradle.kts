@@ -38,7 +38,6 @@ kotlin {
                 val korlibVersion = rootProject.extra["korlibVersion"]
 
                 implementation(project(":modules:kgpu"))
-                implementation(project(":modules:kshader"))
                 implementation(project(":modules:kcgmath"))
                 implementation("com.soywiz.korlibs.korim:korim:$korlibVersion")
             }

@@ -1,7 +1,6 @@
 package io.github.kgpu
 
 import io.github.kgpu.*
-import io.github.kgpu.kshader.*
 
 /** Renders a triangle to a texture and then checks the texture */
 class TriangleTest {
@@ -34,17 +33,13 @@ class TriangleTest {
     }
 
     suspend fun triangleTestAsync() {
-        Kgpu.init(false)
+        Kgpu.loadNativesFromClasspath()
         val size = 64L
 
         val adapter = Kgpu.requestAdapterAsync()
         val device = adapter.requestDeviceAsync()
-        val vertexShader =
-            device.createShaderModule(
-                KShader.compile("vertex", TriangleTest.VERTEX_SHADER, KShaderType.VERTEX))
-        val fragShader =
-            device.createShaderModule(
-                KShader.compile("frag", TriangleTest.FRAG_SHADER, KShaderType.FRAGMENT))
+        val vertexShader = TODO()
+        val fragShader = TODO()
 
         val texture =
             device.createTexture(
