@@ -1,18 +1,22 @@
 # Kgpu
 
-A Cross Platform Graphics API For Kotlin JVM/JS
+A Cross Platform Graphics API For Kotlin JVM/JS based on WebGPU and WebGPU Native
 
 __Warning__: Because WebGPU is under active development, kgpu is very unstable! Once the specification is more 
 finalized, this will not be an issue. 
 
+__Rewrite__: Currently the project's native backend is being 
+rewritten to support the JVM's new FFI API ([Project Panama](https://openjdk.java.net/projects/panama/)). 
+To access the old version, see the [jnr branch](https://github.com/kgpu/kgpu/tree/jnr)
+
  __Requirements:__
 
-- JDK 11
+- JDK 17+
 
  __Supported Platforms:__
 
 - Windows 10
-- MacOS (See [Issue #1](https://github.com/kgpu/kgpu/issues/1))
+- MacOS
 - Linux
 - Chrome Canary
 - Firefox Nightly
