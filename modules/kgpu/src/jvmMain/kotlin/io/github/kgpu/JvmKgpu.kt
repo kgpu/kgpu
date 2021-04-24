@@ -76,25 +76,45 @@ actual object Kgpu {
         WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
         wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, CUtils.NULL)
 
-        return Adapter(output.get())
+        return Adapter(Id(output.get()))
     }
 }
 
-actual class Adapter(val id: Long) {
+actual class Adapter(val id: Id) {
 
     override fun toString(): String {
-        return "Adapter${Id.fromLong(id)}"
+        return "Adapter$id"
     }
 
     actual suspend fun requestDeviceAsync(): Device {
-        TODO()
+        val desc = WGPUDeviceDescriptor.allocate()
+        val deviceExtras = WGPUDeviceExtras.allocate()
+        val chainedStruct = WGPUDeviceExtras.`chain$slice`(deviceExtras)
+        val tracePath = System.getenv("KGPU_TRACE_PATH") ?: null
+        val output = AtomicLong()
+        val callback = WGPURequestDeviceCallback.allocate { result, _ ->
+            output.set(result.toRawLongValue())
+        }
+
+        WGPUChainedStruct.`sType$set`(chainedStruct, WGPUSType_DeviceExtras())
+        WGPUDeviceExtras.`maxBindGroups$set`(deviceExtras, 1)
+        WGPUDeviceDescriptor.`nextInChain$set`(desc, deviceExtras.address())
+
+        if (tracePath != null){
+            println("Trace Path Set: $tracePath")
+            WGPUDeviceExtras.`tracePath$set`(deviceExtras, CLinker.toCString(tracePath).address())
+        }
+
+        wgpuAdapterRequestDevice(id.address(), desc, callback, CUtils.NULL)
+
+        return Device(Id(output.get()))
     }
 }
 
-actual class Device(val id: Long) {
+actual class Device(val id: Id) {
 
     override fun toString(): String {
-        return "Device${Id.fromLong(id)}"
+        return "Device$id"
     }
 
     actual fun createShaderModule(data: ByteArray): ShaderModule {
@@ -150,10 +170,10 @@ actual class Device(val id: Long) {
     }
 }
 
-actual class CommandEncoder(val id: Long) {
+actual class CommandEncoder(val id: Id) {
 
     override fun toString(): String {
-        return "CommandEncoder${Id.fromLong(id)}"
+        return "CommandEncoder$id"
     }
 
     actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
@@ -245,10 +265,10 @@ actual class ComputePassEncoder() {
     }
 }
 
-actual class ShaderModule(val moduleId: Long) {
+actual class ShaderModule(val id: Id) {
 
     override fun toString(): String {
-        return "ShaderModule${Id.fromLong(moduleId)}"
+        return "ShaderModule$id"
     }
 }
 
@@ -341,7 +361,7 @@ actual constructor(
 actual class BindGroupLayout internal constructor(val id: Long) {
 
     override fun toString(): String {
-        return "BindGroupLayout${Id.fromLong(id)}"
+        return "BindGroupLayout$id"
     }
 }
 
@@ -352,21 +372,21 @@ actual class PipelineLayoutDescriptor actual constructor(vararg bindGroupLayouts
 actual class PipelineLayout(val id: Long) {
 
     override fun toString(): String {
-        return "PipelineLayout${Id.fromLong(id)}"
+        return "PipelineLayout$id"
     }
 }
 
 actual class RenderPipeline internal constructor(val id: Long) {
 
     override fun toString(): String {
-        return "RenderPipeline${Id.fromLong(id)}"
+        return "RenderPipeline$id"
     }
 }
 
 actual class ComputePipeline internal constructor(val id: Long) {
 
     override fun toString(): String {
-        return "ComputePipeline${Id.fromLong(id)}"
+        return "ComputePipeline$id"
     }
 }
 
@@ -405,7 +425,7 @@ actual constructor(
 actual class Texture(val id: Long) {
 
     override fun toString(): String {
-        return "Texture${Id.fromLong(id)}"
+        return "Texture$id"
     }
 
     actual fun createView(desc: TextureViewDescriptor?): TextureView {
@@ -429,7 +449,7 @@ actual class TextureView(val id: Long) : IntoBindingResource {
     }
 
     override fun toString(): String {
-        return "TextureView${Id.fromLong(id)}"
+        return "TextureView$id"
     }
 }
 
@@ -441,7 +461,7 @@ actual class SwapChain(val id: Long, private val window: Window) {
     private val size = window.windowSize
 
     override fun toString(): String {
-        return "SwapChain${Id.fromLong(id)}"
+        return "SwapChain$id"
     }
 
     actual fun getCurrentTextureView(): TextureView {
@@ -470,14 +490,14 @@ actual constructor(vararg colorAttachments: RenderPassColorAttachmentDescriptor)
 actual class CommandBuffer(val id: Long) {
 
     override fun toString(): String {
-        return "CommandBuffer(${Id.fromLong(id)}"
+        return "CommandBuffer$id"
     }
 }
 
 actual class Queue(val id: Long) {
 
     override fun toString(): String {
-        return "Queue${Id.fromLong(id)}"
+        return "Queue$id"
     }
 
     actual fun submit(vararg cmdBuffers: CommandBuffer) {
@@ -504,7 +524,7 @@ actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
     }
 
     override fun toString(): String {
-        return "Buffer${Id.fromLong(id)}"
+        return "Buffer$id"
     }
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
@@ -550,7 +570,7 @@ actual constructor(layout: BindGroupLayout, vararg entries: BindGroupEntry) {
 actual class BindGroup(val id: Long) {
 
     override fun toString(): String {
-        return "BindGroup${Id.fromLong(id)}"
+        return "BindGroup$id"
     }
 }
 
@@ -594,7 +614,7 @@ actual class Sampler(val id: Long) : IntoBindingResource {
     }
 
     override fun toString(): String {
-        return "Sampler(${Id.fromLong(id)}"
+        return "Sampler$id"
     }
 }
 

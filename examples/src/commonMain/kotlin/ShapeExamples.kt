@@ -181,6 +181,7 @@ suspend fun runTriangleExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     println("Adapter: $adapter")
     val device = adapter.requestDeviceAsync()
+    println("Device: $device")
     val vertexShader =
         device.createShaderModule(
             KShader.compile("vertex", ShapeShaders.TRIANGLE, KShaderType.VERTEX))
