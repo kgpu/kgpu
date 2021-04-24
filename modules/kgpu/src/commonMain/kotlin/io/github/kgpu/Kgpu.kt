@@ -29,7 +29,7 @@ object Primitives {
 
 expect class Device {
 
-    fun createShaderModule(data: ByteArray): ShaderModule
+    fun createShaderModule(src: String): ShaderModule
 
     fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline
 

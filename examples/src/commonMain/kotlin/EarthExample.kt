@@ -94,12 +94,8 @@ suspend fun runEarthExample(window: Window) {
     val modelMatrix = Matrix4().rotate(0f, .1f, 0f)
     val viewMatrix = Matrix4().lookAt(Vec3(-5f, -5f, 3.5f), Vec3(), Vec3.UNIT_Z)
 
-    val vertexShader =
-        device.createShaderModule(
-            KShader.compile("vertex", EarthShaderSource.vertex, KShaderType.VERTEX))
-    val fragShader =
-        device.createShaderModule(
-            KShader.compile("frag", EarthShaderSource.frag, KShaderType.FRAGMENT))
+    val vertexShader = TODO()
+    val fragShader = TODO()
     val vertexBuffer =
         BufferUtils.createFloatBuffer(device, "indices", vertices, BufferUsage.VERTEX)
     val indexBuffer = BufferUtils.createShortBuffer(device, "vertices", indices, BufferUsage.INDEX)

@@ -145,12 +145,9 @@ object Shaders {
 suspend fun runBoidExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val vertexShader =
-        device.createShaderModule(KShader.compile("vertex", Shaders.VERTEX, KShaderType.VERTEX))
-    val fragShader =
-        device.createShaderModule(KShader.compile("frag", Shaders.FRAG, KShaderType.FRAGMENT))
-    val computeShader =
-        device.createShaderModule(KShader.compile("compute", Shaders.COMPUTE, KShaderType.COMPUTE))
+    val vertexShader = TODO()
+    val fragShader = TODO()
+    val computeShader = TODO()
 
     val vertices =
         floatArrayOf(

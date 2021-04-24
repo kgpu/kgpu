@@ -151,8 +151,7 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray): Comput
                 BindGroupEntry(2, resultBuffer)))
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader =
-        device.createShaderModule(KShader.compile("shader", SHADER_SOURCE, KShaderType.COMPUTE))
+    val shader = TODO()
     val computePipeline =
         device.createComputePipeline(
             ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main")))

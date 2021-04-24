@@ -9,6 +9,9 @@ import jdk.incubator.foreign.MemoryAddress
  * Bits 0-32 are the index Bits 32-61 are the epoch Bits 61-64 are the backend
  */
 class Id(val id: Long) : Addressable {
+
+    constructor(addressable: Addressable) : this(addressable.address().toRawLongValue())
+
     override fun toString(): String {
         val epoch = id shr 32 and ((1 shl 29) - 1)
         val backendNum = id shr 61

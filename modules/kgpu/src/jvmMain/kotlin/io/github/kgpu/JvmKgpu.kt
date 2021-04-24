@@ -117,9 +117,17 @@ actual class Device(val id: Id) {
         return "Device$id"
     }
 
-    actual fun createShaderModule(data: ByteArray): ShaderModule {
-        TODO()
+    actual fun createShaderModule(src: String): ShaderModule {
+        val desc = WGPUShaderModuleDescriptor.allocate()
+        val wgsl = WGPUShaderModuleWGSLDescriptor.allocate()
+        val wgslChain = WGPUShaderModuleWGSLDescriptor.`chain$slice`(wgsl)
 
+        WGPUChainedStruct.`next$set`(wgslChain, CUtils.NULL)
+        WGPUChainedStruct.`sType$set`(wgslChain, WGPUSType_ShaderModuleWGSLDescriptor())
+        WGPUShaderModuleWGSLDescriptor.`source$set`(wgsl, CLinker.toCString(src).address())
+        WGPUShaderModuleDescriptor.`nextInChain$set`(desc, wgsl.address())
+
+        return ShaderModule(Id(wgpuDeviceCreateShaderModule(id, desc)))
     }
 
     actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {

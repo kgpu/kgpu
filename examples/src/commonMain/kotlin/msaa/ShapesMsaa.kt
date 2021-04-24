@@ -8,11 +8,8 @@ const val SAMPLE_COUNT = 4
 suspend fun runMsaaTriangle(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val vertexShader =
-        device.createShaderModule(
-            KShader.compile("vertex", ShapeShaders.TRIANGLE, KShaderType.VERTEX))
-    val fragShader =
-        device.createShaderModule(KShader.compile("frag", ShapeShaders.FRAG, KShaderType.FRAGMENT))
+    val vertexShader = TODO()
+    val fragShader = TODO()
 
     // spotless:off
     val vertices = floatArrayOf(

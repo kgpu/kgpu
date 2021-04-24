@@ -70,12 +70,8 @@ suspend fun runTextureExample(window: Window) {
             "transformation matrix",
             createTransformationMatrix().toBytes(),
             BufferUsage.UNIFORM or BufferUsage.COPY_DST)
-    val vertexShader =
-        device.createShaderModule(
-            KShader.compile("vertex", TextureShaderSource.vertex, KShaderType.VERTEX))
-    val fragShader =
-        device.createShaderModule(
-            KShader.compile("frag", TextureShaderSource.frag, KShaderType.FRAGMENT))
+    val vertexShader = TODO()
+    val fragShader = TODO()
 
     val textureDesc =
         TextureDescriptor(

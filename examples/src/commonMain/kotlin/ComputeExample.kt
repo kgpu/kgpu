@@ -64,8 +64,7 @@ suspend fun runComputeExample() {
             BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, storageBuffer)))
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader =
-        device.createShaderModule(KShader.compile("shader", COLLATZ_SHADER, KShaderType.COMPUTE))
+    val shader = TODO()
     val computePipeline =
         device.createComputePipeline(
             ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main")))
