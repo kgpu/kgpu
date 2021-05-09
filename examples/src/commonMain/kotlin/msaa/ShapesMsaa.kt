@@ -1,7 +1,6 @@
 package msaa
 
 import io.github.kgpu.*
-import io.github.kgpu.kshader.*
 
 const val SAMPLE_COUNT = 4
 
@@ -73,24 +72,5 @@ private fun createRenderPipeline(
     fragModule: ShaderModule,
     cullMode: CullMode
 ): RenderPipelineDescriptor {
-    return RenderPipelineDescriptor(
-        pipelineLayout,
-        ProgrammableStageDescriptor(vertexModule, "main"),
-        ProgrammableStageDescriptor(fragModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(FrontFace.CCW, cullMode),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            null,
-            VertexBufferLayoutDescriptor(
-                6 * Primitives.FLOAT_BYTES,
-                InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 3 * Primitives.FLOAT_BYTES, 1))),
-        SAMPLE_COUNT,
-        0xFFFFFFFF,
-        false)
+    return TODO()
 }

@@ -2,12 +2,7 @@ package io.github.kgpu
 
 import io.github.kgpu.wgpuj.wgpu_h
 import io.github.kgpu.wgpuj.wgpu_h.*
-import jdk.incubator.foreign.CLinker
-import jdk.incubator.foreign.MemorySegment
-import java.nio.ByteOrder
-import jdk.incubator.foreign.MemoryHandles
-import jdk.incubator.foreign.MemoryAddress
-import java.nio.charset.Charset
+import jdk.incubator.foreign.*
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicLong
 
@@ -19,6 +14,24 @@ object Platform {
 
 object CUtils {
     val NULL: MemoryAddress = wgpu_h.NULL()!!
+
+    fun copyToNativeArray(values: LongArray): MemoryAddress {
+        if (values.isEmpty())
+            return NULL
+
+        val layouts = MemorySegment.allocateNative(values.size * Primitives.LONG_BYTES)
+        layouts.copyFrom(MemorySegment.ofArray(values))
+
+        return layouts.address()
+    }
+}
+
+fun Boolean.toNativeByte(): Byte {
+    return if (this) {
+        0x01
+    } else {
+        0x00
+    }
 }
 
 actual object Kgpu {
@@ -32,7 +45,7 @@ actual object Kgpu {
     fun initializeLogging() {
         val callback = WGPULogCallback.allocate { level, msg ->
             val msgJvm = CLinker.toJavaStringRestricted(msg, StandardCharsets.UTF_8)
-            val levelStr = when(level){
+            val levelStr = when (level) {
                 WGPULogLevel_Error() -> "Error"
                 WGPULogLevel_Warn() -> "Warn"
                 WGPULogLevel_Info() -> "Info"
@@ -100,7 +113,7 @@ actual class Adapter(val id: Id) {
         WGPUDeviceExtras.`maxBindGroups$set`(deviceExtras, 1)
         WGPUDeviceDescriptor.`nextInChain$set`(desc, deviceExtras.address())
 
-        if (tracePath != null){
+        if (tracePath != null) {
             println("Trace Path Set: $tracePath")
             WGPUDeviceExtras.`tracePath$set`(deviceExtras, CLinker.toCString(tracePath).address())
         }
@@ -131,13 +144,73 @@ actual class Device(val id: Id) {
     }
 
     actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {
-        TODO()
+        val fragmentDesc = if (desc.fragmentStage != null) {
+            val fragmentDesc = WGPUFragmentState.allocate()
+            val targets = WGPUColorTargetState.allocateArray(desc.fragmentStage.targets.size)
+            desc.fragmentStage.targets.forEachIndexed { index, target ->
+                if (target.blendState == null)
+                    TODO("Null blend states are currently not supported")
 
+                val blendState = WGPUBlendState.allocate()
+                val colorBlend = WGPUBlendState.`color$slice`(blendState)
+                val alphaBlend = WGPUBlendState.`alpha$slice`(blendState)
+                WGPUBlendComponent.`srcFactor$set`(colorBlend, target.blendState.color.srcFactor.ordinal)
+                WGPUBlendComponent.`dstFactor$set`(colorBlend, target.blendState.color.dstFactor.ordinal)
+                WGPUBlendComponent.`operation$set`(colorBlend, target.blendState.color.operation.ordinal)
+                WGPUBlendComponent.`srcFactor$set`(alphaBlend, target.blendState.alpha.srcFactor.ordinal)
+                WGPUBlendComponent.`dstFactor$set`(alphaBlend, target.blendState.alpha.dstFactor.ordinal)
+                WGPUBlendComponent.`operation$set`(alphaBlend, target.blendState.alpha.operation.ordinal)
+
+                WGPUColorTargetState.`format$set`(targets, index.toLong(), target.format.nativeVal)
+                WGPUColorTargetState.`writeMask$set`(targets, index.toLong(), target.writeMask.toInt())
+                WGPUColorTargetState.`blend$set`(targets, index.toLong(), blendState.address())
+            }
+            WGPUFragmentState.`entryPoint$set`(fragmentDesc, CLinker.toCString(desc.fragmentStage.entryPoint).address())
+            WGPUFragmentState.`module$set`(fragmentDesc, desc.fragmentStage.module.id.address())
+            WGPUFragmentState.`targets$set`(fragmentDesc, targets.address())
+            WGPUFragmentState.`targetCount$set`(fragmentDesc, desc.fragmentStage.targets.size)
+
+            fragmentDesc
+        } else {
+            CUtils.NULL
+        }
+
+        val descriptor = WGPURenderPipelineDescriptor.allocate()
+        val vertexState = WGPURenderPipelineDescriptor.`vertex$slice`(descriptor)
+        val primitiveState = WGPURenderPipelineDescriptor.`primitive$slice`(descriptor)
+        val multisampleState = WGPURenderPipelineDescriptor.`multisample$slice`(descriptor)
+
+        WGPURenderPipelineDescriptor.`label$set`(descriptor, CLinker.toCString("RenderPipeline").address())
+        WGPURenderPipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
+        WGPUVertexState.`module$set`(vertexState, desc.vertexStage.module.id.address())
+        WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertexStage.entryPoint).address())
+        // TODO: Buffers
+        WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitiveTopology.topology.ordinal)
+        WGPUPrimitiveState.`stripIndexFormat$set`(
+            primitiveState,
+            (desc.primitiveTopology.stripIndexFormat?.ordinal ?: WGPUIndexFormat_Undefined())
+        )
+        WGPUPrimitiveState.`frontFace$set`(primitiveState, WGPUFrontFace_CCW())
+        WGPUPrimitiveState.`cullMode$set`(primitiveState, desc.primitiveTopology.cullMode.ordinal)
+
+        WGPUMultisampleState.`count$set`(multisampleState, desc.multisampleState.count)
+        WGPUMultisampleState.`mask$set`(multisampleState, desc.multisampleState.mask)
+        WGPUMultisampleState.`alphaToCoverageEnabled$set`(
+            multisampleState,
+            desc.multisampleState.alphaToCoverageEnabled.toNativeByte()
+        )
+
+        WGPURenderPipelineDescriptor.`fragment$set`(descriptor, fragmentDesc.address())
+
+        return RenderPipeline(Id(wgpuDeviceCreateRenderPipeline(id, descriptor)))
     }
 
     actual fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout {
-        TODO()
+        val descriptor = WGPUPipelineLayoutDescriptor.allocate()
+        WGPUPipelineLayoutDescriptor.`bindGroupLayouts$set`(descriptor, CUtils.copyToNativeArray(desc.ids))
+        WGPUPipelineLayoutDescriptor.`bindGroupLayoutCount$set`(descriptor, desc.ids.size)
 
+        return PipelineLayout(Id(wgpuDeviceCreatePipelineLayout(id, descriptor)))
     }
 
     actual fun createTexture(desc: TextureDescriptor): Texture {
@@ -153,16 +226,18 @@ actual class Device(val id: Id) {
     }
 
     actual fun createBuffer(desc: BufferDescriptor): Buffer {
-        TODO()
+        val descriptor = WGPUBufferDescriptor.allocate()
+        WGPUBufferDescriptor.`nextInChain$set`(descriptor, CUtils.NULL)
+        WGPUBufferDescriptor.`usage$set`(descriptor, desc.usage)
+        WGPUBufferDescriptor.`size$set`(descriptor, desc.size)
+        WGPUBufferDescriptor.`mappedAtCreation$set`(descriptor, desc.mappedAtCreation.toNativeByte())
+
+        return Buffer(Id(wgpuDeviceCreateBuffer(id, descriptor)), desc.size)
     }
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
         TODO()
 
-    }
-
-    actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
-        TODO()
     }
 
     actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
@@ -281,7 +356,7 @@ actual class ShaderModule(val id: Id) {
 }
 
 actual class ProgrammableStageDescriptor
-actual constructor(module: ShaderModule, entryPoint: kotlin.String) {
+actual constructor(val module: ShaderModule, val entryPoint: String) {
 }
 
 actual class BindGroupLayoutEntry
@@ -314,58 +389,6 @@ actual constructor(
     ) : this(binding, visibility, type, false, dimension, textureComponentType, multisampled, null)
 }
 
-actual class RasterizationStateDescriptor
-actual constructor(
-    frontFace: FrontFace,
-    cullMode: CullMode,
-    clampDepth: kotlin.Boolean,
-    depthBias: Long,
-    depthBiasSlopeScale: kotlin.Float,
-    depthBiasClamp: kotlin.Float
-) {
-}
-
-actual class ColorStateDescriptor
-actual constructor(
-    format: TextureFormat,
-    alphaBlend: BlendDescriptor,
-    colorBlend: BlendDescriptor,
-    writeMask: Long
-) {
-}
-
-actual class RenderPipelineDescriptor
-actual constructor(
-    layout: PipelineLayout,
-    vertexStage: ProgrammableStageDescriptor,
-    fragmentStage: ProgrammableStageDescriptor,
-    primitiveTopology: PrimitiveTopology,
-    rasterizationState: RasterizationStateDescriptor,
-    colorStates: Array<ColorStateDescriptor>,
-    depthStencilState: Any?,
-    vertexState: VertexStateDescriptor,
-    sampleCount: Int,
-    sampleMask: Long,
-    alphaToCoverage: kotlin.Boolean
-) {
-}
-
-actual class VertexAttributeDescriptor
-actual constructor(format: VertexFormat, offset: Long, shaderLocation: Int) {
-}
-
-actual class VertexBufferLayoutDescriptor
-actual constructor(
-    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttributeDescriptor
-) {
-}
-
-actual class VertexStateDescriptor
-actual constructor(
-    indexFormat: IndexFormat?, vararg vertexBuffers: VertexBufferLayoutDescriptor
-) {
-}
-
 actual class BindGroupLayout internal constructor(val id: Long) {
 
     override fun toString(): String {
@@ -373,18 +396,19 @@ actual class BindGroupLayout internal constructor(val id: Long) {
     }
 }
 
-actual class PipelineLayoutDescriptor actual constructor(vararg bindGroupLayouts: BindGroupLayout) {
+actual class PipelineLayoutDescriptor internal constructor(val ids: LongArray) {
 
+    actual constructor(vararg bindGroupLayouts: BindGroupLayout) : this(bindGroupLayouts.map { it.id }.toLongArray())
 }
 
-actual class PipelineLayout(val id: Long) {
+actual class PipelineLayout(val id: Id) {
 
     override fun toString(): String {
         return "PipelineLayout$id"
     }
 }
 
-actual class RenderPipeline internal constructor(val id: Long) {
+actual class RenderPipeline internal constructor(val id: Id) {
 
     override fun toString(): String {
         return "RenderPipeline$id"
@@ -398,7 +422,7 @@ actual class ComputePipeline internal constructor(val id: Long) {
     }
 }
 
-actual class BlendDescriptor
+actual class BlendComponent
 actual constructor(
     val srcFactor: BlendFactor, val dstFactor: BlendFactor, val operation: BlendOperation
 )
@@ -521,11 +545,11 @@ actual class Queue(val id: Long) {
 
 actual class BufferDescriptor
 actual constructor(
-    label: kotlin.String, size: Long, usage: Long, mappedAtCreation: kotlin.Boolean
+    val label: String, val size: Long, val usage: Int, val mappedAtCreation: Boolean
 ) {
 }
 
-actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
+actual class Buffer(val id: Id, actual val size: Long) : IntoBindingResource {
 
     override fun intoBindingResource() {
         TODO()
@@ -536,30 +560,36 @@ actual class Buffer(val id: Long, actual val size: Long) : IntoBindingResource {
     }
 
     actual fun getMappedData(start: Long, size: Long): BufferData {
-        TODO()
+        val ptr = wgpuBufferGetMappedRange(id, start, size)
+
+
+        return BufferData(ptr.asSegmentRestricted(size))
     }
 
     actual fun unmap() {
-        TODO()
+        wgpuBufferUnmap(id)
     }
 
     actual fun destroy() {
-        TODO()
+        wgpuBufferDestroy(id)
     }
 
     actual suspend fun mapReadAsync(device: Device): BufferData {
-        TODO()
+        TODO("mapReadAsync not implemented in KGPU.")
     }
 }
 
-actual class BufferData(val data: Byte, val size: Int) {
+actual class BufferData(val data: MemorySegment) {
 
     actual fun putBytes(bytes: ByteArray, offset: Int) {
-        TODO()
+        data.asByteBuffer().put(offset, bytes)
     }
 
     actual fun getBytes(): ByteArray {
-        TODO()
+        val buffer = ByteArray(data.byteSize().toInt())
+        data.asByteBuffer().get(buffer)
+
+        return buffer
     }
 }
 
@@ -629,3 +659,57 @@ actual class Sampler(val id: Long) : IntoBindingResource {
 actual class ComputePipelineDescriptor
 actual constructor(layout: PipelineLayout, computeStage: ProgrammableStageDescriptor) {
 }
+
+actual class FragmentState actual constructor(
+    val module: ShaderModule,
+    val entryPoint: String,
+    val targets: Array<ColorTargetState>
+)
+
+actual class BlendState actual constructor(val color: BlendComponent, val alpha: BlendComponent)
+
+actual class ColorTargetState actual constructor(
+    val format: TextureFormat,
+    val blendState: BlendState?,
+    val writeMask: Long
+)
+
+actual class MultisampleState actual constructor(
+    val count: Int,
+    val mask: Int,
+    val alphaToCoverageEnabled: Boolean
+)
+
+actual class RenderPipelineDescriptor actual constructor(
+    val layout: PipelineLayout,
+    val vertexStage: VertexState,
+    val primitiveTopology: PrimitiveState,
+    val depthStencilState: Any?,
+    val multisampleState: MultisampleState,
+    val fragmentStage: FragmentState?
+)
+
+actual class VertexState actual constructor(
+    val module: ShaderModule,
+    val entryPoint: String,
+    vararg val buffers: VertexBufferLayout
+)
+
+actual class PrimitiveState actual constructor(
+    val topology: PrimitiveTopology,
+    val stripIndexFormat: IndexFormat?,
+    val frontFace: FrontFace,
+    val cullMode: CullMode
+)
+
+actual class VertexAttribute actual constructor(
+    val format: VertexFormat,
+    val offset: Long,
+    val shaderLocation: Int
+)
+
+actual class VertexBufferLayout actual constructor(
+    val arrayStride: Long,
+    val stepMode: InputStepMode,
+    vararg attributes: VertexAttribute
+)

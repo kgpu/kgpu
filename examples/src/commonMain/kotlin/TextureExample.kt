@@ -1,6 +1,5 @@
 import io.github.kgpu.*
 import io.github.kgpu.kcgmath.Matrix4
-import io.github.kgpu.kshader.*
 
 private object TextureShaderSource {
     val vertex =
@@ -148,27 +147,6 @@ suspend fun runTextureExample(window: Window) {
 private fun createRenderPipeline(
     pipelineLayout: PipelineLayout, vertexModule: ShaderModule, fragModule: ShaderModule
 ): RenderPipelineDescriptor {
-    return RenderPipelineDescriptor(
-        pipelineLayout,
-        ProgrammableStageDescriptor(vertexModule, "main"),
-        ProgrammableStageDescriptor(fragModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(FrontFace.CCW, CullMode.NONE),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM,
-                BlendDescriptor(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA),
-                BlendDescriptor(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA),
-                0xF)),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            IndexFormat.UINT16,
-            VertexBufferLayoutDescriptor(
-                5 * Primitives.FLOAT_BYTES,
-                InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
-                VertexAttributeDescriptor(VertexFormat.FLOAT2, 3 * Primitives.FLOAT_BYTES, 1))),
-        1,
-        0xFFFFFFFF,
-        false)
+    return TODO()
+
 }

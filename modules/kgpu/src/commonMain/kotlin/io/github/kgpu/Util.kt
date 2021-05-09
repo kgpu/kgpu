@@ -2,20 +2,25 @@ package io.github.kgpu
 
 object BufferUtils {
 
-    fun createBufferFromData(device: Device, label: String, data: ByteArray, usage: Long): Buffer {
-        return device.createBufferWithData(
-            BufferDescriptor(label, data.size.toLong(), usage, true), data)
+    // TODO: Investigate if this should be kept
+    fun createBufferFromData(device: Device, label: String, data: ByteArray, usage: Int): Buffer {
+        val buffer = device.createBuffer(
+            BufferDescriptor(label, data.size.toLong(), usage, true))
+        buffer.getMappedData().putBytes(data)
+        buffer.unmap()
+
+        return buffer
     }
 
-    fun createFloatBuffer(device: Device, label: String, data: FloatArray, usage: Long): Buffer {
+    fun createFloatBuffer(device: Device, label: String, data: FloatArray, usage: Int): Buffer {
         return createBufferFromData(device, label, ByteUtils.toByteArray(data), usage)
     }
 
-    fun createShortBuffer(device: Device, label: String, data: ShortArray, usage: Long): Buffer {
+    fun createShortBuffer(device: Device, label: String, data: ShortArray, usage: Int): Buffer {
         return createBufferFromData(device, label, ByteUtils.toByteArray(data), usage)
     }
 
-    fun createIntBuffer(device: Device, label: String, data: IntArray, usage: Long): Buffer {
+    fun createIntBuffer(device: Device, label: String, data: IntArray, usage: Int): Buffer {
         return createBufferFromData(device, label, ByteUtils.toByteArray(data), usage)
     }
 }

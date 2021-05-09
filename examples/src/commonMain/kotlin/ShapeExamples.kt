@@ -1,7 +1,4 @@
 import io.github.kgpu.*
-import io.github.kgpu.kcgmath.*
-import io.github.kgpu.kcgmath.MathUtils
-import io.github.kgpu.kshader.*
 
 object ShapeShaders {
     const val TRIANGLE =
@@ -188,28 +185,15 @@ suspend fun runTriangleExample(window: Window) {
 
     val pipelineDesc = RenderPipelineDescriptor(
         pipelineLayout,
-        ProgrammableStageDescriptor(shaderModule, "main"),
-        ProgrammableStageDescriptor(shaderModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(FrontFace.CCW, CullMode.NONE),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF
+        VertexState(shaderModule, "vs_main"),
+        PrimitiveState(PrimitiveTopology.TRIANGLE_LIST),
+        null,
+        MultisampleState(1, 0xFFFFFFF, false),
+        FragmentState(shaderModule, "fs_main", arrayOf(
+            ColorTargetState(
+                TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
             )
-        ),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            null,
-            VertexBufferLayoutDescriptor(
-                6 * Primitives.FLOAT_BYTES,
-                InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 3 * Primitives.FLOAT_BYTES, 1)
-            )
-        ),
-        1,
-        0xFFFFFFFF,
-        false
+        )),
     )
 
     val pipeline = device.createRenderPipeline(pipelineDesc)

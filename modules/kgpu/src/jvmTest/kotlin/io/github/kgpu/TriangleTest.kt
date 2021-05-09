@@ -1,7 +1,5 @@
 package io.github.kgpu
 
-import io.github.kgpu.*
-
 /** Renders a triangle to a texture and then checks the texture */
 class TriangleTest {
 
@@ -101,8 +99,8 @@ class TriangleTest {
             PrimitiveTopology.TRIANGLE_LIST,
             RasterizationStateDescriptor(FrontFace.CCW, CullMode.NONE),
             arrayOf(
-                ColorStateDescriptor(
-                    TextureFormat.RGBA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
+                ColorTargetState(
+                    TextureFormat.RGBA8_UNORM, BlendComponent(), BlendComponent(), 0xF)),
             Kgpu.undefined,
             VertexStateDescriptor(IndexFormat.UINT16),
             1,

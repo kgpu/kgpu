@@ -1,7 +1,6 @@
 import io.github.kgpu.*
 import io.github.kgpu.kcgmath.*
 import io.github.kgpu.kcgmath.MathUtils
-import io.github.kgpu.kshader.*
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -191,27 +190,7 @@ suspend fun runEarthExample(window: Window) {
 private fun createRenderPipeline(
     pipelineLayout: PipelineLayout, vertexModule: ShaderModule, fragModule: ShaderModule
 ): RenderPipelineDescriptor {
-    return RenderPipelineDescriptor(
-        pipelineLayout,
-        ProgrammableStageDescriptor(vertexModule, "main"),
-        ProgrammableStageDescriptor(fragModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(FrontFace.CCW, CullMode.BACK),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            IndexFormat.UINT16,
-            VertexBufferLayoutDescriptor(
-                8 * Primitives.FLOAT_BYTES,
-                InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 0, 0),
-                VertexAttributeDescriptor(VertexFormat.FLOAT2, 3 * Primitives.FLOAT_BYTES, 1),
-                VertexAttributeDescriptor(VertexFormat.FLOAT3, 5 * Primitives.FLOAT_BYTES, 2))),
-        1,
-        0xFFFFFFFF,
-        false)
+    return TODO()
 }
 
 private class Sphere(private val chunks: Int, private val slices: Int, val radius: Float = 2f) {

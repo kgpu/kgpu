@@ -364,7 +364,7 @@ actual class RasterizationStateDescriptor
     val cullMode = cullMode.jsType
 }
 
-actual class BlendDescriptor
+actual class BlendComponent
     actual constructor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation) {
 
     val operation = operation.jsType
@@ -372,11 +372,11 @@ actual class BlendDescriptor
     val dstFactor = dstFactor.jsType
 }
 
-actual class ColorStateDescriptor
+actual class ColorTargetState
     actual constructor(
         format: TextureFormat,
-        val alphaBlend: BlendDescriptor,
-        val colorBlend: BlendDescriptor,
+        val alphaBlend: BlendComponent,
+        val colorBlend: BlendComponent,
         val writeMask: Long
     ) {
 
@@ -390,7 +390,7 @@ actual class RenderPipelineDescriptor
         val fragmentStage: ProgrammableStageDescriptor,
         primitiveTopology: PrimitiveTopology,
         val rasterizationState: RasterizationStateDescriptor,
-        val colorStates: Array<ColorStateDescriptor>,
+        val colorStates: Array<ColorTargetState>,
         val depthStencilState: Any?,
         val vertexState: VertexStateDescriptor,
         val sampleCount: Int,
@@ -916,3 +916,11 @@ actual enum class TextureComponentType(val jsType: String) {
     SINT("sint"),
     UINT("uint")
 }
+
+actual class FragmentState actual constructor(
+    module: ShaderModule,
+    entryPoint: String,
+    targets: Array<ColorTargetState>
+)
+
+actual class BlendState actual constructor(color: BlendComponent, alpha: BlendComponent)

@@ -1,8 +1,6 @@
 package boid
 
 import io.github.kgpu.*
-import io.github.kgpu.kshader.KShader
-import io.github.kgpu.kshader.KShaderType
 import kotlin.random.Random
 
 const val BOIDS_PER_GROUP = 64
@@ -247,32 +245,5 @@ private fun createRenderPipeline(
     vertexModule: ShaderModule,
     fragModule: ShaderModule,
 ): RenderPipelineDescriptor {
-
-    return RenderPipelineDescriptor(
-        pipelineLayout,
-        ProgrammableStageDescriptor(vertexModule, "main"),
-        ProgrammableStageDescriptor(fragModule, "main"),
-        PrimitiveTopology.TRIANGLE_LIST,
-        RasterizationStateDescriptor(FrontFace.CCW, CullMode.NONE),
-        arrayOf(
-            ColorStateDescriptor(
-                TextureFormat.BGRA8_UNORM, BlendDescriptor(), BlendDescriptor(), 0xF)),
-        Kgpu.undefined,
-        VertexStateDescriptor(
-            null,
-            VertexBufferLayoutDescriptor(
-                2 * Primitives.FLOAT_BYTES,
-                InputStepMode.VERTEX,
-                VertexAttributeDescriptor(VertexFormat.FLOAT2, 0, 0),
-            ),
-            VertexBufferLayoutDescriptor(
-                4 * Primitives.FLOAT_BYTES,
-                InputStepMode.INSTANCE,
-                VertexAttributeDescriptor(VertexFormat.FLOAT2, 0, 1),
-                VertexAttributeDescriptor(VertexFormat.FLOAT2, 8, 2),
-            ),
-        ),
-        1,
-        0xFFFFFFFF,
-        false)
+    return TODO()
 }

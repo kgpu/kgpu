@@ -1,5 +1,4 @@
 import io.github.kgpu.*
-import io.github.kgpu.kshader.*
 
 const val COLLATZ_SHADER =
     """

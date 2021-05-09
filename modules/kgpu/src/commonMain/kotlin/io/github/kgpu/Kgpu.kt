@@ -23,8 +23,9 @@ expect object Kgpu {
 }
 
 object Primitives {
-    const val FLOAT_BYTES: Long = 4
-    const val INT_BYTES: Long = 4
+    const val FLOAT_BYTES: Long = 4L
+    const val INT_BYTES: Long = 4L
+    const val LONG_BYTES: Long = 8L
 }
 
 expect class Device {
@@ -44,11 +45,6 @@ expect class Device {
     fun createBuffer(desc: BufferDescriptor): Buffer
 
     fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout
-
-    @Deprecated(
-        message =
-            "No longer part of the spec, but replacement has not been implemented in browsers!")
-    fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer
 
     fun createBindGroup(desc: BindGroupDescriptor): BindGroup
 
@@ -281,41 +277,41 @@ object BufferUsage {
     /**
      * Allow a buffer to be mapped for reading. Does not need to be enabled for mapped_at_creation.
      */
-    const val MAP_READ: Long = 1
+    const val MAP_READ: Int = 1
 
     /**
      * Allow a buffer to be mapped for writing. Does not need to be enabled for mapped_at_creation.
      */
-    const val MAP_WRITE: Long = 2
+    const val MAP_WRITE: Int = 2
 
     /**
      * Allow a buffer to be the source buffer for [CommandEncoder.copyBufferToBuffer] or
      * [CommandEncoder.copyBufferToTexture]
      */
-    const val COPY_SRC: Long = 4
+    const val COPY_SRC: Int = 4
 
     /** Allow a buffer to be the destination buffer for [CommandEncoder.copyBufferToBuffer] */
-    const val COPY_DST: Long = 8
+    const val COPY_DST: Int = 8
 
     /** Allow a buffer to be used as index buffer for draw calls */
-    const val INDEX: Long = 16
+    const val INDEX: Int = 16
 
     /** Allow a buffer to be used as vertex buffer for draw calls */
-    const val VERTEX: Long = 32
+    const val VERTEX: Int = 32
 
     /** Allow a buffer to be used as uniform buffer */
-    const val UNIFORM: Long = 64
+    const val UNIFORM: Int = 64
 
     /** Allows a buffer to be used as a storage buffer */
-    const val STORAGE: Long = 128
+    const val STORAGE: Int = 128
 
     /** Allow a buffer to be the indirect buffer in an indirect draw call. */
-    const val INDIRECT: Long = 256
+    const val INDIRECT: Int = 256
 
-    const val QUERY_RESOLVE: Long = 512
+    const val QUERY_RESOLVE: Int = 512
 }
 
-expect class BufferDescriptor(label: String, size: Long, usage: Long, mappedAtCreation: Boolean)
+expect class BufferDescriptor(label: String, size: Long, usage: Int, mappedAtCreation: Boolean)
 
 expect class Buffer : IntoBindingResource {
 
@@ -363,40 +359,49 @@ expect class TextureDescriptor(
 
 expect class RenderPipelineDescriptor(
     layout: PipelineLayout,
-    vertexStage: ProgrammableStageDescriptor,
-    fragmentStage: ProgrammableStageDescriptor,
-    primitiveTopology: PrimitiveTopology,
-    rasterizationState: RasterizationStateDescriptor,
-    colorStates: Array<ColorStateDescriptor>,
+    vertexStage: VertexState,
+    primitiveTopology: PrimitiveState,
     depthStencilState: Any?,
-    vertexState: VertexStateDescriptor,
-    sampleCount: Int,
-    sampleMask: Long,
-    alphaToCoverage: Boolean)
+    multisampleState: MultisampleState,
+    fragmentStage: FragmentState?)
 
-expect class RasterizationStateDescriptor(
+expect class MultisampleState(
+    count: Int,
+    mask: Int,
+    alphaToCoverageEnabled: Boolean,
+)
+
+expect class VertexState(
+    module: ShaderModule,
+    entryPoint: String,
+    vararg buffers: VertexBufferLayout
+)
+
+expect class PrimitiveState(
+    topology: PrimitiveTopology,
+    stripIndexFormat: IndexFormat? = null,
     frontFace: FrontFace = FrontFace.CCW,
     cullMode: CullMode = CullMode.NONE,
-    clampDepth: Boolean = false,
-    depthBias: Long = 0,
-    depthBiasSlopeScale: Float = 0f,
-    depthBiasClamp: Float = 0f)
+)
 
-expect class ColorStateDescriptor(
+expect class FragmentState (
+    module: ShaderModule,
+    entryPoint: String,
+    targets: Array<ColorTargetState>)
+
+expect class ColorTargetState(
     format: TextureFormat,
-    alphaBlend: BlendDescriptor,
-    colorBlend: BlendDescriptor,
+    blendState: BlendState?,
     writeMask: Long)
 
-expect class VertexAttributeDescriptor(format: VertexFormat, offset: Long, shaderLocation: Int)
+expect class BlendState(color: BlendComponent, alpha: BlendComponent)
 
-expect class VertexBufferLayoutDescriptor(
-    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttributeDescriptor)
+expect class VertexAttribute(format: VertexFormat, offset: Long, shaderLocation: Int)
 
-expect class VertexStateDescriptor(
-    indexFormat: IndexFormat?, vararg vertexBuffers: VertexBufferLayoutDescriptor)
+expect class VertexBufferLayout(
+    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttribute)
 
-expect class BlendDescriptor(
+expect class BlendComponent(
     srcFactor: BlendFactor = BlendFactor.ONE,
     dstFactor: BlendFactor = BlendFactor.ZERO,
     operation: BlendOperation = BlendOperation.ADD)

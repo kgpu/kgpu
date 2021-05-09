@@ -2,7 +2,6 @@ package compute
 
 import flushExampleStatus
 import io.github.kgpu.*
-import io.github.kgpu.kshader.*
 import kotlin.math.abs
 import kotlin.random.Random
 import setExampleStatus

@@ -42,7 +42,7 @@ actual enum class TextureDimension {
     D3
 }
 
-actual enum class TextureFormat {
+actual enum class TextureFormat(val nativeVal: Int = Int.MAX_VALUE) {
     R8_UNORM,
     R8_SNORM,
     R8_UINT,
@@ -60,12 +60,12 @@ actual enum class TextureFormat {
     RG16_UINT,
     RG16_SINT,
     RG16_FLOAT,
-    RGBA8_UNORM,
+    RGBA8_UNORM(WGPUTextureFormat_RGBA8Unorm()),
     RGBA8_UNORM_SRGB,
     RGBA8_SNORM,
     RGBA8_UINT,
     RGBA8_SINT,
-    BGRA8_UNORM,
+    BGRA8_UNORM(WGPUTextureFormat_BGRA8Unorm()),
     BGRA8_UNORM_SRGB,
     RGB10A2_UNORM,
     RG11B10_FLOAT,
