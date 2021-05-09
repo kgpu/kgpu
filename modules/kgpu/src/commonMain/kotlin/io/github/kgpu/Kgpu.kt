@@ -367,11 +367,11 @@ expect class TextureDescriptor(
 
 expect class RenderPipelineDescriptor(
     layout: PipelineLayout,
-    vertexStage: VertexState,
-    primitiveTopology: PrimitiveState,
-    depthStencilState: Any?,
-    multisampleState: MultisampleState,
-    fragmentStage: FragmentState?
+    vertex: VertexState,
+    primitive: PrimitiveState,
+    depthStencil: Any?,
+    multisample: MultisampleState,
+    fragment: FragmentState?
 )
 
 expect class MultisampleState(

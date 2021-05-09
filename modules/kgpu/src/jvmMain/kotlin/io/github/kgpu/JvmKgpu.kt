@@ -149,65 +149,67 @@ actual class Device(val id: Id) {
     }
 
     actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {
-        val fragmentDesc = if (desc.fragmentStage != null) {
-            val fragmentDesc = WGPUFragmentState.allocate()
-            val targets = WGPUColorTargetState.allocateArray(desc.fragmentStage.targets.size)
-            desc.fragmentStage.targets.forEachIndexed { index, target ->
-                if (target.blendState == null)
-                    TODO("Null blend states are currently not supported")
+        return RenderPipeline(Id(NativeScope.unboundedScope().use { scope ->
+            val fragmentDesc = if (desc.fragment != null) {
+                val fragmentDesc = WGPUFragmentState.allocate(scope)
+                val targets = WGPUColorTargetState.allocateArray(desc.fragment.targets.size, scope)
+                desc.fragment.targets.forEachIndexed { index, target ->
+                    if (target.blendState == null)
+                        TODO("Null blend states are currently not supported")
 
-                val blendState = WGPUBlendState.allocate()
-                val colorBlend = WGPUBlendState.`color$slice`(blendState)
-                val alphaBlend = WGPUBlendState.`alpha$slice`(blendState)
-                WGPUBlendComponent.`srcFactor$set`(colorBlend, target.blendState.color.srcFactor.nativeVal)
-                WGPUBlendComponent.`dstFactor$set`(colorBlend, target.blendState.color.dstFactor.nativeVal)
-                WGPUBlendComponent.`operation$set`(colorBlend, target.blendState.color.operation.nativeVal)
-                WGPUBlendComponent.`srcFactor$set`(alphaBlend, target.blendState.alpha.srcFactor.nativeVal)
-                WGPUBlendComponent.`dstFactor$set`(alphaBlend, target.blendState.alpha.dstFactor.nativeVal)
-                WGPUBlendComponent.`operation$set`(alphaBlend, target.blendState.alpha.operation.nativeVal)
+                    val blendState = WGPUBlendState.allocate(scope)
+                    val colorBlend = WGPUBlendState.`color$slice`(blendState)
+                    val alphaBlend = WGPUBlendState.`alpha$slice`(blendState)
+                    WGPUBlendComponent.`srcFactor$set`(colorBlend, target.blendState.color.srcFactor.nativeVal)
+                    WGPUBlendComponent.`dstFactor$set`(colorBlend, target.blendState.color.dstFactor.nativeVal)
+                    WGPUBlendComponent.`operation$set`(colorBlend, target.blendState.color.operation.nativeVal)
+                    WGPUBlendComponent.`srcFactor$set`(alphaBlend, target.blendState.alpha.srcFactor.nativeVal)
+                    WGPUBlendComponent.`dstFactor$set`(alphaBlend, target.blendState.alpha.dstFactor.nativeVal)
+                    WGPUBlendComponent.`operation$set`(alphaBlend, target.blendState.alpha.operation.nativeVal)
 
-                WGPUColorTargetState.`format$set`(targets, index.toLong(), target.format.nativeVal)
-                WGPUColorTargetState.`writeMask$set`(targets, index.toLong(), target.writeMask.toInt())
-                WGPUColorTargetState.`blend$set`(targets, index.toLong(), blendState.address())
+                    WGPUColorTargetState.`format$set`(targets, index.toLong(), target.format.nativeVal)
+                    WGPUColorTargetState.`writeMask$set`(targets, index.toLong(), target.writeMask.toInt())
+                    WGPUColorTargetState.`blend$set`(targets, index.toLong(), blendState.address())
+                }
+                WGPUFragmentState.`entryPoint$set`(fragmentDesc, CLinker.toCString(desc.fragment.entryPoint).address())
+                WGPUFragmentState.`module$set`(fragmentDesc, desc.fragment.module.id.address())
+                WGPUFragmentState.`targets$set`(fragmentDesc, targets.address())
+                WGPUFragmentState.`targetCount$set`(fragmentDesc, desc.fragment.targets.size)
+
+                fragmentDesc
+            } else {
+                CUtils.NULL
             }
-            WGPUFragmentState.`entryPoint$set`(fragmentDesc, CLinker.toCString(desc.fragmentStage.entryPoint).address())
-            WGPUFragmentState.`module$set`(fragmentDesc, desc.fragmentStage.module.id.address())
-            WGPUFragmentState.`targets$set`(fragmentDesc, targets.address())
-            WGPUFragmentState.`targetCount$set`(fragmentDesc, desc.fragmentStage.targets.size)
 
-            fragmentDesc
-        } else {
-            CUtils.NULL
-        }
+            val descriptor = WGPURenderPipelineDescriptor.allocate(scope)
+            val vertexState = WGPURenderPipelineDescriptor.`vertex$slice`(descriptor)
+            val primitiveState = WGPURenderPipelineDescriptor.`primitive$slice`(descriptor)
+            val multisampleState = WGPURenderPipelineDescriptor.`multisample$slice`(descriptor)
 
-        val descriptor = WGPURenderPipelineDescriptor.allocate()
-        val vertexState = WGPURenderPipelineDescriptor.`vertex$slice`(descriptor)
-        val primitiveState = WGPURenderPipelineDescriptor.`primitive$slice`(descriptor)
-        val multisampleState = WGPURenderPipelineDescriptor.`multisample$slice`(descriptor)
+            WGPURenderPipelineDescriptor.`label$set`(descriptor, CUtils.NULL)
+            WGPURenderPipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
+            WGPUVertexState.`module$set`(vertexState, desc.vertex.module.id.address())
+            WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertex.entryPoint).address())
+            // TODO: Buffers
+            WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitive.topology.nativeVal)
+            WGPUPrimitiveState.`stripIndexFormat$set`(
+                primitiveState,
+                (desc.primitive.stripIndexFormat?.nativeVal ?: WGPUIndexFormat_Undefined())
+            )
+            WGPUPrimitiveState.`frontFace$set`(primitiveState, WGPUFrontFace_CCW())
+            WGPUPrimitiveState.`cullMode$set`(primitiveState, desc.primitive.cullMode.nativeVal)
 
-        WGPURenderPipelineDescriptor.`label$set`(descriptor, CUtils.NULL)
-        WGPURenderPipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
-        WGPUVertexState.`module$set`(vertexState, desc.vertexStage.module.id.address())
-        WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertexStage.entryPoint).address())
-        // TODO: Buffers
-        WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitiveTopology.topology.nativeVal)
-        WGPUPrimitiveState.`stripIndexFormat$set`(
-            primitiveState,
-            (desc.primitiveTopology.stripIndexFormat?.nativeVal ?: WGPUIndexFormat_Undefined())
-        )
-        WGPUPrimitiveState.`frontFace$set`(primitiveState, WGPUFrontFace_CCW())
-        WGPUPrimitiveState.`cullMode$set`(primitiveState, desc.primitiveTopology.cullMode.nativeVal)
+            WGPUMultisampleState.`count$set`(multisampleState, desc.multisample.count)
+            WGPUMultisampleState.`mask$set`(multisampleState, desc.multisample.mask)
+            WGPUMultisampleState.`alphaToCoverageEnabled$set`(
+                multisampleState,
+                desc.multisample.alphaToCoverageEnabled.toNativeByte()
+            )
 
-        WGPUMultisampleState.`count$set`(multisampleState, desc.multisampleState.count)
-        WGPUMultisampleState.`mask$set`(multisampleState, desc.multisampleState.mask)
-        WGPUMultisampleState.`alphaToCoverageEnabled$set`(
-            multisampleState,
-            desc.multisampleState.alphaToCoverageEnabled.toNativeByte()
-        )
+            WGPURenderPipelineDescriptor.`fragment$set`(descriptor, fragmentDesc.address())
 
-        WGPURenderPipelineDescriptor.`fragment$set`(descriptor, fragmentDesc.address())
-
-        return RenderPipeline(Id(wgpuDeviceCreateRenderPipeline(id, descriptor)))
+            wgpuDeviceCreateRenderPipeline(id, descriptor)
+        }))
     }
 
     actual fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout {
@@ -237,13 +239,15 @@ actual class Device(val id: Id) {
     }
 
     actual fun createBuffer(desc: BufferDescriptor): Buffer {
-        val descriptor = WGPUBufferDescriptor.allocate()
-        WGPUBufferDescriptor.`nextInChain$set`(descriptor, CUtils.NULL)
-        WGPUBufferDescriptor.`usage$set`(descriptor, desc.usage)
-        WGPUBufferDescriptor.`size$set`(descriptor, desc.size)
-        WGPUBufferDescriptor.`mappedAtCreation$set`(descriptor, desc.mappedAtCreation.toNativeByte())
+        return Buffer(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUBufferDescriptor.allocate(scope)
+            WGPUBufferDescriptor.`nextInChain$set`(descriptor, CUtils.NULL)
+            WGPUBufferDescriptor.`usage$set`(descriptor, desc.usage)
+            WGPUBufferDescriptor.`size$set`(descriptor, desc.size)
+            WGPUBufferDescriptor.`mappedAtCreation$set`(descriptor, desc.mappedAtCreation.toNativeByte())
 
-        return Buffer(Id(wgpuDeviceCreateBuffer(id, descriptor)), desc.size)
+            wgpuDeviceCreateBuffer(id, descriptor)
+        }), desc.size)
     }
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
@@ -755,11 +759,11 @@ actual class MultisampleState actual constructor(
 
 actual class RenderPipelineDescriptor actual constructor(
     val layout: PipelineLayout,
-    val vertexStage: VertexState,
-    val primitiveTopology: PrimitiveState,
-    val depthStencilState: Any?,
-    val multisampleState: MultisampleState,
-    val fragmentStage: FragmentState?
+    val vertex: VertexState,
+    val primitive: PrimitiveState,
+    val depthStencil: Any?,
+    val multisample: MultisampleState,
+    val fragment: FragmentState?
 )
 
 actual class VertexState actual constructor(

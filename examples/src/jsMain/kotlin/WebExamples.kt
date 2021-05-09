@@ -14,8 +14,6 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.url.URL
 
 fun main() {
-    io.github.kgpu.kshader.KShader.init()
-
     val kgpuWindow = Window()
     kgpuWindow.setTitle("Kgpu - Web")
 

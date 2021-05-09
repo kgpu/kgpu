@@ -67,15 +67,15 @@ actual class Device(val jsType: GPUDevice) {
         return "Device($jsType)"
     }
 
-    actual fun createShaderModule(data: ByteArray): ShaderModule {
+    actual fun createShaderModule(src: String): ShaderModule {
         val desc = asDynamic()
-        val bytes = Int8Array(data.toTypedArray())
-        desc.code = Uint32Array(bytes.buffer, 0, data.size / 4)
+        desc.code = src
 
         return jsType.createShaderModule(desc)
     }
 
     actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {
+        console.log("Creating render pipeline", desc)
         return jsType.createRenderPipeline(desc)
     }
 
@@ -92,7 +92,7 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun getDefaultQueue(): Queue {
-        val queue = jsType.asDynamic().defaultQueue as GPUQueue
+        val queue = jsType.asDynamic().queue as GPUQueue
 
         return Queue(queue)
     }
@@ -103,18 +103,6 @@ actual class Device(val jsType: GPUDevice) {
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
         return BindGroupLayout(jsType.createBindGroupLayout(desc))
-    }
-
-    actual fun createBufferWithData(desc: BufferDescriptor, data: ByteArray): Buffer {
-        if (!desc.mappedAtCreation) {
-            throw IllegalArgumentException("Buffer descriptor must be mapped at creation!")
-        }
-
-        val buffer = jsType.createBuffer(desc)
-        Uint8Array(buffer.getMappedRange()).set(data.toTypedArray())
-        buffer.unmap()
-
-        return Buffer(buffer, desc.size)
     }
 
     actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
@@ -321,22 +309,13 @@ actual class ProgrammableStageDescriptor
     actual constructor(val module: ShaderModule, val entryPoint: String)
 
 actual enum class PrimitiveTopology(
-    val jsType: GPUPrimitiveTopology = GPUPrimitiveTopology._NotImplemented
+    val jsType: String
 ) {
-    POINT_LIST,
-    LINE_LIST,
-    LINE_STRIP,
-    TRIANGLE_LIST(GPUPrimitiveTopology.triangle_list),
-    TRIANGLE_STRIP,
-}
-
-enum class GPUPrimitiveTopology {
-    point_list,
-    line_list,
-    line_strip,
-    triangle_list,
-    triangle_strip,
-    _NotImplemented
+    POINT_LIST("point-list"),
+    LINE_LIST("line-list"),
+    LINE_STRIP("line-strip"),
+    TRIANGLE_LIST("triangle-list"),
+    TRIANGLE_STRIP("triangle-strip"),
 }
 
 actual enum class FrontFace(val jsType: String) {
@@ -350,79 +329,12 @@ actual enum class CullMode(val jsType: String) {
     BACK("back"),
 }
 
-actual class RasterizationStateDescriptor
-    actual constructor(
-        frontFace: FrontFace,
-        cullMode: CullMode,
-        val clampDepth: Boolean,
-        val depthBias: Long,
-        val depthBiasSlopeScale: Float,
-        val depthBiasClamp: Float
-    ) {
-
-    val frontFace = frontFace.jsType
-    val cullMode = cullMode.jsType
-}
-
 actual class BlendComponent
     actual constructor(srcFactor: BlendFactor, dstFactor: BlendFactor, operation: BlendOperation) {
 
     val operation = operation.jsType
     val srcFactor = srcFactor.jsType
     val dstFactor = dstFactor.jsType
-}
-
-actual class ColorTargetState
-    actual constructor(
-        format: TextureFormat,
-        val alphaBlend: BlendComponent,
-        val colorBlend: BlendComponent,
-        val writeMask: Long
-    ) {
-
-    val format = format.jsType
-}
-
-actual class RenderPipelineDescriptor
-    actual constructor(
-        val layout: PipelineLayout,
-        val vertexStage: ProgrammableStageDescriptor,
-        val fragmentStage: ProgrammableStageDescriptor,
-        primitiveTopology: PrimitiveTopology,
-        val rasterizationState: RasterizationStateDescriptor,
-        val colorStates: Array<ColorTargetState>,
-        val depthStencilState: Any?,
-        val vertexState: VertexStateDescriptor,
-        val sampleCount: Int,
-        val sampleMask: Long,
-        val alphaToCoverage: Boolean
-    ) {
-
-    val primitiveTopology = "triangle-list"
-}
-
-actual class VertexAttributeDescriptor
-    actual constructor(format: VertexFormat, val offset: Long, val shaderLocation: Int) {
-    val format = format.jsType
-}
-
-actual class VertexBufferLayoutDescriptor
-    actual constructor(
-        val arrayStride: Long,
-        stepMode: InputStepMode,
-        vararg val attributes: VertexAttributeDescriptor
-    ) {
-    val stepMode = stepMode.jsType
-}
-
-actual class VertexStateDescriptor
-    actual constructor(
-        indexFormat: IndexFormat?, vararg val vertexBuffers: VertexBufferLayoutDescriptor
-    ) {
-
-    // Chrome only wants the indexFormat when you call RenderPass#setIndexBuffer
-    // So for the web backend we will force the index format to undefined
-    val indexFormat = undefined
 }
 
 actual class BindGroupLayoutEntry
@@ -559,16 +471,6 @@ actual class SwapChainDescriptor
     val format = format.jsType
 }
 
-actual class RenderPassColorAttachmentDescriptor
-    actual constructor(
-        attachment: TextureView, clearColor: Color?, resolveTarget: TextureView?, storeOp: StoreOp
-    ) {
-    val attachment = attachment.jsType
-    val storeOp = storeOp.jsType
-    val loadValue = clearColor ?: LoadOp.LOAD
-    val resolveTarget = resolveTarget?.jsType ?: undefined
-}
-
 actual class RenderPassDescriptor
     actual constructor(vararg val colorAttachments: RenderPassColorAttachmentDescriptor)
 
@@ -600,10 +502,6 @@ external class GPUQueue {
         buffer: GPUBuffer, offset: Long, data: ArrayBuffer, dataOffset: Long, size: Long
     )
 }
-
-actual class BufferDescriptor
-    actual constructor(
-        val label: String, val size: Long, val usage: Long, val mappedAtCreation: Boolean)
 
 actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingResource {
 
@@ -655,9 +553,7 @@ external class GPUBuffer {
 actual class BufferData(val data: Uint8Array) {
 
     actual fun putBytes(bytes: ByteArray, offset: Int) {
-        //        data.set(bytes.toTypedArray(), offset)
-
-        TODO("Unsupported on the Web!")
+        data.set(bytes.toTypedArray(), offset)
     }
 
     actual fun getBytes(): ByteArray {
@@ -737,6 +633,88 @@ external class GPUSampler
 
 actual class ComputePipelineDescriptor
     actual constructor(val layout: PipelineLayout, val computeStage: ProgrammableStageDescriptor)
+
+actual class FragmentState actual constructor(
+    val module: ShaderModule,
+    val entryPoint: String,
+    val targets: Array<ColorTargetState>
+)
+
+actual class BlendState actual constructor(color: BlendComponent, alpha: BlendComponent)
+actual class RenderPipelineDescriptor actual constructor(
+    val layout: PipelineLayout,
+    val vertex: VertexState,
+    val primitive: PrimitiveState,
+    depthStencil: Any?,
+    val multisample: MultisampleState,
+    val fragment: FragmentState?
+)
+
+actual class MultisampleState actual constructor(
+    val count: Int,
+    val mask: Int,
+    val alphaToCoverageEnabled: Boolean
+)
+
+actual class VertexState actual constructor(
+    val module: ShaderModule,
+    val entryPoint: String,
+    vararg val buffers: VertexBufferLayout
+)
+
+actual class PrimitiveState actual constructor(
+    topology: PrimitiveTopology,
+    stripIndexFormat: IndexFormat?,
+    frontFace: FrontFace,
+    cullMode: CullMode
+) {
+    val topology = topology.jsType
+    val stripIndexFormat = stripIndexFormat?.jsType ?: undefined
+    val frontFace = frontFace.jsType
+    val cullMode = cullMode.jsType
+}
+
+actual class ColorTargetState actual constructor(
+    format: TextureFormat,
+    val blendState: BlendState?,
+    val writeMask: Long
+) {
+    val format = format.jsType
+}
+
+actual class VertexAttribute actual constructor(
+    format: VertexFormat,
+    val offset: Long,
+    val shaderLocation: Int
+) {
+    val format = format.jsType
+}
+
+actual class VertexBufferLayout actual constructor(
+    arrayStride: Long,
+    stepMode: InputStepMode,
+    vararg attributes: VertexAttribute
+)
+
+actual class BufferDescriptor actual constructor(
+    val label: String,
+    val size: Long,
+    val usage: Int,
+    val mappedAtCreation: Boolean
+)
+
+actual class RenderPassColorAttachmentDescriptor actual constructor(
+    attachment: TextureView,
+    loadOp: LoadOp,
+    storeOp: StoreOp,
+    clearColor: Color?,
+    resolveTarget: TextureView?
+) {
+    val view = attachment.jsType
+    val loadValue = clearColor ?: loadOp.jsType
+    val storeOp = storeOp.jsType
+    val resolveTarget = resolveTarget?.jsType ?: undefined
+}
 
 actual enum class TextureFormat(val jsType: String) {
     R8_UNORM("r8unorm"),
@@ -916,11 +894,3 @@ actual enum class TextureComponentType(val jsType: String) {
     SINT("sint"),
     UINT("uint")
 }
-
-actual class FragmentState actual constructor(
-    module: ShaderModule,
-    entryPoint: String,
-    targets: Array<ColorTargetState>
-)
-
-actual class BlendState actual constructor(color: BlendComponent, alpha: BlendComponent)
