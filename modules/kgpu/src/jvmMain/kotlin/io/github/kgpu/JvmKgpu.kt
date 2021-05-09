@@ -79,15 +79,18 @@ actual object Kgpu {
     }
 
     actual suspend fun requestAdapterAsync(window: Window?): Adapter {
-        val options = WGPURequestAdapterOptions.allocate()
         val output = AtomicLong()
-        val callback = WGPURequestAdapterCallback.allocate { result: MemoryAddress, _: MemoryAddress? ->
-            output.set(result.toRawLongValue())
-        }
 
-        WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface ?: CUtils.NULL)
-        WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
-        wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, CUtils.NULL)
+        NativeScope.unboundedScope().use { scope ->
+            val options = WGPURequestAdapterOptions.allocate(scope)
+            val callback = WGPURequestAdapterCallback.allocate({ result: MemoryAddress, _: MemoryAddress? ->
+                output.set(result.toRawLongValue())
+            }, scope)
+
+            WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface ?: CUtils.NULL)
+            WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
+            wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, CUtils.NULL)
+        }
 
         return Adapter(Id(output.get()))
     }
@@ -100,25 +103,28 @@ actual class Adapter(val id: Id) {
     }
 
     actual suspend fun requestDeviceAsync(): Device {
-        val desc = WGPUDeviceDescriptor.allocate()
-        val deviceExtras = WGPUDeviceExtras.allocate()
-        val chainedStruct = WGPUDeviceExtras.`chain$slice`(deviceExtras)
         val tracePath = System.getenv("KGPU_TRACE_PATH") ?: null
         val output = AtomicLong()
-        val callback = WGPURequestDeviceCallback.allocate { result, _ ->
-            output.set(result.toRawLongValue())
+
+        NativeScope.unboundedScope().use { scope ->
+            val desc = WGPUDeviceDescriptor.allocate(scope)
+            val deviceExtras = WGPUDeviceExtras.allocate(scope)
+            val chainedStruct = WGPUDeviceExtras.`chain$slice`(deviceExtras)
+            val callback = WGPURequestDeviceCallback.allocate ({ result, _ ->
+                output.set(result.toRawLongValue())
+            }, scope)
+
+            WGPUChainedStruct.`sType$set`(chainedStruct, WGPUSType_DeviceExtras())
+            WGPUDeviceExtras.`maxBindGroups$set`(deviceExtras, 1)
+            WGPUDeviceDescriptor.`nextInChain$set`(desc, deviceExtras.address())
+
+            if (tracePath != null) {
+                println("Trace Path Set: $tracePath")
+                WGPUDeviceExtras.`tracePath$set`(deviceExtras, CLinker.toCString(tracePath).address())
+            }
+
+            wgpuAdapterRequestDevice(id.address(), desc, callback, CUtils.NULL)
         }
-
-        WGPUChainedStruct.`sType$set`(chainedStruct, WGPUSType_DeviceExtras())
-        WGPUDeviceExtras.`maxBindGroups$set`(deviceExtras, 1)
-        WGPUDeviceDescriptor.`nextInChain$set`(desc, deviceExtras.address())
-
-        if (tracePath != null) {
-            println("Trace Path Set: $tracePath")
-            WGPUDeviceExtras.`tracePath$set`(deviceExtras, CLinker.toCString(tracePath).address())
-        }
-
-        wgpuAdapterRequestDevice(id.address(), desc, callback, CUtils.NULL)
 
         return Device(Id(output.get()))
     }
@@ -131,16 +137,18 @@ actual class Device(val id: Id) {
     }
 
     actual fun createShaderModule(src: String): ShaderModule {
-        val desc = WGPUShaderModuleDescriptor.allocate()
-        val wgsl = WGPUShaderModuleWGSLDescriptor.allocate()
-        val wgslChain = WGPUShaderModuleWGSLDescriptor.`chain$slice`(wgsl)
+        return NativeScope.unboundedScope().use { scope ->
+            val desc = WGPUShaderModuleDescriptor.allocate(scope)
+            val wgsl = WGPUShaderModuleWGSLDescriptor.allocate(scope)
+            val wgslChain = WGPUShaderModuleWGSLDescriptor.`chain$slice`(wgsl)
 
-        WGPUChainedStruct.`next$set`(wgslChain, CUtils.NULL)
-        WGPUChainedStruct.`sType$set`(wgslChain, WGPUSType_ShaderModuleWGSLDescriptor())
-        WGPUShaderModuleWGSLDescriptor.`source$set`(wgsl, CLinker.toCString(src).address())
-        WGPUShaderModuleDescriptor.`nextInChain$set`(desc, wgsl.address())
+            WGPUChainedStruct.`next$set`(wgslChain, CUtils.NULL)
+            WGPUChainedStruct.`sType$set`(wgslChain, WGPUSType_ShaderModuleWGSLDescriptor())
+            WGPUShaderModuleWGSLDescriptor.`source$set`(wgsl, CLinker.toCString(src, scope).address())
+            WGPUShaderModuleDescriptor.`nextInChain$set`(desc, wgsl.address())
 
-        return ShaderModule(Id(wgpuDeviceCreateShaderModule(id, desc)))
+            ShaderModule(Id(wgpuDeviceCreateShaderModule(id, desc)))
+        }
     }
 
     actual fun createRenderPipeline(desc: RenderPipelineDescriptor): RenderPipeline {
@@ -154,12 +162,12 @@ actual class Device(val id: Id) {
                 val blendState = WGPUBlendState.allocate()
                 val colorBlend = WGPUBlendState.`color$slice`(blendState)
                 val alphaBlend = WGPUBlendState.`alpha$slice`(blendState)
-                WGPUBlendComponent.`srcFactor$set`(colorBlend, target.blendState.color.srcFactor.ordinal)
-                WGPUBlendComponent.`dstFactor$set`(colorBlend, target.blendState.color.dstFactor.ordinal)
-                WGPUBlendComponent.`operation$set`(colorBlend, target.blendState.color.operation.ordinal)
-                WGPUBlendComponent.`srcFactor$set`(alphaBlend, target.blendState.alpha.srcFactor.ordinal)
-                WGPUBlendComponent.`dstFactor$set`(alphaBlend, target.blendState.alpha.dstFactor.ordinal)
-                WGPUBlendComponent.`operation$set`(alphaBlend, target.blendState.alpha.operation.ordinal)
+                WGPUBlendComponent.`srcFactor$set`(colorBlend, target.blendState.color.srcFactor.nativeVal)
+                WGPUBlendComponent.`dstFactor$set`(colorBlend, target.blendState.color.dstFactor.nativeVal)
+                WGPUBlendComponent.`operation$set`(colorBlend, target.blendState.color.operation.nativeVal)
+                WGPUBlendComponent.`srcFactor$set`(alphaBlend, target.blendState.alpha.srcFactor.nativeVal)
+                WGPUBlendComponent.`dstFactor$set`(alphaBlend, target.blendState.alpha.dstFactor.nativeVal)
+                WGPUBlendComponent.`operation$set`(alphaBlend, target.blendState.alpha.operation.nativeVal)
 
                 WGPUColorTargetState.`format$set`(targets, index.toLong(), target.format.nativeVal)
                 WGPUColorTargetState.`writeMask$set`(targets, index.toLong(), target.writeMask.toInt())
@@ -185,13 +193,13 @@ actual class Device(val id: Id) {
         WGPUVertexState.`module$set`(vertexState, desc.vertexStage.module.id.address())
         WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertexStage.entryPoint).address())
         // TODO: Buffers
-        WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitiveTopology.topology.ordinal)
+        WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitiveTopology.topology.nativeVal)
         WGPUPrimitiveState.`stripIndexFormat$set`(
             primitiveState,
-            (desc.primitiveTopology.stripIndexFormat?.ordinal ?: WGPUIndexFormat_Undefined())
+            (desc.primitiveTopology.stripIndexFormat?.nativeVal ?: WGPUIndexFormat_Undefined())
         )
         WGPUPrimitiveState.`frontFace$set`(primitiveState, WGPUFrontFace_CCW())
-        WGPUPrimitiveState.`cullMode$set`(primitiveState, desc.primitiveTopology.cullMode.ordinal)
+        WGPUPrimitiveState.`cullMode$set`(primitiveState, desc.primitiveTopology.cullMode.nativeVal)
 
         WGPUMultisampleState.`count$set`(multisampleState, desc.multisampleState.count)
         WGPUMultisampleState.`mask$set`(multisampleState, desc.multisampleState.mask)

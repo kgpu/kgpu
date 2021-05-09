@@ -2,23 +2,23 @@ package io.github.kgpu
 
 import io.github.kgpu.wgpuj.wgpu_h.*;
 
-actual enum class PrimitiveTopology {
-    POINT_LIST,
-    LINE_LIST,
-    LINE_STRIP,
-    TRIANGLE_LIST,
-    TRIANGLE_STRIP,
+actual enum class PrimitiveTopology(val nativeVal: Int) {
+    POINT_LIST(WGPUPrimitiveTopology_PointList()),
+    LINE_LIST(WGPUPrimitiveTopology_LineList()),
+    LINE_STRIP(WGPUPrimitiveTopology_LineStrip()),
+    TRIANGLE_LIST(WGPUPrimitiveTopology_TriangleList()),
+    TRIANGLE_STRIP(WGPUPrimitiveTopology_TriangleStrip()),
 }
 
-actual enum class FrontFace {
-    CCW,
-    CW,
+actual enum class FrontFace(val nativeVal: Int) {
+    CCW(WGPUFrontFace_CCW()),
+    CW(WGPUFrontFace_CW()),
 }
 
-actual enum class CullMode {
-    NONE,
-    FRONT,
-    BACK,
+actual enum class CullMode(val nativeVal: Int) {
+    NONE(WGPUCullMode_None()),
+    FRONT(WGPUCullMode_Front()),
+    BACK(WGPUCullMode_Back()),
 }
 
 actual enum class TextureViewDimension {
@@ -83,12 +83,12 @@ actual enum class TextureFormat(val nativeVal: Int = Int.MAX_VALUE) {
     DEPTH24_PLUS_STENCIL8,
 }
 
-actual enum class BlendOperation {
-    ADD,
-    SUBTRACT,
-    REVERSE_SUBTRACT,
-    MIN,
-    MAX,
+actual enum class BlendOperation(val nativeVal: Int) {
+    ADD(WGPUBlendOperation_Add()),
+    SUBTRACT(WGPUBlendOperation_Subtract()),
+    REVERSE_SUBTRACT(WGPUBlendOperation_ReverseSubtract()),
+    MIN(WGPUBlendOperation_Min()),
+    MAX(WGPUBlendOperation_Max()),
 }
 
 actual enum class StencilOperation {
@@ -102,25 +102,25 @@ actual enum class StencilOperation {
     DECREMENT_WRAP,
 }
 
-actual enum class BlendFactor {
-    ZERO,
-    ONE,
-    SRC_COLOR,
-    ONE_MINUS_SRC_COLOR,
-    SRC_ALPHA,
-    ONE_MINUS_SRC_ALPHA,
-    DST_COLOR,
-    ONE_MINUS_DST_COLOR,
-    DST_ALPHA,
-    ONE_MINUS_DST_ALPHA,
-    SRC_ALPHA_SATURATED,
-    BLEND_COLOR,
-    ONE_MINUS_BLEND_COLOR,
+actual enum class BlendFactor(val nativeVal: Int) {
+    ZERO(WGPUBlendFactor_Zero()),
+    ONE(WGPUBlendFactor_One()),
+    SRC_COLOR(WGPUBlendFactor_SrcColor()),
+    ONE_MINUS_SRC_COLOR(WGPUBlendFactor_OneMinusSrcColor()),
+    SRC_ALPHA(WGPUBlendFactor_SrcAlpha()),
+    ONE_MINUS_SRC_ALPHA(WGPUBlendFactor_OneMinusSrcAlpha()),
+    DST_COLOR(WGPUBlendFactor_DstColor()),
+    ONE_MINUS_DST_COLOR(WGPUBlendFactor_OneMinusDstColor()),
+    DST_ALPHA(WGPUBlendFactor_DstAlpha()),
+    ONE_MINUS_DST_ALPHA(WGPUBlendFactor_DstAlpha()),
+    SRC_ALPHA_SATURATED(WGPUBlendFactor_SrcAlphaSaturated()),
+    BLEND_COLOR(WGPUBlendFactor_BlendColor()),
+    ONE_MINUS_BLEND_COLOR(WGPUBlendFactor_OneMinusBlendColor()),
 }
 
-actual enum class IndexFormat {
-    UINT16,
-    UINT32,
+actual enum class IndexFormat(val nativeVal: Int) {
+    UINT16(WGPUIndexFormat_Uint16()),
+    UINT32(WGPUIndexFormat_Uint32()),
 }
 
 actual enum class VertexFormat {
