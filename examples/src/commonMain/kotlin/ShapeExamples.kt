@@ -189,11 +189,13 @@ suspend fun runTriangleExample(window: Window) {
         PrimitiveState(PrimitiveTopology.TRIANGLE_LIST),
         null,
         MultisampleState(1, 0xFFFFFFF, false),
-        FragmentState(shaderModule, "fs_main", arrayOf(
-            ColorTargetState(
-                TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
+        FragmentState(
+            shaderModule, "fs_main", arrayOf(
+                ColorTargetState(
+                    TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
+                )
             )
-        )),
+        ),
     )
 
     val pipeline = device.createRenderPipeline(pipelineDesc)
@@ -201,7 +203,7 @@ suspend fun runTriangleExample(window: Window) {
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
     window.onResize =
-        { size: WindowSize ->
+        { _: WindowSize ->
             swapChain = window.configureSwapChain(swapChainDescriptor)
         }
 
@@ -209,7 +211,8 @@ suspend fun runTriangleExample(window: Window) {
         val swapChainTexture = swapChain.getCurrentTextureView()
         val cmdEncoder = device.createCommandEncoder()
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
+        val colorAttachment =
+            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setVertexBuffer(0, buffer)

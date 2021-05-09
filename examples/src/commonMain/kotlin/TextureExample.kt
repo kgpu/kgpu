@@ -68,7 +68,8 @@ suspend fun runTextureExample(window: Window) {
             device,
             "transformation matrix",
             createTransformationMatrix().toBytes(),
-            BufferUsage.UNIFORM or BufferUsage.COPY_DST)
+            BufferUsage.UNIFORM or BufferUsage.COPY_DST
+        )
     val vertexShader = TODO()
     val fragShader = TODO()
 
@@ -79,7 +80,8 @@ suspend fun runTextureExample(window: Window) {
             1,
             TextureDimension.D2,
             TEXTURE_FORMAT,
-            TextureUsage.COPY_DST or TextureUsage.SAMPLED)
+            TextureUsage.COPY_DST or TextureUsage.SAMPLED
+        )
     val texture = device.createTexture(textureDesc)
     val textureBuffer =
         BufferUtils.createBufferFromData(device, "texture temp", imageBytes, BufferUsage.COPY_SRC)
@@ -88,7 +90,8 @@ suspend fun runTextureExample(window: Window) {
     cmdEncoder.copyBufferToTexture(
         BufferCopyView(textureBuffer, image.width * 4, image.height),
         TextureCopyView(texture),
-        Extent3D(image.width.toLong(), image.height.toLong(), 1))
+        Extent3D(image.width.toLong(), image.height.toLong(), 1)
+    )
     device.getDefaultQueue().submit(cmdEncoder.finish())
     textureBuffer.destroy()
 
@@ -104,16 +107,21 @@ suspend fun runTextureExample(window: Window) {
                     BindingType.SAMPLED_TEXTURE,
                     false,
                     TextureViewDimension.D2,
-                    TextureComponentType.FLOAT),
+                    TextureComponentType.FLOAT
+                ),
                 BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, BindingType.SAMPLER, false),
-                BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)))
+                BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
+            )
+        )
     val bindGroup =
         device.createBindGroup(
             BindGroupDescriptor(
                 bindGroupLayout,
                 BindGroupEntry(0, textureView),
                 BindGroupEntry(1, sampler),
-                BindGroupEntry(2, matrixBuffer)))
+                BindGroupEntry(2, matrixBuffer)
+            )
+        )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
     val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader)
@@ -127,7 +135,8 @@ suspend fun runTextureExample(window: Window) {
         val swapChainTexture = swapChain.getCurrentTextureView()
         cmdEncoder = device.createCommandEncoder()
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.WHITE)
+        val colorAttachment =
+            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)

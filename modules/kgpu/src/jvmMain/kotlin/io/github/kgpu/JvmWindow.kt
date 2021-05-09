@@ -2,6 +2,7 @@ package io.github.kgpu
 
 import io.github.kgpu.wgpuj.wgpu_h.*
 import jdk.incubator.foreign.MemoryAddress
+import jdk.incubator.foreign.NativeScope
 import java.nio.IntBuffer
 import org.lwjgl.glfw.*
 import org.lwjgl.system.JNI.*
@@ -12,7 +13,7 @@ import org.lwjgl.system.macosx.ObjCRuntime.*
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
-    internal val surface: MemoryAddress
+    internal val surface: Id
     actual var windowSize: WindowSize = WindowSize(0, 0)
         private set
     actual var onResize: (size: WindowSize) -> Unit = {}
@@ -30,13 +31,17 @@ actual class Window actual constructor() {
     init {
         val osHandle = GlfwHandler.getOsWindowHandle(handle)
         surface =
-            when {
+            Id(when {
                 Platform.isWindows -> {
                     val desc = WGPUSurfaceDescriptor.allocate()
                     val windowsDesc = WGPUSurfaceDescriptorFromWindowsHWND.allocate()
-                    WGPUSurfaceDescriptorFromWindowsHWND.`hinstance$set`(
+                    WGPUSurfaceDescriptorFromWindowsHWND.`hwnd$set`(
                         windowsDesc,
                         MemoryAddress.ofLong(osHandle)
+                    )
+                    WGPUSurfaceDescriptorFromWindowsHWND.`hinstance$set`(
+                        windowsDesc,
+                        CUtils.NULL
                     )
                     WGPUChainedStruct.`sType$set`(
                         WGPUSurfaceDescriptorFromWindowsHWND.`chain$slice`(windowsDesc),
@@ -71,7 +76,7 @@ actual class Window actual constructor() {
                     )
                     CUtils.NULL
                 }
-            }
+            })
         if (handle == MemoryUtil.NULL)
             throw java.lang.RuntimeException("Failed to create the window!")
 
@@ -141,7 +146,16 @@ actual class Window actual constructor() {
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        TODO()
+        return NativeScope.unboundedScope().use {
+            val nativeDesc = WGPUSwapChainDescriptor.allocate()
+            WGPUSwapChainDescriptor.`format$set`(nativeDesc, desc.format.nativeVal)
+            WGPUSwapChainDescriptor.`usage$set`(nativeDesc, desc.usage.toInt())
+            WGPUSwapChainDescriptor.`presentMode$set`(nativeDesc, WGPUPresentMode_Fifo())
+            WGPUSwapChainDescriptor.`width$set`(nativeDesc, windowSize.width)
+            WGPUSwapChainDescriptor.`height$set`(nativeDesc, windowSize.height)
+
+            SwapChain(Id(wgpuDeviceCreateSwapChain(desc.device.id, surface, nativeDesc)), this)
+        }
     }
 
     actual fun resize(width: Int, height: Int) {

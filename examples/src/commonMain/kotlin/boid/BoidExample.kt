@@ -172,10 +172,13 @@ suspend fun runBoidExample(window: Window) {
         device.createBindGroupLayout(
             BindGroupLayoutDescriptor(
                 BindGroupLayoutEntry(
-                    0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
+                    0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false
+                ),
                 BindGroupLayoutEntry(
-                    1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false),
-            ))
+                    1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false
+                ),
+            )
+        )
 
     for (i in 0..1) {
         boidBuffers.add(
@@ -183,7 +186,9 @@ suspend fun runBoidExample(window: Window) {
                 device,
                 "Boid Buffer $i",
                 boidData,
-                BufferUsage.VERTEX or BufferUsage.STORAGE or BufferUsage.COPY_DST))
+                BufferUsage.VERTEX or BufferUsage.STORAGE or BufferUsage.COPY_DST
+            )
+        )
     }
 
     for (i in 0..1) {
@@ -192,7 +197,10 @@ suspend fun runBoidExample(window: Window) {
                 BindGroupDescriptor(
                     bindGroupLayout,
                     BindGroupEntry(0, boidBuffers[i]),
-                    BindGroupEntry(1, boidBuffers[(i + 1) % 2]))))
+                    BindGroupEntry(1, boidBuffers[(i + 1) % 2])
+                )
+            )
+        )
     }
 
     val renderPipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
@@ -201,11 +209,13 @@ suspend fun runBoidExample(window: Window) {
 
     val computePipelineDesc =
         ComputePipelineDescriptor(
-            computePipelineLayout, ProgrammableStageDescriptor(computeShader, "main"))
+            computePipelineLayout, ProgrammableStageDescriptor(computeShader, "main")
+        )
     val computePipeline = device.createComputePipeline(computePipelineDesc)
     val renderPipeline =
         device.createRenderPipeline(
-            createRenderPipeline(renderPipelineLayout, vertexShader, fragShader))
+            createRenderPipeline(renderPipelineLayout, vertexShader, fragShader)
+        )
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
@@ -225,7 +235,8 @@ suspend fun runBoidExample(window: Window) {
         computePass.endPass()
 
         val swapChainTexture = swapChain.getCurrentTextureView()
-        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
+        val colorAttachment =
+            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(renderPipeline)
         renderPassEncoder.setVertexBuffer(0, vertexBuffer)

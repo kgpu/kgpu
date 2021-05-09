@@ -200,9 +200,11 @@ object TextureUsage {
 
 expect class RenderPassColorAttachmentDescriptor(
     attachment: TextureView,
-    clearColor: Color?,
+    loadOp: LoadOp,
+    storeOp: StoreOp,
+    clearColor: Color? = null,
     resolveTarget: TextureView? = null,
-    storeOp: StoreOp = StoreOp.STORE)
+)
 
 expect class RenderPassDescriptor(vararg colorAttachments: RenderPassColorAttachmentDescriptor)
 
@@ -247,16 +249,19 @@ expect class BindGroupLayoutEntry(
         type: BindingType,
         multisampled: Boolean,
         dimension: TextureViewDimension,
-        textureComponentType: TextureComponentType)
+        textureComponentType: TextureComponentType
+    )
 }
 
 expect class ComputePipelineDescriptor(
-    layout: PipelineLayout, computeStage: ProgrammableStageDescriptor)
+    layout: PipelineLayout, computeStage: ProgrammableStageDescriptor
+)
 
 expect class BindGroupLayoutDescriptor(vararg entries: BindGroupLayoutEntry)
 
 expect class SwapChainDescriptor(
-    device: Device, format: TextureFormat, usage: Long = TextureUsage.OUTPUT_ATTACHMENT)
+    device: Device, format: TextureFormat, usage: Long = TextureUsage.OUTPUT_ATTACHMENT
+)
 
 expect class Texture {
     fun createView(desc: TextureViewDescriptor? = null): TextureView
@@ -321,7 +326,8 @@ expect class Buffer : IntoBindingResource {
     fun getMappedData(start: Long = 0, size: Long = this.size): BufferData
 
     @Deprecated(
-        "Eventually will be replaced with mapAsync() and getMappedData() but waiting on Wgpu-native!")
+        "Eventually will be replaced with mapAsync() and getMappedData() but waiting on Wgpu-native!"
+    )
     suspend fun mapReadAsync(device: Device): BufferData
 
     fun unmap()
@@ -347,7 +353,8 @@ expect class TextureViewDescriptor(
     baseMipLevel: Long = 0,
     mipLevelCount: Long = 0,
     baseArrayLayer: Long = 0,
-    arrayLayerCount: Long = 0)
+    arrayLayerCount: Long = 0
+)
 
 expect class TextureDescriptor(
     size: Extent3D,
@@ -355,7 +362,8 @@ expect class TextureDescriptor(
     sampleCount: Int,
     dimension: TextureDimension,
     format: TextureFormat,
-    usage: Long)
+    usage: Long
+)
 
 expect class RenderPipelineDescriptor(
     layout: PipelineLayout,
@@ -363,7 +371,8 @@ expect class RenderPipelineDescriptor(
     primitiveTopology: PrimitiveState,
     depthStencilState: Any?,
     multisampleState: MultisampleState,
-    fragmentStage: FragmentState?)
+    fragmentStage: FragmentState?
+)
 
 expect class MultisampleState(
     count: Int,
@@ -384,30 +393,35 @@ expect class PrimitiveState(
     cullMode: CullMode = CullMode.NONE,
 )
 
-expect class FragmentState (
+expect class FragmentState(
     module: ShaderModule,
     entryPoint: String,
-    targets: Array<ColorTargetState>)
+    targets: Array<ColorTargetState>
+)
 
 expect class ColorTargetState(
     format: TextureFormat,
     blendState: BlendState?,
-    writeMask: Long)
+    writeMask: Long
+)
 
 expect class BlendState(color: BlendComponent, alpha: BlendComponent)
 
 expect class VertexAttribute(format: VertexFormat, offset: Long, shaderLocation: Int)
 
 expect class VertexBufferLayout(
-    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttribute)
+    arrayStride: Long, stepMode: InputStepMode, vararg attributes: VertexAttribute
+)
 
 expect class BlendComponent(
     srcFactor: BlendFactor = BlendFactor.ONE,
     dstFactor: BlendFactor = BlendFactor.ZERO,
-    operation: BlendOperation = BlendOperation.ADD)
+    operation: BlendOperation = BlendOperation.ADD
+)
 
 expect class TextureCopyView(
-    texture: Texture, mipLevel: Long = 0, origin: Origin3D = Origin3D(0, 0, 0))
+    texture: Texture, mipLevel: Long = 0, origin: Origin3D = Origin3D(0, 0, 0)
+)
 
 expect class BufferCopyView(
     buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long = 0
@@ -423,4 +437,5 @@ expect class SamplerDescriptor(
     mipmapFilter: FilterMode = FilterMode.NEAREST,
     lodMinClamp: Float = 0f,
     lodMaxClamp: Float = 100000000f,
-    maxAnisotrophy: Short = 1)
+    maxAnisotrophy: Short = 1
+)

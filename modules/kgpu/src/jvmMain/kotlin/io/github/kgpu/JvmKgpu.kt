@@ -15,14 +15,11 @@ object Platform {
 object CUtils {
     val NULL: MemoryAddress = wgpu_h.NULL()!!
 
-    fun copyToNativeArray(values: LongArray): MemoryAddress {
+    fun copyToNativeArray(values: LongArray, scope: NativeScope): MemoryAddress {
         if (values.isEmpty())
             return NULL
 
-        val layouts = MemorySegment.allocateNative(values.size * Primitives.LONG_BYTES)
-        layouts.copyFrom(MemorySegment.ofArray(values))
-
-        return layouts.address()
+        return scope.allocateArray(MemoryLayouts.JAVA_LONG, values).address()
     }
 }
 
@@ -87,7 +84,7 @@ actual object Kgpu {
                 output.set(result.toRawLongValue())
             }, scope)
 
-            WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface ?: CUtils.NULL)
+            WGPURequestAdapterOptions.`compatibleSurface$set`(options, window?.surface?.address() ?: CUtils.NULL)
             WGPURequestAdapterOptions.`nextInChain$set`(options, CUtils.NULL)
             wgpuInstanceRequestAdapter(CUtils.NULL, options, callback, CUtils.NULL)
         }
@@ -110,7 +107,7 @@ actual class Adapter(val id: Id) {
             val desc = WGPUDeviceDescriptor.allocate(scope)
             val deviceExtras = WGPUDeviceExtras.allocate(scope)
             val chainedStruct = WGPUDeviceExtras.`chain$slice`(deviceExtras)
-            val callback = WGPURequestDeviceCallback.allocate ({ result, _ ->
+            val callback = WGPURequestDeviceCallback.allocate({ result, _ ->
                 output.set(result.toRawLongValue())
             }, scope)
 
@@ -188,7 +185,7 @@ actual class Device(val id: Id) {
         val primitiveState = WGPURenderPipelineDescriptor.`primitive$slice`(descriptor)
         val multisampleState = WGPURenderPipelineDescriptor.`multisample$slice`(descriptor)
 
-        WGPURenderPipelineDescriptor.`label$set`(descriptor, CLinker.toCString("RenderPipeline").address())
+        WGPURenderPipelineDescriptor.`label$set`(descriptor, CUtils.NULL)
         WGPURenderPipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
         WGPUVertexState.`module$set`(vertexState, desc.vertexStage.module.id.address())
         WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertexStage.entryPoint).address())
@@ -214,11 +211,13 @@ actual class Device(val id: Id) {
     }
 
     actual fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout {
-        val descriptor = WGPUPipelineLayoutDescriptor.allocate()
-        WGPUPipelineLayoutDescriptor.`bindGroupLayouts$set`(descriptor, CUtils.copyToNativeArray(desc.ids))
-        WGPUPipelineLayoutDescriptor.`bindGroupLayoutCount$set`(descriptor, desc.ids.size)
+        return PipelineLayout(Id(NativeScope.unboundedScope().use {scope ->
+            val descriptor = WGPUPipelineLayoutDescriptor.allocate(scope)
+            WGPUPipelineLayoutDescriptor.`bindGroupLayouts$set`(descriptor, CUtils.copyToNativeArray(desc.ids, scope))
+            WGPUPipelineLayoutDescriptor.`bindGroupLayoutCount$set`(descriptor, desc.ids.size)
 
-        return PipelineLayout(Id(wgpuDeviceCreatePipelineLayout(id, descriptor)))
+            wgpuDeviceCreatePipelineLayout(id, descriptor)
+        }))
     }
 
     actual fun createTexture(desc: TextureDescriptor): Texture {
@@ -226,11 +225,15 @@ actual class Device(val id: Id) {
     }
 
     actual fun createCommandEncoder(): CommandEncoder {
-        TODO()
+        return CommandEncoder(Id(NativeScope.unboundedScope().use { scope ->
+            val desc = WGPUCommandEncoderDescriptor.allocate(scope)
+            WGPUCommandEncoderDescriptor.`label$set`(desc, CLinker.toCString("CommandEncoder", scope).address())
+            wgpuDeviceCreateCommandEncoder(id, desc.address())
+        }))
     }
 
     actual fun getDefaultQueue(): Queue {
-        TODO()
+        return Queue(Id(wgpuDeviceGetQueue(id)))
     }
 
     actual fun createBuffer(desc: BufferDescriptor): Buffer {
@@ -268,11 +271,54 @@ actual class CommandEncoder(val id: Id) {
     }
 
     actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
-        TODO()
+        return RenderPassEncoder(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPURenderPassDescriptor.allocate(scope)
+            val colorAttachments =
+                WGPURenderPassColorAttachmentDescriptor.allocateArray(desc.colorAttachments.size, scope)
+            val colors = WGPURenderPassColorAttachmentDescriptor.`clearColor$slice`(colorAttachments)
+
+            desc.colorAttachments.forEachIndexed { indexInt, attachment ->
+                val index = indexInt.toLong()
+                WGPURenderPassColorAttachmentDescriptor.`attachment$set`(
+                    colorAttachments,
+                    index,
+                    attachment.attachment.id.address()
+                )
+                WGPURenderPassColorAttachmentDescriptor.`resolveTarget$set`(
+                    colorAttachments,
+                    index,
+                    attachment.resolveTarget?.id?.address() ?: CUtils.NULL
+                )
+                WGPURenderPassColorAttachmentDescriptor.`loadOp$set`(
+                    colorAttachments,
+                    index,
+                    attachment.loadOp.nativeVal,
+                )
+                WGPURenderPassColorAttachmentDescriptor.`storeOp$set`(
+                    colorAttachments,
+                    index,
+                    attachment.storeOp.nativeVal
+                )
+                WGPUColor.`r$set`(colors, index, attachment.clearColor?.r ?: 0.0)
+                WGPUColor.`g$set`(colors, index, attachment.clearColor?.g ?: 0.0)
+                WGPUColor.`b$set`(colors, index, attachment.clearColor?.b ?: 0.0)
+                WGPUColor.`a$set`(colors, index, attachment.clearColor?.a ?: 0.0)
+            }
+
+            WGPURenderPassDescriptor.`colorAttachments$set`(descriptor, colorAttachments.address())
+            WGPURenderPassDescriptor.`colorAttachmentCount$set`(descriptor, desc.colorAttachments.size)
+
+            wgpuCommandEncoderBeginRenderPass(id, descriptor.address())
+        })
     }
 
     actual fun finish(): CommandBuffer {
-        TODO()
+        return CommandBuffer(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUCommandBufferDescriptor.allocate(scope)
+            //TODO: Support labels
+            WGPUCommandBufferDescriptor.`label$set`(descriptor, CUtils.NULL)
+            wgpuCommandEncoderFinish(id, descriptor)
+        }))
     }
 
     actual fun copyBufferToTexture(
@@ -296,40 +342,52 @@ actual class CommandEncoder(val id: Id) {
     }
 }
 
-actual class RenderPassEncoder {
+actual class RenderPassEncoder(var pass: MemoryAddress) {
 
     override fun toString(): String {
         return "RenderPassEncoder"
     }
 
     actual fun setPipeline(pipeline: RenderPipeline) {
-        TODO()
+        assertPassStillValid()
+        wgpuRenderPassEncoderSetPipeline(pass, pipeline.id)
     }
 
     actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
-        TODO()
+        assertPassStillValid()
+        wgpuRenderPassEncoderDraw(pass, vertexCount, instanceCount, firstVertex, firstInstance)
     }
 
     actual fun endPass() {
-        TODO()
+        wgpuRenderPassEncoderEndPass(pass)
+        pass = CUtils.NULL
     }
 
     actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
-        TODO()
+        assertPassStillValid()
+        wgpuRenderPassEncoderSetVertexBuffer(pass, slot.toInt(), buffer.id, offset, size)
     }
 
     actual fun drawIndexed(
         indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
     ) {
+        assertPassStillValid()
         TODO()
     }
 
     actual fun setIndexBuffer(buffer: Buffer, indexFormat: IndexFormat, offset: Long, size: Long) {
+        assertPassStillValid()
         TODO()
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
+        assertPassStillValid()
         TODO()
+    }
+
+    private fun assertPassStillValid() {
+        if (pass == CUtils.NULL)
+            throw RuntimeException("Render Pass Encoder has ended.")
     }
 }
 
@@ -477,7 +535,7 @@ actual class Texture(val id: Long) {
     }
 }
 
-actual class TextureView(val id: Long) : IntoBindingResource {
+actual class TextureView(val id: Id) : IntoBindingResource {
 
     actual fun destroy() {
         TODO()
@@ -496,7 +554,7 @@ actual class TextureView(val id: Long) : IntoBindingResource {
 actual class SwapChainDescriptor
 actual constructor(val device: Device, val format: TextureFormat, val usage: Long)
 
-actual class SwapChain(val id: Long, private val window: Window) {
+actual class SwapChain(val id: Id, private val window: Window) {
 
     private val size = window.windowSize
 
@@ -505,11 +563,11 @@ actual class SwapChain(val id: Long, private val window: Window) {
     }
 
     actual fun getCurrentTextureView(): TextureView {
-        TODO()
+        return TextureView(Id(wgpuSwapChainGetCurrentTextureView(id)))
     }
 
     actual fun present() {
-        TODO()
+        wgpuSwapChainPresent(id)
     }
 
     actual fun isOutOfDate(): Boolean {
@@ -519,29 +577,36 @@ actual class SwapChain(val id: Long, private val window: Window) {
 
 actual class RenderPassColorAttachmentDescriptor
 actual constructor(
-    attachment: TextureView, clearColor: Color?, resolveTarget: TextureView?, storeOp: StoreOp
-) {
-}
+    val attachment: TextureView,
+    val loadOp: LoadOp,
+    val storeOp: StoreOp,
+    val clearColor: Color?,
+    val resolveTarget: TextureView?,
+)
 
 actual class RenderPassDescriptor
-actual constructor(vararg colorAttachments: RenderPassColorAttachmentDescriptor) {
+actual constructor(vararg val colorAttachments: RenderPassColorAttachmentDescriptor) {
 }
 
-actual class CommandBuffer(val id: Long) {
+actual class CommandBuffer(val id: Id) {
 
     override fun toString(): String {
         return "CommandBuffer$id"
     }
 }
 
-actual class Queue(val id: Long) {
+actual class Queue(val id: Id) {
 
     override fun toString(): String {
         return "Queue$id"
     }
 
     actual fun submit(vararg cmdBuffers: CommandBuffer) {
-        TODO()
+        NativeScope.unboundedScope().use { scope ->
+            val bufferIds = CUtils.copyToNativeArray(cmdBuffers.map { it.id.id }.toLongArray(), scope)
+
+            wgpuQueueSubmit(id, cmdBuffers.size, bufferIds)
+        }
     }
 
     actual fun writeBuffer(

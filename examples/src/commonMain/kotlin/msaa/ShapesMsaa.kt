@@ -41,7 +41,7 @@ suspend fun runMsaaTriangle(window: Window) {
         val cmdEncoder = device.createCommandEncoder()
 
         val colorAttachment =
-            RenderPassColorAttachmentDescriptor(textureView, Color.WHITE, swapChainTexture)
+            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setVertexBuffer(0, buffer)

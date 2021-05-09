@@ -81,7 +81,8 @@ suspend fun runEarthExample(window: Window) {
             device,
             label,
             createTransformationMatrix(matrix).toBytes(),
-            BufferUsage.UNIFORM or BufferUsage.COPY_DST)
+            BufferUsage.UNIFORM or BufferUsage.COPY_DST
+        )
     }
 
     val earth = Sphere(40, 40)
@@ -111,7 +112,8 @@ suspend fun runEarthExample(window: Window) {
             1,
             TextureDimension.D2,
             TextureFormat.RGBA8_UNORM_SRGB,
-            TextureUsage.COPY_DST or TextureUsage.SAMPLED)
+            TextureUsage.COPY_DST or TextureUsage.SAMPLED
+        )
     val texture = device.createTexture(textureDesc)
     val textureBuffer =
         BufferUtils.createBufferFromData(device, "texture temp", imageBytes, BufferUsage.COPY_SRC)
@@ -120,7 +122,8 @@ suspend fun runEarthExample(window: Window) {
     cmdEncoder.copyBufferToTexture(
         BufferCopyView(textureBuffer, image.width * 4, image.height),
         TextureCopyView(texture),
-        Extent3D(image.width.toLong(), image.height.toLong(), 1))
+        Extent3D(image.width.toLong(), image.height.toLong(), 1)
+    )
     device.getDefaultQueue().submit(cmdEncoder.finish())
     textureBuffer.destroy()
 
@@ -136,11 +139,14 @@ suspend fun runEarthExample(window: Window) {
                     BindingType.SAMPLED_TEXTURE,
                     false,
                     TextureViewDimension.D2,
-                    TextureComponentType.FLOAT),
+                    TextureComponentType.FLOAT
+                ),
                 BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, BindingType.SAMPLER, false),
                 BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
                 BindGroupLayoutEntry(3, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
-                BindGroupLayoutEntry(4, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)))
+                BindGroupLayoutEntry(4, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
+            )
+        )
     val bindGroup =
         device.createBindGroup(
             BindGroupDescriptor(
@@ -149,7 +155,9 @@ suspend fun runEarthExample(window: Window) {
                 BindGroupEntry(1, sampler),
                 BindGroupEntry(2, transformationMatrixBuffer),
                 BindGroupEntry(3, normalMatrixBuffer),
-                BindGroupEntry(4, modelMatrixBuffer)))
+                BindGroupEntry(4, modelMatrixBuffer)
+            )
+        )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
     val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader)
@@ -166,7 +174,8 @@ suspend fun runEarthExample(window: Window) {
         val swapChainTexture = swapChain.getCurrentTextureView()
         cmdEncoder = device.createCommandEncoder()
 
-        val colorAttachment = RenderPassColorAttachmentDescriptor(swapChainTexture, Color.BLACK)
+        val colorAttachment =
+            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setBindGroup(0, bindGroup)
@@ -180,7 +189,8 @@ suspend fun runEarthExample(window: Window) {
         modelMatrix.rotate(0f, 0f, .01f)
         queue.writeBuffer(modelMatrixBuffer, modelMatrix.toBytes())
         queue.writeBuffer(
-            transformationMatrixBuffer, createTransformationMatrix(viewMatrix).toBytes())
+            transformationMatrixBuffer, createTransformationMatrix(viewMatrix).toBytes()
+        )
         queue.writeBuffer(normalMatrixBuffer, createNormalMatrix(modelMatrix, viewMatrix).toBytes())
         queue.submit(cmdBuffer)
         swapChain.present()

@@ -161,14 +161,14 @@ actual enum class InputStepMode {
     INSTANCE,
 }
 
-actual enum class LoadOp {
-    CLEAR,
-    LOAD,
+actual enum class LoadOp(val nativeVal: Int) {
+    CLEAR(WGPULoadOp_Clear()),
+    LOAD(WGPULoadOp_Load()),
 }
 
-actual enum class StoreOp {
-    CLEAR,
-    STORE,
+actual enum class StoreOp(val nativeVal: Int) {
+    CLEAR(WGPUStoreOp_Clear()),
+    STORE(WGPUStoreOp_Store()),
 }
 
 actual enum class BindingType {
