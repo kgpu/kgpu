@@ -69,7 +69,7 @@ class Color(val r: Double, val g: Double, val b: Double, val a: Double) {
         val CLEAR = Color(0.0, 0.0, 0.0, 0.0)
     }
 }
-
+// Tomorrow - fix compute example on JS backend
 expect class CommandEncoder {
 
     fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder
@@ -222,6 +222,8 @@ expect class BindGroupEntry(binding: Long, resource: IntoBindingResource)
 
 expect class BindGroupDescriptor(layout: BindGroupLayout, vararg entries: BindGroupEntry)
 
+expect class BufferBinding(buffer: Buffer, offset: Long = 0, size: Long = buffer.size - offset) : IntoBindingResource
+
 object ShaderVisibility {
 
     const val VERTEX: Long = 1
@@ -229,29 +231,24 @@ object ShaderVisibility {
     const val COMPUTE: Long = 4
 }
 
+expect abstract class BindingLayout()
+
+expect class BufferBindingLayout(
+    type: BufferBindingType = BufferBindingType.UNIFORM,
+    hasDynamicOffset: Boolean = false,
+    minBindingSize: Long = 0,
+) : BindingLayout
+
+// TODO: Implement these
+//class SamplerBindingLayout() : BindingLayout()
+//class TextureBindingLayout() : BindingLayout()
+//class StorageTextureBindingLayout() : BindingLayout()
+//class ExternalTextureBindingLayout() : BindingLayout()
+
 expect class BindGroupLayoutEntry(
     binding: Long,
     visibility: Long,
-    type: BindingType,
-    hasDynamicOffset: Boolean,
-    viewDimension: TextureViewDimension?,
-    textureComponentType: TextureComponentType?,
-    multisampled: Boolean,
-    storageTextureFormat: TextureFormat?
-) {
-    constructor(binding: Long, visibility: Long, type: BindingType)
-
-    constructor(binding: Long, visibility: Long, type: BindingType, multisampled: Boolean)
-
-    constructor(
-        binding: Long,
-        visibility: Long,
-        type: BindingType,
-        multisampled: Boolean,
-        dimension: TextureViewDimension,
-        textureComponentType: TextureComponentType
-    )
-}
+    bindingLayout: BindingLayout)
 
 expect class ComputePipelineDescriptor(
     layout: PipelineLayout, computeStage: ProgrammableStageDescriptor
@@ -318,7 +315,7 @@ object BufferUsage {
 
 expect class BufferDescriptor(label: String, size: Long, usage: Int, mappedAtCreation: Boolean)
 
-expect class Buffer : IntoBindingResource {
+expect class Buffer {
 
     val size: Long
 

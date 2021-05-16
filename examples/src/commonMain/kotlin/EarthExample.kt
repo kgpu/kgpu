@@ -130,23 +130,7 @@ suspend fun runEarthExample(window: Window) {
     val sampler = device.createSampler(SamplerDescriptor())
     val textureView = texture.createView()
 
-    val bindGroupLayout =
-        device.createBindGroupLayout(
-            BindGroupLayoutDescriptor(
-                BindGroupLayoutEntry(
-                    0,
-                    ShaderVisibility.FRAGMENT,
-                    BindingType.SAMPLED_TEXTURE,
-                    false,
-                    TextureViewDimension.D2,
-                    TextureComponentType.FLOAT
-                ),
-                BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, BindingType.SAMPLER, false),
-                BindGroupLayoutEntry(2, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
-                BindGroupLayoutEntry(3, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER),
-                BindGroupLayoutEntry(4, ShaderVisibility.VERTEX, BindingType.UNIFORM_BUFFER)
-            )
-        )
+    val bindGroupLayout = TODO()
     val bindGroup =
         device.createBindGroup(
             BindGroupDescriptor(

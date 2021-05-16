@@ -334,17 +334,11 @@ expect enum class StoreOp {
     STORE,
 }
 
-expect enum class BindingType {
-    UNIFORM_BUFFER,
-    STORAGE_BUFFER,
-    READONLY_STORAGE_BUFFER,
-    SAMPLER,
-    COMPARISON_SAMPLER,
-    SAMPLED_TEXTURE,
-    READONLY_STORAGE_TEXTURE,
-    WRITEONLY_STORAGE_TEXTURE,
+expect enum class BufferBindingType {
+    UNIFORM,
+    STORAGE,
+    READ_ONLY_STORAGE,
 }
-
 expect enum class AddressMode {
     CLAMP_TO_EDGE,
     REPEAT,

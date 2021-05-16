@@ -171,15 +171,10 @@ actual enum class StoreOp(val nativeVal: Int) {
     STORE(WGPUStoreOp_Store()),
 }
 
-actual enum class BindingType {
-    UNIFORM_BUFFER,
-    STORAGE_BUFFER,
-    READONLY_STORAGE_BUFFER,
-    SAMPLER,
-    COMPARISON_SAMPLER,
-    SAMPLED_TEXTURE,
-    READONLY_STORAGE_TEXTURE,
-    WRITEONLY_STORAGE_TEXTURE,
+actual enum class BufferBindingType(val nativeVal: Int) {
+    UNIFORM(WGPUBufferBindingType_Uniform()),
+    STORAGE(WGPUBufferBindingType_Storage()),
+    READ_ONLY_STORAGE(WGPUBufferBindingType_ReadOnlyStorage()),
 }
 
 actual enum class AddressMode {

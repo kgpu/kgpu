@@ -168,17 +168,7 @@ suspend fun runBoidExample(window: Window) {
 
     val boidBuffers = ArrayList<Buffer>(2)
     val boidBindGroups = ArrayList<BindGroup>(2)
-    val bindGroupLayout =
-        device.createBindGroupLayout(
-            BindGroupLayoutDescriptor(
-                BindGroupLayoutEntry(
-                    0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false
-                ),
-                BindGroupLayoutEntry(
-                    1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER, false
-                ),
-            )
-        )
+    val bindGroupLayout = TODO()
 
     for (i in 0..1) {
         boidBuffers.add(

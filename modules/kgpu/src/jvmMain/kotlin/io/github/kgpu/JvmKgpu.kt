@@ -3,6 +3,7 @@ package io.github.kgpu
 import io.github.kgpu.wgpuj.wgpu_h
 import io.github.kgpu.wgpuj.wgpu_h.*
 import jdk.incubator.foreign.*
+import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicLong
 
@@ -213,7 +214,7 @@ actual class Device(val id: Id) {
     }
 
     actual fun createPipelineLayout(desc: PipelineLayoutDescriptor): PipelineLayout {
-        return PipelineLayout(Id(NativeScope.unboundedScope().use {scope ->
+        return PipelineLayout(Id(NativeScope.unboundedScope().use { scope ->
             val descriptor = WGPUPipelineLayoutDescriptor.allocate(scope)
             WGPUPipelineLayoutDescriptor.`bindGroupLayouts$set`(descriptor, CUtils.copyToNativeArray(desc.ids, scope))
             WGPUPipelineLayoutDescriptor.`bindGroupLayoutCount$set`(descriptor, desc.ids.size)
@@ -251,12 +252,62 @@ actual class Device(val id: Id) {
     }
 
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
-        TODO()
+        return BindGroupLayout(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUBindGroupLayoutDescriptor.allocate(scope)
+            val entries = WGPUBindGroupLayoutEntry.allocateArray(desc.entries.size)
+            desc.entries.forEachIndexed { indexInt, entry ->
+                val index = indexInt.toLong()
+                WGPUBindGroupLayoutEntry.`binding$set`(entries, index, entry.binding.toInt())
+                WGPUBindGroupLayoutEntry.`visibility$set`(entries, index, entry.visibility.toInt())
 
+                val bufferBinding = WGPUBindGroupLayoutEntry.`buffer$slice`(entries)
+                val samplerBinding = WGPUBindGroupLayoutEntry.`sampler$slice`(entries)
+                val textureBinding = WGPUBindGroupLayoutEntry.`texture$slice`(entries)
+                val storageTextureBinding = WGPUBindGroupLayoutEntry.`storageTexture$slice`(entries)
+
+                WGPUBufferBindingLayout.`type$set`(bufferBinding, index, WGPUBufferBindingType_Undefined())
+                WGPUSamplerBindingLayout.`type$set`(samplerBinding, index, WGPUSamplerBindingType_Undefined())
+                WGPUTextureBindingLayout.`sampleType$set`(textureBinding, index, WGPUTextureSampleType_Undefined())
+                WGPUStorageTextureBindingLayout.`access$set`(
+                    storageTextureBinding,
+                    index,
+                    WGPUStorageTextureAccess_Undefined()
+                )
+
+                entry.bindingLayout.intoNative(
+                    index,
+                    bufferBinding,
+                    samplerBinding,
+                    textureBinding,
+                    storageTextureBinding
+                )
+            }
+
+            WGPUBindGroupLayoutDescriptor.`entries$set`(descriptor, entries.address())
+            WGPUBindGroupLayoutDescriptor.`entryCount$set`(descriptor, desc.entries.size)
+
+
+            wgpuDeviceCreateBindGroupLayout(id, descriptor)
+        }))
     }
 
     actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
-        TODO()
+        return BindGroup(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUBindGroupDescriptor.allocate(scope)
+            val entries = WGPUBindGroupEntry.allocateArray(desc.entries.size, scope)
+            desc.entries.forEachIndexed { indexInt, entry ->
+                val index = indexInt.toLong()
+                WGPUBindGroupEntry.`binding$set`(entries, index, entry.binding.toInt())
+
+                entry.resource.intoBindingResource(entries, index)
+            }
+
+            WGPUBindGroupDescriptor.`layout$set`(descriptor, desc.layout.id.address())
+            WGPUBindGroupDescriptor.`entries$set`(descriptor, entries.address())
+            WGPUBindGroupDescriptor.`entryCount$set`(descriptor, desc.entries.size)
+
+            wgpuDeviceCreateBindGroup(id, descriptor.address())
+        }))
     }
 
     actual fun createSampler(desc: SamplerDescriptor): Sampler {
@@ -264,7 +315,19 @@ actual class Device(val id: Id) {
     }
 
     actual fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline {
-        TODO()
+        return ComputePipeline(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUComputePipelineDescriptor.allocate(scope)
+            val stage = WGPUComputePipelineDescriptor.`computeStage$slice`(descriptor)
+
+            WGPUComputePipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
+            WGPUProgrammableStageDescriptor.`module$set`(stage, desc.computeStage.module.id.address())
+            WGPUProgrammableStageDescriptor.`entryPoint$set`(
+                stage,
+                CLinker.toCString(desc.computeStage.entryPoint, scope).address()
+            )
+
+            wgpuDeviceCreateComputePipeline(id, descriptor.address())
+        }))
     }
 }
 
@@ -332,13 +395,25 @@ actual class CommandEncoder(val id: Id) {
     }
 
     actual fun beginComputePass(): ComputePassEncoder {
-        TODO()
+        return ComputePassEncoder(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUComputePassDescriptor.allocate(scope)
+            WGPUComputePassDescriptor.`label$set`(descriptor, CUtils.NULL)
+
+            wgpuCommandEncoderBeginComputePass(id, descriptor.address())
+        })
     }
 
     actual fun copyBufferToBuffer(
         source: Buffer, destination: Buffer, size: Long, sourceOffset: Int, destinationOffset: Int
     ) {
-        TODO()
+        wgpuCommandEncoderCopyBufferToBuffer(
+            id,
+            source.id.address(),
+            sourceOffset.toLong(),
+            destination.id.address(),
+            destinationOffset.toLong(),
+            size
+        )
     }
 
     actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D) {
@@ -395,26 +470,40 @@ actual class RenderPassEncoder(var pass: MemoryAddress) {
     }
 }
 
-actual class ComputePassEncoder() {
+actual class ComputePassEncoder(var pass: MemoryAddress) {
 
     override fun toString(): String {
         return "ComputePassEncoder"
     }
 
     actual fun setPipeline(pipeline: ComputePipeline) {
-        TODO()
+        assertPassStillValid()
+
+        wgpuComputePassEncoderSetPipeline(pass, pipeline.id.address())
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
-        TODO()
+        assertPassStillValid()
+
+        wgpuComputePassEncoderSetBindGroup(pass, index, bindGroup.id.address(), 0, CUtils.NULL)
     }
 
     actual fun dispatch(x: Int, y: Int, z: Int) {
-        TODO()
+        assertPassStillValid()
+
+        wgpuComputePassEncoderDispatch(pass, x, y, z)
     }
 
     actual fun endPass() {
-        TODO()
+        assertPassStillValid()
+
+        wgpuComputePassEncoderEndPass(pass)
+        pass = CUtils.NULL
+    }
+
+    private fun assertPassStillValid() {
+        if (pass == CUtils.NULL)
+            throw RuntimeException("Compute Pass Encoder has ended.")
     }
 }
 
@@ -429,37 +518,42 @@ actual class ProgrammableStageDescriptor
 actual constructor(val module: ShaderModule, val entryPoint: String) {
 }
 
-actual class BindGroupLayoutEntry
-actual constructor(
-    binding: Long,
-    visibility: Long,
-    type: BindingType,
-    hasDynamicOffset: kotlin.Boolean,
-    viewDimension: TextureViewDimension?,
-    textureComponentType: TextureComponentType?,
-    multisampled: kotlin.Boolean,
-    storageTextureFormat: TextureFormat?
-) {
-
-    actual constructor(binding: Long, visibility: Long, type: BindingType) : this(
-        binding, visibility, type, false, null, null, false, null
+actual abstract class BindingLayout actual constructor() {
+    abstract fun intoNative(
+        index: Long,
+        bufferBinding: MemorySegment,
+        samplerBinding: MemorySegment,
+        textureBinding: MemorySegment,
+        storageTextureBinding: MemorySegment
     )
-
-    actual constructor(
-        binding: Long, visibility: Long, type: BindingType, multisampled: kotlin.Boolean
-    ) : this(binding, visibility, type, false, null, null, multisampled, null)
-
-    actual constructor(
-        binding: Long,
-        visibility: Long,
-        type: BindingType,
-        multisampled: kotlin.Boolean,
-        dimension: TextureViewDimension,
-        textureComponentType: TextureComponentType
-    ) : this(binding, visibility, type, false, dimension, textureComponentType, multisampled, null)
 }
 
-actual class BindGroupLayout internal constructor(val id: Long) {
+actual class BufferBindingLayout actual constructor(
+    val type: BufferBindingType,
+    val hasDynamicOffset: Boolean,
+    val minBindingSize: Long
+) : BindingLayout() {
+
+    override fun intoNative(
+        index: Long,
+        bufferBinding: MemorySegment,
+        samplerBinding: MemorySegment,
+        textureBinding: MemorySegment,
+        storageTextureBinding: MemorySegment
+    ) {
+        WGPUBufferBindingLayout.`type$set`(bufferBinding, index, type.nativeVal)
+        WGPUBufferBindingLayout.`hasDynamicOffset$set`(bufferBinding, index, hasDynamicOffset.toNativeByte())
+        WGPUBufferBindingLayout.`minBindingSize$set`(bufferBinding, index, minBindingSize)
+    }
+}
+
+actual class BindGroupLayoutEntry actual constructor(
+    val binding: Long,
+    val visibility: Long,
+    val bindingLayout: BindingLayout
+)
+
+actual class BindGroupLayout internal constructor(val id: Id) {
 
     override fun toString(): String {
         return "BindGroupLayout$id"
@@ -468,7 +562,7 @@ actual class BindGroupLayout internal constructor(val id: Long) {
 
 actual class PipelineLayoutDescriptor internal constructor(val ids: LongArray) {
 
-    actual constructor(vararg bindGroupLayouts: BindGroupLayout) : this(bindGroupLayouts.map { it.id }.toLongArray())
+    actual constructor(vararg bindGroupLayouts: BindGroupLayout) : this(bindGroupLayouts.map { it.id.id }.toLongArray())
 }
 
 actual class PipelineLayout(val id: Id) {
@@ -485,7 +579,7 @@ actual class RenderPipeline internal constructor(val id: Id) {
     }
 }
 
-actual class ComputePipeline internal constructor(val id: Long) {
+actual class ComputePipeline internal constructor(val id: Id) {
 
     override fun toString(): String {
         return "ComputePipeline$id"
@@ -546,7 +640,7 @@ actual class TextureView(val id: Id) : IntoBindingResource {
 
     }
 
-    override fun intoBindingResource() {
+    override fun intoBindingResource(entries: MemorySegment, index: Long) {
         TODO()
     }
 
@@ -628,7 +722,7 @@ actual constructor(
 
 actual class Buffer(val id: Id, actual val size: Long) : IntoBindingResource {
 
-    override fun intoBindingResource() {
+    override fun intoBindingResource(entries: MemorySegment, index: Long) {
         TODO()
     }
 
@@ -652,7 +746,11 @@ actual class Buffer(val id: Id, actual val size: Long) : IntoBindingResource {
     }
 
     actual suspend fun mapReadAsync(device: Device): BufferData {
-        TODO("mapReadAsync not implemented in KGPU.")
+        val callback = WGPUBufferMapCallback.allocate { _, _ -> }
+        wgpuBufferMapAsync(id.address(), WGPUMapMode_Read(), 0, size, callback, CUtils.NULL)
+        wgpuDevicePoll(device.id.address(), true.toNativeByte())
+
+        return getMappedData(0, size)
     }
 }
 
@@ -670,19 +768,28 @@ actual class BufferData(val data: MemorySegment) {
     }
 }
 
-actual class BindGroupLayoutDescriptor actual constructor(vararg entries: BindGroupLayoutEntry) {
+actual class BindGroupLayoutDescriptor actual constructor(vararg val entries: BindGroupLayoutEntry) {
 
 }
 
-actual class BindGroupEntry actual constructor(binding: Long, resource: IntoBindingResource) {
+actual class BindGroupEntry actual constructor(val binding: Long, val resource: IntoBindingResource) {
 
+}
+
+actual class BufferBinding actual constructor(val buffer: Buffer, val offset: Long, val size: Long) :
+    IntoBindingResource {
+    override fun intoBindingResource(entries: MemorySegment, index: Long) {
+        WGPUBindGroupEntry.`buffer$set`(entries, index, buffer.id.address())
+        WGPUBindGroupEntry.`offset$set`(entries, index, offset)
+        WGPUBindGroupEntry.`size$set`(entries, index, size)
+    }
 }
 
 actual class BindGroupDescriptor
-actual constructor(layout: BindGroupLayout, vararg entries: BindGroupEntry) {
+actual constructor(val layout: BindGroupLayout, vararg val entries: BindGroupEntry) {
 }
 
-actual class BindGroup(val id: Long) {
+actual class BindGroup(val id: Id) {
 
     override fun toString(): String {
         return "BindGroup$id"
@@ -691,7 +798,7 @@ actual class BindGroup(val id: Long) {
 
 actual interface IntoBindingResource {
 
-    fun intoBindingResource()
+    fun intoBindingResource(entries: MemorySegment, index: Long)
 }
 
 actual class Origin3D actual constructor(x: Long, y: Long, z: Long) {
@@ -724,7 +831,7 @@ actual constructor(
 
 actual class Sampler(val id: Long) : IntoBindingResource {
 
-    override fun intoBindingResource() {
+    override fun intoBindingResource(entries: MemorySegment, index: Long) {
         TODO()
     }
 
@@ -734,7 +841,7 @@ actual class Sampler(val id: Long) : IntoBindingResource {
 }
 
 actual class ComputePipelineDescriptor
-actual constructor(layout: PipelineLayout, computeStage: ProgrammableStageDescriptor) {
+actual constructor(val layout: PipelineLayout, val computeStage: ProgrammableStageDescriptor) {
 }
 
 actual class FragmentState actual constructor(

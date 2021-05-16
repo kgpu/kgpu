@@ -134,12 +134,7 @@ private suspend fun computeGPU(matrixA: FloatArray, matrixB: FloatArray): Comput
                 BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC,
                 false))
 
-    val bindGroupLayout =
-        device.createBindGroupLayout(
-            BindGroupLayoutDescriptor(
-                BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
-                BindGroupLayoutEntry(1, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER),
-                BindGroupLayoutEntry(2, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)))
+    val bindGroupLayout = TODO()
 
     val bindGroup =
         device.createBindGroup(

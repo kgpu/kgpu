@@ -2,36 +2,40 @@ import io.github.kgpu.*
 
 const val COLLATZ_SHADER =
     """
-#version 450
-layout(local_size_x = 1) in;
+[[block]]
+struct PrimeIndices {
+    data: [[stride(4)]] array<u32>;
+}; 
 
-layout(set = 0, binding = 0) buffer PrimeIndices {
-    uint[] indices;
-}; // this is used as both input and output for convenience
+[[group(0), binding(0)]]
+var<storage> v_indices: [[access(read_write)]] PrimeIndices;
 
-// The Collatz Conjecture states that for any integer n:
-// If n is even, n = n/2
-// If n is odd, n = 3n+1
-// And repeat this process for each new n, you will always eventually reach 1.
-// Though the conjecture has not been proven, no counterexample has ever been found.
-// This function returns how many times this recurrence needs to be applied to reach 1.
-uint collatz_iterations(uint n) {
-    uint i = 0;
-    while(n != 1) {
-        if (mod(n, 2) == 0) {
-            n = n / 2;
+fn collatz_iterations(n_base: u32) -> u32{
+    var n: u32 = n_base;
+    var i: u32 = 0u;
+    loop {
+        if (n <= 1u) {
+            break;
+        }
+        if (n % 2u == 0u) {
+            n = n / 2u;
         }
         else {
-            n = (3 * n) + 1;
+            // Overflow? (i.e. 3*n + 1 > 0xffffffffu?)
+            if (n >= 1431655765u) {   // 0x55555555u
+                return 4294967295u;   // 0xffffffffu
+            }
+
+            n = 3u * n + 1u;
         }
-        i++;
+        i = i + 1u;
     }
     return i;
 }
 
-void main() {
-    uint index = gl_GlobalInvocationID.x;
-    indices[index] = collatz_iterations(indices[index]);
+[[stage(compute), workgroup_size(1)]]
+fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+    v_indices.data[global_id.x] = collatz_iterations(v_indices.data[global_id.x]);
 }
 """
 
@@ -46,27 +50,34 @@ suspend fun runComputeExample() {
                 "Staging buffer",
                 Primitives.INT_BYTES * input.size,
                 BufferUsage.MAP_READ or BufferUsage.COPY_DST,
-                false))
+                false
+            )
+        )
     val storageBuffer =
         BufferUtils.createIntBuffer(
             device,
             "storage buffer",
             input,
-            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC)
+            BufferUsage.STORAGE or BufferUsage.COPY_DST or BufferUsage.COPY_SRC
+        )
 
     val bindGroupLayout =
         device.createBindGroupLayout(
             BindGroupLayoutDescriptor(
-                BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BindingType.STORAGE_BUFFER)))
+                BindGroupLayoutEntry(0, ShaderVisibility.COMPUTE, BufferBindingLayout(BufferBindingType.STORAGE))
+            )
+        )
     val bindGroup =
         device.createBindGroup(
-            BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, storageBuffer)))
+            BindGroupDescriptor(bindGroupLayout, BindGroupEntry(0, BufferBinding(storageBuffer)))
+        )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val shader = TODO()
+    val shader = device.createShaderModule(COLLATZ_SHADER)
     val computePipeline =
         device.createComputePipeline(
-            ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main")))
+            ComputePipelineDescriptor(pipelineLayout, ProgrammableStageDescriptor(shader, "main"))
+        )
     val cmdEncoder = device.createCommandEncoder()
     val computePass = cmdEncoder.beginComputePass()
 
