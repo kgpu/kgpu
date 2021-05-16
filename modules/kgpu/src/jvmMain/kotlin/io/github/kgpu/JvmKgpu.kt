@@ -331,182 +331,6 @@ actual class Device(val id: Id) {
     }
 }
 
-actual class CommandEncoder(val id: Id) {
-
-    override fun toString(): String {
-        return "CommandEncoder$id"
-    }
-
-    actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
-        return RenderPassEncoder(NativeScope.unboundedScope().use { scope ->
-            val descriptor = WGPURenderPassDescriptor.allocate(scope)
-            val colorAttachments =
-                WGPURenderPassColorAttachmentDescriptor.allocateArray(desc.colorAttachments.size, scope)
-            val colors = WGPURenderPassColorAttachmentDescriptor.`clearColor$slice`(colorAttachments)
-
-            desc.colorAttachments.forEachIndexed { indexInt, attachment ->
-                val index = indexInt.toLong()
-                WGPURenderPassColorAttachmentDescriptor.`attachment$set`(
-                    colorAttachments,
-                    index,
-                    attachment.attachment.id.address()
-                )
-                WGPURenderPassColorAttachmentDescriptor.`resolveTarget$set`(
-                    colorAttachments,
-                    index,
-                    attachment.resolveTarget?.id?.address() ?: CUtils.NULL
-                )
-                WGPURenderPassColorAttachmentDescriptor.`loadOp$set`(
-                    colorAttachments,
-                    index,
-                    attachment.loadOp.nativeVal,
-                )
-                WGPURenderPassColorAttachmentDescriptor.`storeOp$set`(
-                    colorAttachments,
-                    index,
-                    attachment.storeOp.nativeVal
-                )
-                WGPUColor.`r$set`(colors, index, attachment.clearColor?.r ?: 0.0)
-                WGPUColor.`g$set`(colors, index, attachment.clearColor?.g ?: 0.0)
-                WGPUColor.`b$set`(colors, index, attachment.clearColor?.b ?: 0.0)
-                WGPUColor.`a$set`(colors, index, attachment.clearColor?.a ?: 0.0)
-            }
-
-            WGPURenderPassDescriptor.`colorAttachments$set`(descriptor, colorAttachments.address())
-            WGPURenderPassDescriptor.`colorAttachmentCount$set`(descriptor, desc.colorAttachments.size)
-
-            wgpuCommandEncoderBeginRenderPass(id, descriptor.address())
-        })
-    }
-
-    actual fun finish(): CommandBuffer {
-        return CommandBuffer(Id(NativeScope.unboundedScope().use { scope ->
-            val descriptor = WGPUCommandBufferDescriptor.allocate(scope)
-            //TODO: Support labels
-            WGPUCommandBufferDescriptor.`label$set`(descriptor, CUtils.NULL)
-            wgpuCommandEncoderFinish(id, descriptor)
-        }))
-    }
-
-    actual fun copyBufferToTexture(
-        source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D
-    ) {
-        TODO()
-    }
-
-    actual fun beginComputePass(): ComputePassEncoder {
-        return ComputePassEncoder(NativeScope.unboundedScope().use { scope ->
-            val descriptor = WGPUComputePassDescriptor.allocate(scope)
-            WGPUComputePassDescriptor.`label$set`(descriptor, CUtils.NULL)
-
-            wgpuCommandEncoderBeginComputePass(id, descriptor.address())
-        })
-    }
-
-    actual fun copyBufferToBuffer(
-        source: Buffer, destination: Buffer, size: Long, sourceOffset: Int, destinationOffset: Int
-    ) {
-        wgpuCommandEncoderCopyBufferToBuffer(
-            id,
-            source.id.address(),
-            sourceOffset.toLong(),
-            destination.id.address(),
-            destinationOffset.toLong(),
-            size
-        )
-    }
-
-    actual fun copyTextureToBuffer(source: TextureCopyView, dest: BufferCopyView, size: Extent3D) {
-        TODO()
-    }
-}
-
-actual class RenderPassEncoder(var pass: MemoryAddress) {
-
-    override fun toString(): String {
-        return "RenderPassEncoder"
-    }
-
-    actual fun setPipeline(pipeline: RenderPipeline) {
-        assertPassStillValid()
-        wgpuRenderPassEncoderSetPipeline(pass, pipeline.id)
-    }
-
-    actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
-        assertPassStillValid()
-        wgpuRenderPassEncoderDraw(pass, vertexCount, instanceCount, firstVertex, firstInstance)
-    }
-
-    actual fun endPass() {
-        wgpuRenderPassEncoderEndPass(pass)
-        pass = CUtils.NULL
-    }
-
-    actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
-        assertPassStillValid()
-        wgpuRenderPassEncoderSetVertexBuffer(pass, slot.toInt(), buffer.id, offset, size)
-    }
-
-    actual fun drawIndexed(
-        indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
-    ) {
-        assertPassStillValid()
-        TODO()
-    }
-
-    actual fun setIndexBuffer(buffer: Buffer, indexFormat: IndexFormat, offset: Long, size: Long) {
-        assertPassStillValid()
-        TODO()
-    }
-
-    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
-        assertPassStillValid()
-        TODO()
-    }
-
-    private fun assertPassStillValid() {
-        if (pass == CUtils.NULL)
-            throw RuntimeException("Render Pass Encoder has ended.")
-    }
-}
-
-actual class ComputePassEncoder(var pass: MemoryAddress) {
-
-    override fun toString(): String {
-        return "ComputePassEncoder"
-    }
-
-    actual fun setPipeline(pipeline: ComputePipeline) {
-        assertPassStillValid()
-
-        wgpuComputePassEncoderSetPipeline(pass, pipeline.id.address())
-    }
-
-    actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
-        assertPassStillValid()
-
-        wgpuComputePassEncoderSetBindGroup(pass, index, bindGroup.id.address(), 0, CUtils.NULL)
-    }
-
-    actual fun dispatch(x: Int, y: Int, z: Int) {
-        assertPassStillValid()
-
-        wgpuComputePassEncoderDispatch(pass, x, y, z)
-    }
-
-    actual fun endPass() {
-        assertPassStillValid()
-
-        wgpuComputePassEncoderEndPass(pass)
-        pass = CUtils.NULL
-    }
-
-    private fun assertPassStillValid() {
-        if (pass == CUtils.NULL)
-            throw RuntimeException("Compute Pass Encoder has ended.")
-    }
-}
-
 actual class ShaderModule(val id: Id) {
 
     override fun toString(): String {
@@ -514,84 +338,11 @@ actual class ShaderModule(val id: Id) {
     }
 }
 
-actual class ProgrammableStageDescriptor
-actual constructor(val module: ShaderModule, val entryPoint: String) {
-}
-
-actual abstract class BindingLayout actual constructor() {
-    abstract fun intoNative(
-        index: Long,
-        bufferBinding: MemorySegment,
-        samplerBinding: MemorySegment,
-        textureBinding: MemorySegment,
-        storageTextureBinding: MemorySegment
-    )
-}
-
-actual class BufferBindingLayout actual constructor(
-    val type: BufferBindingType,
-    val hasDynamicOffset: Boolean,
-    val minBindingSize: Long
-) : BindingLayout() {
-
-    override fun intoNative(
-        index: Long,
-        bufferBinding: MemorySegment,
-        samplerBinding: MemorySegment,
-        textureBinding: MemorySegment,
-        storageTextureBinding: MemorySegment
-    ) {
-        WGPUBufferBindingLayout.`type$set`(bufferBinding, index, type.nativeVal)
-        WGPUBufferBindingLayout.`hasDynamicOffset$set`(bufferBinding, index, hasDynamicOffset.toNativeByte())
-        WGPUBufferBindingLayout.`minBindingSize$set`(bufferBinding, index, minBindingSize)
-    }
-}
-
-actual class BindGroupLayoutEntry actual constructor(
-    val binding: Long,
-    val visibility: Long,
-    val bindingLayout: BindingLayout
-)
-
-actual class BindGroupLayout internal constructor(val id: Id) {
-
-    override fun toString(): String {
-        return "BindGroupLayout$id"
-    }
-}
-
-actual class PipelineLayoutDescriptor internal constructor(val ids: LongArray) {
-
-    actual constructor(vararg bindGroupLayouts: BindGroupLayout) : this(bindGroupLayouts.map { it.id.id }.toLongArray())
-}
-
-actual class PipelineLayout(val id: Id) {
-
-    override fun toString(): String {
-        return "PipelineLayout$id"
-    }
-}
-
-actual class RenderPipeline internal constructor(val id: Id) {
-
-    override fun toString(): String {
-        return "RenderPipeline$id"
-    }
-}
-
-actual class ComputePipeline internal constructor(val id: Id) {
-
-    override fun toString(): String {
-        return "ComputePipeline$id"
-    }
-}
-
-actual class BlendComponent
-actual constructor(
-    val srcFactor: BlendFactor, val dstFactor: BlendFactor, val operation: BlendOperation
-)
-
 actual class Extent3D actual constructor(width: Long, height: Long, depth: Long) {
+
+}
+
+actual class Origin3D actual constructor(x: Long, y: Long, z: Long) {
 
 }
 
@@ -603,18 +354,6 @@ actual constructor(
     dimension: TextureDimension,
     format: TextureFormat,
     usage: Long
-) {
-}
-
-actual class TextureViewDescriptor
-actual constructor(
-    format: TextureFormat,
-    dimension: TextureViewDimension,
-    aspect: TextureAspect,
-    baseMipLevel: Long,
-    mipLevelCount: Long,
-    baseArrayLayer: Long,
-    arrayLayerCount: Long
 ) {
 }
 
@@ -632,6 +371,17 @@ actual class Texture(val id: Long) {
         TODO()
     }
 }
+
+actual class TextureViewDescriptor
+actual constructor(
+    format: TextureFormat,
+    dimension: TextureViewDimension,
+    aspect: TextureAspect,
+    baseMipLevel: Long,
+    mipLevelCount: Long,
+    baseArrayLayer: Long,
+    arrayLayerCount: Long
+)
 
 actual class TextureView(val id: Id) : IntoBindingResource {
 
@@ -670,26 +420,6 @@ actual class SwapChain(val id: Id, private val window: Window) {
 
     actual fun isOutOfDate(): Boolean {
         return window.windowSize != size
-    }
-}
-
-actual class RenderPassColorAttachmentDescriptor
-actual constructor(
-    val attachment: TextureView,
-    val loadOp: LoadOp,
-    val storeOp: StoreOp,
-    val clearColor: Color?,
-    val resolveTarget: TextureView?,
-)
-
-actual class RenderPassDescriptor
-actual constructor(vararg val colorAttachments: RenderPassColorAttachmentDescriptor) {
-}
-
-actual class CommandBuffer(val id: Id) {
-
-    override fun toString(): String {
-        return "CommandBuffer$id"
     }
 }
 
@@ -768,52 +498,6 @@ actual class BufferData(val data: MemorySegment) {
     }
 }
 
-actual class BindGroupLayoutDescriptor actual constructor(vararg val entries: BindGroupLayoutEntry) {
-
-}
-
-actual class BindGroupEntry actual constructor(val binding: Long, val resource: IntoBindingResource) {
-
-}
-
-actual class BufferBinding actual constructor(val buffer: Buffer, val offset: Long, val size: Long) :
-    IntoBindingResource {
-    override fun intoBindingResource(entries: MemorySegment, index: Long) {
-        WGPUBindGroupEntry.`buffer$set`(entries, index, buffer.id.address())
-        WGPUBindGroupEntry.`offset$set`(entries, index, offset)
-        WGPUBindGroupEntry.`size$set`(entries, index, size)
-    }
-}
-
-actual class BindGroupDescriptor
-actual constructor(val layout: BindGroupLayout, vararg val entries: BindGroupEntry) {
-}
-
-actual class BindGroup(val id: Id) {
-
-    override fun toString(): String {
-        return "BindGroup$id"
-    }
-}
-
-actual interface IntoBindingResource {
-
-    fun intoBindingResource(entries: MemorySegment, index: Long)
-}
-
-actual class Origin3D actual constructor(x: Long, y: Long, z: Long) {
-
-}
-
-actual class TextureCopyView
-actual constructor(texture: Texture, mipLevel: Long, origin: Origin3D) {
-}
-
-actual class BufferCopyView
-actual constructor(buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long) {
-
-}
-
 actual class SamplerDescriptor
 actual constructor(
     compare: CompareFunction?,
@@ -826,8 +510,7 @@ actual constructor(
     lodMinClamp: kotlin.Float,
     lodMaxClamp: kotlin.Float,
     maxAnisotrophy: Short
-) {
-}
+)
 
 actual class Sampler(val id: Long) : IntoBindingResource {
 
@@ -839,61 +522,3 @@ actual class Sampler(val id: Long) : IntoBindingResource {
         return "Sampler$id"
     }
 }
-
-actual class ComputePipelineDescriptor
-actual constructor(val layout: PipelineLayout, val computeStage: ProgrammableStageDescriptor) {
-}
-
-actual class FragmentState actual constructor(
-    val module: ShaderModule,
-    val entryPoint: String,
-    val targets: Array<ColorTargetState>
-)
-
-actual class BlendState actual constructor(val color: BlendComponent, val alpha: BlendComponent)
-
-actual class ColorTargetState actual constructor(
-    val format: TextureFormat,
-    val blendState: BlendState?,
-    val writeMask: Long
-)
-
-actual class MultisampleState actual constructor(
-    val count: Int,
-    val mask: Int,
-    val alphaToCoverageEnabled: Boolean
-)
-
-actual class RenderPipelineDescriptor actual constructor(
-    val layout: PipelineLayout,
-    val vertex: VertexState,
-    val primitive: PrimitiveState,
-    val depthStencil: Any?,
-    val multisample: MultisampleState,
-    val fragment: FragmentState?
-)
-
-actual class VertexState actual constructor(
-    val module: ShaderModule,
-    val entryPoint: String,
-    vararg val buffers: VertexBufferLayout
-)
-
-actual class PrimitiveState actual constructor(
-    val topology: PrimitiveTopology,
-    val stripIndexFormat: IndexFormat?,
-    val frontFace: FrontFace,
-    val cullMode: CullMode
-)
-
-actual class VertexAttribute actual constructor(
-    val format: VertexFormat,
-    val offset: Long,
-    val shaderLocation: Int
-)
-
-actual class VertexBufferLayout actual constructor(
-    val arrayStride: Long,
-    val stepMode: InputStepMode,
-    vararg attributes: VertexAttribute
-)
