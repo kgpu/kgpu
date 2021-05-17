@@ -1,11 +1,11 @@
 package io.github.kgpu
 
-import io.github.kgpu.wgpuj.wgpu_h
+import io.github.kgpu.wgpuj.wgpu_h.*
 import jdk.incubator.foreign.MemorySegment
 
 actual interface IntoBindingResource {
 
-    fun intoBindingResource(entries: MemorySegment, index: Long)
+    fun intoBindingResource(entry: MemorySegment)
 }
 
 actual class BindGroupLayoutDescriptor actual constructor(vararg val entries: BindGroupLayoutEntry) {
@@ -18,10 +18,10 @@ actual class BindGroupEntry actual constructor(val binding: Long, val resource: 
 
 actual class BufferBinding actual constructor(val buffer: Buffer, val offset: Long, val size: Long) :
     IntoBindingResource {
-    override fun intoBindingResource(entries: MemorySegment, index: Long) {
-        wgpu_h.WGPUBindGroupEntry.`buffer$set`(entries, index, buffer.id.address())
-        wgpu_h.WGPUBindGroupEntry.`offset$set`(entries, index, offset)
-        wgpu_h.WGPUBindGroupEntry.`size$set`(entries, index, size)
+    override fun intoBindingResource(entry: MemorySegment) {
+        WGPUBindGroupEntry.`buffer$set`(entry, buffer.id.address())
+        WGPUBindGroupEntry.`offset$set`(entry, offset)
+        WGPUBindGroupEntry.`size$set`(entry, size)
     }
 }
 
@@ -39,7 +39,6 @@ actual class BindGroup(val id: Id) {
 
 actual abstract class BindingLayout actual constructor() {
     abstract fun intoNative(
-        index: Long,
         bufferBinding: MemorySegment,
         samplerBinding: MemorySegment,
         textureBinding: MemorySegment,
@@ -54,15 +53,45 @@ actual class BufferBindingLayout actual constructor(
 ) : BindingLayout() {
 
     override fun intoNative(
-        index: Long,
         bufferBinding: MemorySegment,
         samplerBinding: MemorySegment,
         textureBinding: MemorySegment,
         storageTextureBinding: MemorySegment
     ) {
-        wgpu_h.WGPUBufferBindingLayout.`type$set`(bufferBinding, index, type.nativeVal)
-        wgpu_h.WGPUBufferBindingLayout.`hasDynamicOffset$set`(bufferBinding, index, hasDynamicOffset.toNativeByte())
-        wgpu_h.WGPUBufferBindingLayout.`minBindingSize$set`(bufferBinding, index, minBindingSize)
+        WGPUBufferBindingLayout.`type$set`(bufferBinding, type.nativeVal)
+        WGPUBufferBindingLayout.`hasDynamicOffset$set`(bufferBinding, hasDynamicOffset.toNativeByte())
+        WGPUBufferBindingLayout.`minBindingSize$set`(bufferBinding, minBindingSize)
+    }
+}
+
+actual class TextureBindingLayout actual constructor(
+    val sampleType: TextureSampleType,
+    val viewDimension: TextureViewDimension,
+    val multisampled: Boolean,
+) : BindingLayout() {
+    override fun intoNative(
+        bufferBinding: MemorySegment,
+        samplerBinding: MemorySegment,
+        textureBinding: MemorySegment,
+        storageTextureBinding: MemorySegment
+    ) {
+        WGPUTextureBindingLayout.`sampleType$set`(textureBinding, sampleType.nativeVal)
+        WGPUTextureBindingLayout.`viewDimension$set`(textureBinding, viewDimension.nativeVal)
+        WGPUTextureBindingLayout.`multisampled$set`(textureBinding, multisampled.toNativeByte())
+    }
+
+}
+
+actual class SamplerBindingLayout actual constructor(
+    val type: SamplerBindingType
+) : BindingLayout() {
+    override fun intoNative(
+        bufferBinding: MemorySegment,
+        samplerBinding: MemorySegment,
+        textureBinding: MemorySegment,
+        storageTextureBinding: MemorySegment
+    ) {
+        WGPUSamplerBindingLayout.`type$set`(samplerBinding, type.nativeVal)
     }
 }
 

@@ -24,9 +24,17 @@ expect class BufferBindingLayout(
     minBindingSize: Long = 0,
 ) : BindingLayout
 
+expect class TextureBindingLayout(
+    sampleType: TextureSampleType = TextureSampleType.FLOAT,
+    viewDimension: TextureViewDimension = TextureViewDimension.D2,
+    multisampled: Boolean = false,
+) : BindingLayout
+
+expect class SamplerBindingLayout(
+    type: SamplerBindingType = SamplerBindingType.FILTERING
+) : BindingLayout
+
 // TODO: Implement these
-//class SamplerBindingLayout() : BindingLayout()
-//class TextureBindingLayout() : BindingLayout()
 //class StorageTextureBindingLayout() : BindingLayout()
 //class ExternalTextureBindingLayout() : BindingLayout()
 

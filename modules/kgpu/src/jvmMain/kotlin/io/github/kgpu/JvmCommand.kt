@@ -1,7 +1,8 @@
 package io.github.kgpu
 
-import io.github.kgpu.wgpuj.wgpu_h
+import io.github.kgpu.wgpuj.wgpu_h.*
 import jdk.incubator.foreign.MemoryAddress
+import jdk.incubator.foreign.MemorySegment
 import jdk.incubator.foreign.NativeScope
 
 actual class CommandBuffer(val id: Id) {
@@ -12,11 +13,35 @@ actual class CommandBuffer(val id: Id) {
 }
 
 actual class TextureCopyView
-actual constructor(texture: Texture, mipLevel: Long, origin: Origin3D) {
+actual constructor(val texture: Texture, val mipLevel: Long, val origin: Origin3D) {
+    fun toNative(scope: NativeScope): MemorySegment {
+        val native = WGPUImageCopyTexture.allocate(scope)
+        val nativeOrigin = WGPUImageCopyTexture.`origin$slice`(native)
+
+        WGPUImageCopyTexture.`texture$set`(native, texture.id.address())
+        WGPUImageCopyTexture.`mipLevel$set`(native, mipLevel.toInt())
+        WGPUOrigin3D.`x$set`(nativeOrigin, origin.x.toInt())
+        WGPUOrigin3D.`y$set`(nativeOrigin, origin.y.toInt())
+        WGPUOrigin3D.`z$set`(nativeOrigin, origin.z.toInt())
+
+        return native
+    }
 }
 
 actual class BufferCopyView
-actual constructor(buffer: Buffer, bytesPerRow: Int, rowsPerImage: Int, offset: Long) {
+actual constructor(val buffer: Buffer, val bytesPerRow: Int, val rowsPerImage: Int, val offset: Long) {
+
+    fun toNative(scope: NativeScope) : MemorySegment {
+        val native = WGPUImageCopyBuffer.allocate(scope)
+        val layout = WGPUImageCopyBuffer.`layout$slice`(native)
+
+        WGPUImageCopyBuffer.`buffer$set`(native, buffer.id.address())
+        WGPUTextureDataLayout.`bytesPerRow$set`(layout, bytesPerRow)
+        WGPUTextureDataLayout.`rowsPerImage$set`(layout, rowsPerImage)
+        WGPUTextureDataLayout.`offset$set`(layout, offset)
+
+        return native
+    }
 
 }
 
@@ -28,74 +53,81 @@ actual class CommandEncoder(val id: Id) {
 
     actual fun beginRenderPass(desc: RenderPassDescriptor): RenderPassEncoder {
         return RenderPassEncoder(NativeScope.unboundedScope().use { scope ->
-            val descriptor = wgpu_h.WGPURenderPassDescriptor.allocate(scope)
+            val descriptor = WGPURenderPassDescriptor.allocate(scope)
             val colorAttachments =
-                wgpu_h.WGPURenderPassColorAttachmentDescriptor.allocateArray(desc.colorAttachments.size, scope)
-            val colors = wgpu_h.WGPURenderPassColorAttachmentDescriptor.`clearColor$slice`(colorAttachments)
+                WGPURenderPassColorAttachmentDescriptor.allocateArray(desc.colorAttachments.size, scope)
+            val colors = WGPURenderPassColorAttachmentDescriptor.`clearColor$slice`(colorAttachments)
 
             desc.colorAttachments.forEachIndexed { indexInt, attachment ->
                 val index = indexInt.toLong()
-                wgpu_h.WGPURenderPassColorAttachmentDescriptor.`attachment$set`(
+                WGPURenderPassColorAttachmentDescriptor.`attachment$set`(
                     colorAttachments,
                     index,
                     attachment.attachment.id.address()
                 )
-                wgpu_h.WGPURenderPassColorAttachmentDescriptor.`resolveTarget$set`(
+                WGPURenderPassColorAttachmentDescriptor.`resolveTarget$set`(
                     colorAttachments,
                     index,
                     attachment.resolveTarget?.id?.address() ?: CUtils.NULL
                 )
-                wgpu_h.WGPURenderPassColorAttachmentDescriptor.`loadOp$set`(
+                WGPURenderPassColorAttachmentDescriptor.`loadOp$set`(
                     colorAttachments,
                     index,
                     attachment.loadOp.nativeVal,
                 )
-                wgpu_h.WGPURenderPassColorAttachmentDescriptor.`storeOp$set`(
+                WGPURenderPassColorAttachmentDescriptor.`storeOp$set`(
                     colorAttachments,
                     index,
                     attachment.storeOp.nativeVal
                 )
-                wgpu_h.WGPUColor.`r$set`(colors, index, attachment.clearColor?.r ?: 0.0)
-                wgpu_h.WGPUColor.`g$set`(colors, index, attachment.clearColor?.g ?: 0.0)
-                wgpu_h.WGPUColor.`b$set`(colors, index, attachment.clearColor?.b ?: 0.0)
-                wgpu_h.WGPUColor.`a$set`(colors, index, attachment.clearColor?.a ?: 0.0)
+                WGPUColor.`r$set`(colors, index, attachment.clearColor?.r ?: 0.0)
+                WGPUColor.`g$set`(colors, index, attachment.clearColor?.g ?: 0.0)
+                WGPUColor.`b$set`(colors, index, attachment.clearColor?.b ?: 0.0)
+                WGPUColor.`a$set`(colors, index, attachment.clearColor?.a ?: 0.0)
             }
 
-            wgpu_h.WGPURenderPassDescriptor.`colorAttachments$set`(descriptor, colorAttachments.address())
-            wgpu_h.WGPURenderPassDescriptor.`colorAttachmentCount$set`(descriptor, desc.colorAttachments.size)
+            WGPURenderPassDescriptor.`colorAttachments$set`(descriptor, colorAttachments.address())
+            WGPURenderPassDescriptor.`colorAttachmentCount$set`(descriptor, desc.colorAttachments.size)
 
-            wgpu_h.wgpuCommandEncoderBeginRenderPass(id, descriptor.address())
+            wgpuCommandEncoderBeginRenderPass(id, descriptor.address())
         })
     }
 
     actual fun finish(): CommandBuffer {
         return CommandBuffer(Id(NativeScope.unboundedScope().use { scope ->
-            val descriptor = wgpu_h.WGPUCommandBufferDescriptor.allocate(scope)
+            val descriptor = WGPUCommandBufferDescriptor.allocate(scope)
             //TODO: Support labels
-            wgpu_h.WGPUCommandBufferDescriptor.`label$set`(descriptor, CUtils.NULL)
-            wgpu_h.wgpuCommandEncoderFinish(id, descriptor)
+            WGPUCommandBufferDescriptor.`label$set`(descriptor, CUtils.NULL)
+            wgpuCommandEncoderFinish(id, descriptor)
         }))
     }
 
     actual fun copyBufferToTexture(
         source: BufferCopyView, destination: TextureCopyView, copySize: Extent3D
     ) {
-        TODO()
+        NativeScope.unboundedScope().use { scope ->
+            wgpuCommandEncoderCopyBufferToTexture(
+                id,
+                source.toNative(scope),
+                destination.toNative(scope),
+                copySize.toNative(scope),
+            )
+        }
     }
 
     actual fun beginComputePass(): ComputePassEncoder {
         return ComputePassEncoder(NativeScope.unboundedScope().use { scope ->
-            val descriptor = wgpu_h.WGPUComputePassDescriptor.allocate(scope)
-            wgpu_h.WGPUComputePassDescriptor.`label$set`(descriptor, CUtils.NULL)
+            val descriptor = WGPUComputePassDescriptor.allocate(scope)
+            WGPUComputePassDescriptor.`label$set`(descriptor, CUtils.NULL)
 
-            wgpu_h.wgpuCommandEncoderBeginComputePass(id, descriptor.address())
+            wgpuCommandEncoderBeginComputePass(id, descriptor.address())
         })
     }
 
     actual fun copyBufferToBuffer(
         source: Buffer, destination: Buffer, size: Long, sourceOffset: Int, destinationOffset: Int
     ) {
-        wgpu_h.wgpuCommandEncoderCopyBufferToBuffer(
+        wgpuCommandEncoderCopyBufferToBuffer(
             id,
             source.id.address(),
             sourceOffset.toLong(),
@@ -118,39 +150,40 @@ actual class RenderPassEncoder(var pass: MemoryAddress) {
 
     actual fun setPipeline(pipeline: RenderPipeline) {
         assertPassStillValid()
-        wgpu_h.wgpuRenderPassEncoderSetPipeline(pass, pipeline.id)
+        wgpuRenderPassEncoderSetPipeline(pass, pipeline.id)
     }
 
     actual fun draw(vertexCount: Int, instanceCount: Int, firstVertex: Int, firstInstance: Int) {
         assertPassStillValid()
-        wgpu_h.wgpuRenderPassEncoderDraw(pass, vertexCount, instanceCount, firstVertex, firstInstance)
+        wgpuRenderPassEncoderDraw(pass, vertexCount, instanceCount, firstVertex, firstInstance)
     }
 
     actual fun endPass() {
-        wgpu_h.wgpuRenderPassEncoderEndPass(pass)
+        wgpuRenderPassEncoderEndPass(pass)
         pass = CUtils.NULL
     }
 
     actual fun setVertexBuffer(slot: Long, buffer: Buffer, offset: Long, size: Long) {
         assertPassStillValid()
-        wgpu_h.wgpuRenderPassEncoderSetVertexBuffer(pass, slot.toInt(), buffer.id, offset, size)
+        wgpuRenderPassEncoderSetVertexBuffer(pass, slot.toInt(), buffer.id, offset, size)
     }
 
     actual fun drawIndexed(
         indexCount: Int, instanceCount: Int, firstVertex: Int, baseVertex: Int, firstInstance: Int
     ) {
         assertPassStillValid()
-        TODO()
+        wgpuRenderPassEncoderDrawIndexed(pass, indexCount, instanceCount, firstVertex, baseVertex, firstInstance)
     }
 
     actual fun setIndexBuffer(buffer: Buffer, indexFormat: IndexFormat, offset: Long, size: Long) {
         assertPassStillValid()
-        TODO()
+        wgpuRenderPassEncoderSetIndexBuffer(pass, buffer.id, indexFormat.nativeVal, offset, size)
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
         assertPassStillValid()
-        TODO()
+
+        wgpuRenderPassEncoderSetBindGroup(pass, index, bindGroup.id, 0, CUtils.NULL)
     }
 
     private fun assertPassStillValid() {
@@ -238,7 +271,7 @@ actual class VertexAttribute actual constructor(
 actual class VertexBufferLayout actual constructor(
     val arrayStride: Long,
     val stepMode: InputStepMode,
-    vararg attributes: VertexAttribute
+    vararg val attributes: VertexAttribute
 )
 
 actual class ComputePipelineDescriptor
@@ -261,25 +294,25 @@ actual class ComputePassEncoder(var pass: MemoryAddress) {
     actual fun setPipeline(pipeline: ComputePipeline) {
         assertPassStillValid()
 
-        wgpu_h.wgpuComputePassEncoderSetPipeline(pass, pipeline.id.address())
+        wgpuComputePassEncoderSetPipeline(pass, pipeline.id.address())
     }
 
     actual fun setBindGroup(index: Int, bindGroup: BindGroup) {
         assertPassStillValid()
 
-        wgpu_h.wgpuComputePassEncoderSetBindGroup(pass, index, bindGroup.id.address(), 0, CUtils.NULL)
+        wgpuComputePassEncoderSetBindGroup(pass, index, bindGroup.id.address(), 0, CUtils.NULL)
     }
 
     actual fun dispatch(x: Int, y: Int, z: Int) {
         assertPassStillValid()
 
-        wgpu_h.wgpuComputePassEncoderDispatch(pass, x, y, z)
+        wgpuComputePassEncoderDispatch(pass, x, y, z)
     }
 
     actual fun endPass() {
         assertPassStillValid()
 
-        wgpu_h.wgpuComputePassEncoderEndPass(pass)
+        wgpuComputePassEncoderEndPass(pass)
         pass = CUtils.NULL
     }
 

@@ -1,56 +1,45 @@
 import io.github.kgpu.*
 import io.github.kgpu.kcgmath.Matrix4
 
-private object TextureShaderSource {
-    val vertex =
-        """
-         #version 450
+const val TEXTURE_SHADER =
+"""
+struct VertexOutput {
+    [[location(0)]] uv: vec2<f32>;
+    [[builtin(position)]] position: vec4<f32>;
+};
+            
 
-        layout(location=0) in vec3 a_position;
-        layout(location=1) in vec2 a_tex_coords;
-
-        layout(location=0) out vec2 v_tex_coords;
-        
-        layout(set = 0, binding = 2) uniform Locals {
-            mat4 u_Transform;
-        };
-
-        void main() {
-            v_tex_coords = a_tex_coords;
-            gl_Position = u_Transform * vec4(a_position, 1.0);
-        }       
-    """.trimIndent()
-
-    val frag =
-        """
-        #version 450
-
-        layout(location=0) in vec2 v_tex_coords;
-        layout(location=0) out vec4 f_color;
-
-        layout(set = 0, binding = 0) uniform texture2D t_diffuse;
-        layout(set = 0, binding = 1) uniform sampler s_diffuse;
-
-        void main() {
-            f_color = texture(sampler2D(t_diffuse, s_diffuse), v_tex_coords);
-        }
-    """.trimIndent()
+[[stage(vertex)]]
+fn vs_main(
+    [[builtin(vertex_index)]] in_vertex_index: u32,
+    [[location(0)]] pos: vec2<f32>,
+    [[location(1)]] uvs: vec2<f32>) -> VertexOutput {
+    
+    var output: VertexOutput;
+    output.position = vec4<f32>(pos.x, pos.y, 1.0, 1.0);
+    output.uv = uvs;
+    
+    return output;
 }
 
+[[group(0), binding(0)]]
+var my_texture: texture_2d<f32>;
+[[group(0), binding(1)]]
+var my_sampler: sampler;
+
+[[stage(fragment)]]
+fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
+    return textureSample(my_texture, my_sampler, in.uv);
+}
+"""
+
 suspend fun runTextureExample(window: Window) {
-    fun createTransformationMatrix(): Matrix4 {
-        val width = window.windowSize.width / 2f
-        val height = window.windowSize.height / 2f
-
-        return Matrix4().ortho(-width, width, -height, height, 10f, -10f)
-    }
-
     // spotless:off
     val vertices = floatArrayOf(
-        -128f, -128f, 1f, 0f, 0f,
-        -128f, 128f, 1f, 0f, 1f,
-        128f, 128f, 1f, 1f, 1f,
-        128f, -128f, 1f, 1f, 0f
+        -0.5f, -0.5f, 1f, 1f,
+        -0.5f, 0.5f, 1f, 0f,
+        0.5f, 0.5f, 0f, 0f,
+        0.5f, -0.5f, 0f, 1f
     )
     val indices = shortArrayOf(0, 1, 2, 0, 2, 3)
     //spotless:on
@@ -63,15 +52,7 @@ suspend fun runTextureExample(window: Window) {
     val vertexBuffer =
         BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val indexBuffer = BufferUtils.createShortBuffer(device, "indices", indices, BufferUsage.INDEX)
-    val matrixBuffer =
-        BufferUtils.createBufferFromData(
-            device,
-            "transformation matrix",
-            createTransformationMatrix().toBytes(),
-            BufferUsage.UNIFORM or BufferUsage.COPY_DST
-        )
-    val vertexShader = TODO()
-    val fragShader = TODO()
+    val shader = device.createShaderModule(TEXTURE_SHADER)
 
     val textureDesc =
         TextureDescriptor(
@@ -98,24 +79,49 @@ suspend fun runTextureExample(window: Window) {
     val sampler = device.createSampler(SamplerDescriptor())
     val textureView = texture.createView()
 
-    val bindGroupLayout = TODO()
+    val bindGroupLayout =
+        device.createBindGroupLayout(
+            BindGroupLayoutDescriptor(
+                BindGroupLayoutEntry(0, ShaderVisibility.FRAGMENT, TextureBindingLayout()),
+                BindGroupLayoutEntry(1, ShaderVisibility.FRAGMENT, SamplerBindingLayout())
+            )
+        )
     val bindGroup =
         device.createBindGroup(
             BindGroupDescriptor(
                 bindGroupLayout,
                 BindGroupEntry(0, textureView),
                 BindGroupEntry(1, sampler),
-                BindGroupEntry(2, matrixBuffer)
             )
         )
 
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
-    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader)
+    val pipelineDesc = RenderPipelineDescriptor(
+        pipelineLayout,
+        VertexState(shader, "vs_main",
+            VertexBufferLayout(
+                4 * Primitives.FLOAT_BYTES,
+                InputStepMode.VERTEX,
+                VertexAttribute(VertexFormat.FLOAT2, 0, 0),
+                VertexAttribute(VertexFormat.FLOAT2, 2 * Primitives.FLOAT_BYTES, 1)
+            )
+        ),
+        PrimitiveState(PrimitiveTopology.TRIANGLE_LIST),
+        null,
+        MultisampleState(1, 0xFFFFFFF, false),
+        FragmentState(
+            shader, "fs_main", arrayOf(
+                ColorTargetState(
+                    TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
+                )
+            )
+        ),
+    )
     val pipeline = device.createRenderPipeline(pipelineDesc)
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
-    window.onResize = { size -> swapChain = window.configureSwapChain(swapChainDescriptor) }
+    window.onResize = { _ -> swapChain = window.configureSwapChain(swapChainDescriptor) }
 
     Kgpu.runLoop(window) {
         val swapChainTexture = swapChain.getCurrentTextureView()
@@ -133,15 +139,7 @@ suspend fun runTextureExample(window: Window) {
 
         val cmdBuffer = cmdEncoder.finish()
         val queue = device.getDefaultQueue()
-        queue.writeBuffer(matrixBuffer, createTransformationMatrix().toBytes())
         queue.submit(cmdBuffer)
         swapChain.present()
     }
-}
-
-private fun createRenderPipeline(
-    pipelineLayout: PipelineLayout, vertexModule: ShaderModule, fragModule: ShaderModule
-): RenderPipelineDescriptor {
-    return TODO()
-
 }

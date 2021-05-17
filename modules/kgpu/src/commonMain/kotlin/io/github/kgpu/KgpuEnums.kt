@@ -361,8 +361,15 @@ expect enum class CompareFunction {
     ALWAYS,
 }
 
-expect enum class TextureComponentType {
+expect enum class TextureSampleType {
     FLOAT,
     SINT,
-    UINT
+    UINT,
+    DEPTH
+}
+
+expect enum class SamplerBindingType {
+    FILTERING,
+    NON_FILTERING,
+    COMPARISON,
 }

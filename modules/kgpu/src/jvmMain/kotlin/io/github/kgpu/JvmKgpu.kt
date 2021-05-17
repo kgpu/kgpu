@@ -32,6 +32,22 @@ fun Boolean.toNativeByte(): Byte {
     }
 }
 
+fun <T> Array<T>.mapToNativeEntries(
+    scope: NativeScope,
+    nativeSize: Long,
+    allocator: (Int, NativeScope) -> MemorySegment,
+    action: (T, MemorySegment) -> Unit
+) : MemorySegment {
+    val nativeArray = allocator(this.size, scope)
+    forEachIndexed { index, jvmEntry ->
+        val nativeEntry = nativeArray.asSlice(nativeSize * index)
+
+        action(jvmEntry, nativeEntry)
+    }
+
+    return nativeArray
+}
+
 actual object Kgpu {
     actual val undefined = null
 
@@ -182,6 +198,27 @@ actual class Device(val id: Id) {
                 CUtils.NULL
             }
 
+            val buffers = desc.vertex.buffers.mapToNativeEntries(
+                scope,
+                WGPUVertexBufferLayout.sizeof(),
+                WGPUVertexBufferLayout::allocateArray,
+            ) {jvmBufferLayout, nativeBufferLayout ->
+                val attributes = jvmBufferLayout.attributes.mapToNativeEntries(
+                    scope,
+                    WGPUVertexAttribute.sizeof(),
+                    WGPUVertexAttribute::allocateArray,
+                ) {jvmAttribute, nativeAttribute ->
+                    WGPUVertexAttribute.`shaderLocation$set`(nativeAttribute, jvmAttribute.shaderLocation)
+                    WGPUVertexAttribute.`format$set`(nativeAttribute, jvmAttribute.format.nativeVal)
+                    WGPUVertexAttribute.`offset$set`(nativeAttribute, jvmAttribute.offset)
+                }
+
+                WGPUVertexBufferLayout.`arrayStride$set`(nativeBufferLayout, jvmBufferLayout.arrayStride)
+                WGPUVertexBufferLayout.`stepMode$set`(nativeBufferLayout, jvmBufferLayout.stepMode.nativeVal)
+                WGPUVertexBufferLayout.`attributeCount$set`(nativeBufferLayout, jvmBufferLayout.attributes.size)
+                WGPUVertexBufferLayout.`attributes$set`(nativeBufferLayout, attributes.address())
+            }
+
             val descriptor = WGPURenderPipelineDescriptor.allocate(scope)
             val vertexState = WGPURenderPipelineDescriptor.`vertex$slice`(descriptor)
             val primitiveState = WGPURenderPipelineDescriptor.`primitive$slice`(descriptor)
@@ -189,9 +226,12 @@ actual class Device(val id: Id) {
 
             WGPURenderPipelineDescriptor.`label$set`(descriptor, CUtils.NULL)
             WGPURenderPipelineDescriptor.`layout$set`(descriptor, desc.layout.id.address())
+
             WGPUVertexState.`module$set`(vertexState, desc.vertex.module.id.address())
             WGPUVertexState.`entryPoint$set`(vertexState, CLinker.toCString(desc.vertex.entryPoint).address())
-            // TODO: Buffers
+            WGPUVertexState.`buffers$set`(vertexState, buffers.address())
+            WGPUVertexState.`bufferCount$set`(vertexState, desc.vertex.buffers.size)
+
             WGPUPrimitiveState.`topology$set`(primitiveState, desc.primitive.topology.nativeVal)
             WGPUPrimitiveState.`stripIndexFormat$set`(
                 primitiveState,
@@ -224,7 +264,21 @@ actual class Device(val id: Id) {
     }
 
     actual fun createTexture(desc: TextureDescriptor): Texture {
-        TODO()
+        return Texture(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUTextureDescriptor.allocate(scope)
+            val size = WGPUTextureDescriptor.`size$slice`(descriptor)
+
+            WGPUTextureDescriptor.`usage$set`(descriptor, desc.usage.toInt())
+            WGPUTextureDescriptor.`dimension$set`(descriptor, desc.dimension.nativeVal)
+            WGPUTextureDescriptor.`format$set`(descriptor, desc.format.nativeVal)
+            WGPUTextureDescriptor.`mipLevelCount$set`(descriptor, desc.mipLevelCount.toInt())
+            WGPUTextureDescriptor.`sampleCount$set`(descriptor, desc.sampleCount)
+            WGPUExtent3D.`width$set`(size, desc.size.width.toInt())
+            WGPUExtent3D.`height$set`(size, desc.size.height.toInt())
+            WGPUExtent3D.`depth$set`(size, desc.size.depth.toInt())
+
+            wgpuDeviceCreateTexture(id, descriptor)
+        }))
     }
 
     actual fun createCommandEncoder(): CommandEncoder {
@@ -254,28 +308,28 @@ actual class Device(val id: Id) {
     actual fun createBindGroupLayout(desc: BindGroupLayoutDescriptor): BindGroupLayout {
         return BindGroupLayout(Id(NativeScope.unboundedScope().use { scope ->
             val descriptor = WGPUBindGroupLayoutDescriptor.allocate(scope)
-            val entries = WGPUBindGroupLayoutEntry.allocateArray(desc.entries.size)
-            desc.entries.forEachIndexed { indexInt, entry ->
-                val index = indexInt.toLong()
-                WGPUBindGroupLayoutEntry.`binding$set`(entries, index, entry.binding.toInt())
-                WGPUBindGroupLayoutEntry.`visibility$set`(entries, index, entry.visibility.toInt())
+            val entries = desc.entries.mapToNativeEntries(
+                scope,
+                WGPUBindGroupLayoutEntry.sizeof(),
+                WGPUBindGroupLayoutEntry::allocateArray,
+            ) { jvmEntry, nativeEntry ->
+                WGPUBindGroupLayoutEntry.`binding$set`(nativeEntry, jvmEntry.binding.toInt())
+                WGPUBindGroupLayoutEntry.`visibility$set`(nativeEntry, jvmEntry.visibility.toInt())
 
-                val bufferBinding = WGPUBindGroupLayoutEntry.`buffer$slice`(entries)
-                val samplerBinding = WGPUBindGroupLayoutEntry.`sampler$slice`(entries)
-                val textureBinding = WGPUBindGroupLayoutEntry.`texture$slice`(entries)
-                val storageTextureBinding = WGPUBindGroupLayoutEntry.`storageTexture$slice`(entries)
+                val bufferBinding = WGPUBindGroupLayoutEntry.`buffer$slice`(nativeEntry)
+                val samplerBinding = WGPUBindGroupLayoutEntry.`sampler$slice`(nativeEntry)
+                val textureBinding = WGPUBindGroupLayoutEntry.`texture$slice`(nativeEntry)
+                val storageTextureBinding = WGPUBindGroupLayoutEntry.`storageTexture$slice`(nativeEntry)
 
-                WGPUBufferBindingLayout.`type$set`(bufferBinding, index, WGPUBufferBindingType_Undefined())
-                WGPUSamplerBindingLayout.`type$set`(samplerBinding, index, WGPUSamplerBindingType_Undefined())
-                WGPUTextureBindingLayout.`sampleType$set`(textureBinding, index, WGPUTextureSampleType_Undefined())
+                WGPUBufferBindingLayout.`type$set`(bufferBinding, WGPUBufferBindingType_Undefined())
+                WGPUSamplerBindingLayout.`type$set`(samplerBinding, WGPUSamplerBindingType_Undefined())
+                WGPUTextureBindingLayout.`sampleType$set`(textureBinding, WGPUTextureSampleType_Undefined())
                 WGPUStorageTextureBindingLayout.`access$set`(
                     storageTextureBinding,
-                    index,
                     WGPUStorageTextureAccess_Undefined()
                 )
 
-                entry.bindingLayout.intoNative(
-                    index,
+                jvmEntry.bindingLayout.intoNative(
                     bufferBinding,
                     samplerBinding,
                     textureBinding,
@@ -286,7 +340,6 @@ actual class Device(val id: Id) {
             WGPUBindGroupLayoutDescriptor.`entries$set`(descriptor, entries.address())
             WGPUBindGroupLayoutDescriptor.`entryCount$set`(descriptor, desc.entries.size)
 
-
             wgpuDeviceCreateBindGroupLayout(id, descriptor)
         }))
     }
@@ -294,12 +347,13 @@ actual class Device(val id: Id) {
     actual fun createBindGroup(desc: BindGroupDescriptor): BindGroup {
         return BindGroup(Id(NativeScope.unboundedScope().use { scope ->
             val descriptor = WGPUBindGroupDescriptor.allocate(scope)
-            val entries = WGPUBindGroupEntry.allocateArray(desc.entries.size, scope)
-            desc.entries.forEachIndexed { indexInt, entry ->
-                val index = indexInt.toLong()
-                WGPUBindGroupEntry.`binding$set`(entries, index, entry.binding.toInt())
-
-                entry.resource.intoBindingResource(entries, index)
+            val entries = desc.entries.mapToNativeEntries(
+                scope,
+                WGPUBindGroupEntry.sizeof(),
+                WGPUBindGroupEntry::allocateArray
+            ) { jvmEntry, nativeEntry ->
+                WGPUBindGroupEntry.`binding$set`(nativeEntry, jvmEntry.binding.toInt())
+                jvmEntry.resource.intoBindingResource(nativeEntry)
             }
 
             WGPUBindGroupDescriptor.`layout$set`(descriptor, desc.layout.id.address())
@@ -311,7 +365,22 @@ actual class Device(val id: Id) {
     }
 
     actual fun createSampler(desc: SamplerDescriptor): Sampler {
-        TODO()
+        return Sampler(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUSamplerDescriptor.allocate(scope)
+
+            WGPUSamplerDescriptor.`addressModeU$set`(descriptor, desc.addressModeU.nativeVal)
+            WGPUSamplerDescriptor.`addressModeV$set`(descriptor, desc.addressModeV.nativeVal)
+            WGPUSamplerDescriptor.`addressModeW$set`(descriptor, desc.addressModeW.nativeVal)
+            WGPUSamplerDescriptor.`magFilter$set`(descriptor, desc.magFilter.nativeVal)
+            WGPUSamplerDescriptor.`minFilter$set`(descriptor, desc.minFilter.nativeVal)
+            WGPUSamplerDescriptor.`mipmapFilter$set`(descriptor, desc.mipmapFilter.nativeVal)
+            WGPUSamplerDescriptor.`lodMinClamp$set`(descriptor, desc.lodMinClamp)
+            WGPUSamplerDescriptor.`lodMaxClamp$set`(descriptor, desc.lodMaxClamp)
+            WGPUSamplerDescriptor.`compare$set`(descriptor, desc.compare?.nativeVal ?: WGPUCompareFunction_Undefined())
+            WGPUSamplerDescriptor.`maxAnisotropy$set`(descriptor, desc.maxAnisotrophy)
+
+            wgpuDeviceCreateSampler(id, descriptor.address())
+        }))
     }
 
     actual fun createComputePipeline(desc: ComputePipelineDescriptor): ComputePipeline {
@@ -338,33 +407,52 @@ actual class ShaderModule(val id: Id) {
     }
 }
 
-actual class Extent3D actual constructor(width: Long, height: Long, depth: Long) {
+actual class Extent3D actual constructor(val width: Long, val height: Long, val depth: Long) {
+    fun toNative(scope: NativeScope): MemorySegment {
+        val native = WGPUExtent3D.allocate(scope)
+        WGPUExtent3D.`width$set`(native, width.toInt())
+        WGPUExtent3D.`height$set`(native, height.toInt())
+        WGPUExtent3D.`depth$set`(native, depth.toInt())
 
+        return native
+    }
 }
 
-actual class Origin3D actual constructor(x: Long, y: Long, z: Long) {
-
-}
+actual class Origin3D actual constructor(val x: Long, val y: Long, val z: Long)
 
 actual class TextureDescriptor
 actual constructor(
-    size: Extent3D,
-    mipLevelCount: Long,
-    sampleCount: Int,
-    dimension: TextureDimension,
-    format: TextureFormat,
-    usage: Long
+    val size: Extent3D,
+    val mipLevelCount: Long,
+    val sampleCount: Int,
+    val dimension: TextureDimension,
+    val format: TextureFormat,
+    val usage: Long
 ) {
 }
 
-actual class Texture(val id: Long) {
+actual class Texture(val id: Id) {
 
     override fun toString(): String {
         return "Texture$id"
     }
 
     actual fun createView(desc: TextureViewDescriptor?): TextureView {
-        TODO()
+        return TextureView(Id(NativeScope.unboundedScope().use { scope ->
+            val descriptor = WGPUTextureViewDescriptor.allocate(scope)
+            WGPUTextureViewDescriptor.`format$set`(descriptor, desc?.format?.nativeVal ?: WGPUTextureFormat_Undefined())
+            WGPUTextureViewDescriptor.`dimension$set`(
+                descriptor,
+                desc?.dimension?.nativeVal ?: WGPUTextureViewDimension_Undefined()
+            )
+            WGPUTextureViewDescriptor.`aspect$set`(descriptor, desc?.aspect?.nativeVal ?: WGPUTextureAspect_All())
+            WGPUTextureViewDescriptor.`baseMipLevel$set`(descriptor, desc?.baseMipLevel?.toInt() ?: 0)
+            WGPUTextureViewDescriptor.`mipLevelCount$set`(descriptor, desc?.mipLevelCount?.toInt() ?: 0)
+            WGPUTextureViewDescriptor.`baseArrayLayer$set`(descriptor, desc?.baseArrayLayer?.toInt() ?: 0)
+            WGPUTextureViewDescriptor.`arrayLayerCount$set`(descriptor, desc?.arrayLayerCount?.toInt() ?: 0)
+
+            wgpuTextureCreateView(id, descriptor)
+        }))
     }
 
     actual fun destroy() {
@@ -374,13 +462,13 @@ actual class Texture(val id: Long) {
 
 actual class TextureViewDescriptor
 actual constructor(
-    format: TextureFormat,
-    dimension: TextureViewDimension,
-    aspect: TextureAspect,
-    baseMipLevel: Long,
-    mipLevelCount: Long,
-    baseArrayLayer: Long,
-    arrayLayerCount: Long
+    val format: TextureFormat,
+    val dimension: TextureViewDimension,
+    val aspect: TextureAspect,
+    val baseMipLevel: Long,
+    val mipLevelCount: Long,
+    val baseArrayLayer: Long,
+    val arrayLayerCount: Long
 )
 
 actual class TextureView(val id: Id) : IntoBindingResource {
@@ -390,8 +478,8 @@ actual class TextureView(val id: Id) : IntoBindingResource {
 
     }
 
-    override fun intoBindingResource(entries: MemorySegment, index: Long) {
-        TODO()
+    override fun intoBindingResource(entry: MemorySegment) {
+        WGPUBindGroupEntry.`textureView$set`(entry, id.address())
     }
 
     override fun toString(): String {
@@ -452,7 +540,7 @@ actual constructor(
 
 actual class Buffer(val id: Id, actual val size: Long) : IntoBindingResource {
 
-    override fun intoBindingResource(entries: MemorySegment, index: Long) {
+    override fun intoBindingResource(entry: MemorySegment) {
         TODO()
     }
 
@@ -472,7 +560,8 @@ actual class Buffer(val id: Id, actual val size: Long) : IntoBindingResource {
     }
 
     actual fun destroy() {
-        wgpuBufferDestroy(id)
+        println("Warning: wgpuBufferDestroy currently not implemented")
+//        wgpuBufferDestroy(id)
     }
 
     actual suspend fun mapReadAsync(device: Device): BufferData {
@@ -500,22 +589,22 @@ actual class BufferData(val data: MemorySegment) {
 
 actual class SamplerDescriptor
 actual constructor(
-    compare: CompareFunction?,
-    addressModeU: AddressMode,
-    addressModeV: AddressMode,
-    addressModeW: AddressMode,
-    magFilter: FilterMode,
-    minFilter: FilterMode,
-    mipmapFilter: FilterMode,
-    lodMinClamp: kotlin.Float,
-    lodMaxClamp: kotlin.Float,
-    maxAnisotrophy: Short
+    val compare: CompareFunction?,
+    val addressModeU: AddressMode,
+    val addressModeV: AddressMode,
+    val addressModeW: AddressMode,
+    val magFilter: FilterMode,
+    val minFilter: FilterMode,
+    val mipmapFilter: FilterMode,
+    val lodMinClamp: kotlin.Float,
+    val lodMaxClamp: kotlin.Float,
+    val maxAnisotrophy: Short
 )
 
-actual class Sampler(val id: Long) : IntoBindingResource {
+actual class Sampler(val id: Id) : IntoBindingResource {
 
-    override fun intoBindingResource(entries: MemorySegment, index: Long) {
-        TODO()
+    override fun intoBindingResource(entry: MemorySegment) {
+        WGPUBindGroupEntry.`sampler$set`(entry, id.address())
     }
 
     override fun toString(): String {
