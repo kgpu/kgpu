@@ -146,10 +146,7 @@ expect class Texture {
     fun destroy()
 }
 
-expect class TextureView : IntoBindingResource {
-
-    fun destroy()
-}
+expect class TextureView : IntoBindingResource
 
 /**
  * The usages determine what kind of memory the buffer is allocated from and what actions the buffer

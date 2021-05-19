@@ -194,15 +194,8 @@ actual class TextureView(val jsType: GPUTextureView) : IntoBindingResource {
     override fun intoBindingResource(): dynamic {
         return jsType
     }
-
-    actual fun destroy() {
-        jsType.destroy()
-    }
 }
-
-external class GPUTextureView {
-    fun destroy()
-}
+external class GPUTextureView
 
 actual class SwapChainDescriptor
 actual constructor(device: Device, format: TextureFormat, val usage: Long) {

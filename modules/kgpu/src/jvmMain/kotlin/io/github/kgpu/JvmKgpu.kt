@@ -456,7 +456,7 @@ actual class Texture(val id: Id) {
     }
 
     actual fun destroy() {
-        TODO()
+        wgpuTextureDestroy(id)
     }
 }
 
@@ -472,11 +472,6 @@ actual constructor(
 )
 
 actual class TextureView(val id: Id) : IntoBindingResource {
-
-    actual fun destroy() {
-        TODO()
-
-    }
 
     override fun intoBindingResource(entry: MemorySegment) {
         WGPUBindGroupEntry.`textureView$set`(entry, id.address())

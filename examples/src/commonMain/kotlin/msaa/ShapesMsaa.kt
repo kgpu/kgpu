@@ -2,13 +2,37 @@ package msaa
 
 import io.github.kgpu.*
 
-const val SAMPLE_COUNT = 4
+const val SAMPLE_COUNT = 8
+
+const val MSAA_SHADER =
+    """
+struct VertexOutput {
+    [[location(0)]] color: vec3<f32>;
+    [[builtin(position)]] position: vec4<f32>;
+};
+            
+
+[[stage(vertex)]]
+fn vs_main(
+    [[location(0)]] pos: vec3<f32>,
+    [[location(1)]] color: vec3<f32>) -> VertexOutput {
+    var output: VertexOutput;
+    output.position = vec4<f32>(pos, 1.0);
+    output.color = color;
+    
+    return output;
+}
+
+[[stage(fragment)]]
+fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
+return vec4<f32>(in.color, 1.0);
+}
+"""
 
 suspend fun runMsaaTriangle(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
     val device = adapter.requestDeviceAsync()
-    val vertexShader = TODO()
-    val fragShader = TODO()
+    val shaderModule = device.createShaderModule(MSAA_SHADER)
 
     // spotless:off
     val vertices = floatArrayOf(
@@ -19,20 +43,39 @@ suspend fun runMsaaTriangle(window: Window) {
     //spotless:on
     val buffer = BufferUtils.createFloatBuffer(device, "vertices", vertices, BufferUsage.VERTEX)
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor())
-
-    val pipelineDesc = createRenderPipeline(pipelineLayout, vertexShader, fragShader, CullMode.NONE)
+    val pipelineDesc = RenderPipelineDescriptor(
+        pipelineLayout,
+        VertexState(
+            shaderModule, "vs_main",
+            VertexBufferLayout(
+                6 * Primitives.FLOAT_BYTES,
+                InputStepMode.VERTEX,
+                VertexAttribute(VertexFormat.FLOAT32x3, 0, 0),
+                VertexAttribute(VertexFormat.FLOAT32x3, 3 * Primitives.FLOAT_BYTES, 1)
+            )
+        ),
+        PrimitiveState(PrimitiveTopology.TRIANGLE_LIST),
+        null,
+        MultisampleState(SAMPLE_COUNT, 0xFFFFFFF, false),
+        FragmentState(
+            shaderModule, "fs_main", arrayOf(
+                ColorTargetState(
+                    TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
+                )
+            )
+        ),
+    )
     val pipeline = device.createRenderPipeline(pipelineDesc)
     val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
-    var texture = createAttachmentTexture(device, window.windowSize)
-    var textureView = texture.createView()
+    var multisampleTexture = createAttachmentTexture(device, window.windowSize)
+    var multisampleTextureView = multisampleTexture.createView()
     window.onResize =
         { size: WindowSize ->
-            texture.destroy()
-            textureView.destroy()
-            texture = createAttachmentTexture(device, size)
-            textureView = texture.createView()
+            multisampleTexture.destroy()
+            multisampleTexture = createAttachmentTexture(device, size)
+            multisampleTextureView = multisampleTexture.createView()
             swapChain = window.configureSwapChain(swapChainDescriptor)
         }
 
@@ -40,8 +83,13 @@ suspend fun runMsaaTriangle(window: Window) {
         val swapChainTexture = swapChain.getCurrentTextureView()
         val cmdEncoder = device.createCommandEncoder()
 
-        val colorAttachment =
-            RenderPassColorAttachmentDescriptor(swapChainTexture, LoadOp.CLEAR, StoreOp.STORE, Color.WHITE)
+        val colorAttachment = RenderPassColorAttachmentDescriptor(
+            multisampleTextureView,
+            LoadOp.CLEAR,
+            StoreOp.STORE,
+            Color.WHITE,
+            swapChainTexture
+        )
         val renderPassEncoder = cmdEncoder.beginRenderPass(RenderPassDescriptor(colorAttachment))
         renderPassEncoder.setPipeline(pipeline)
         renderPassEncoder.setVertexBuffer(0, buffer)
@@ -63,14 +111,7 @@ private fun createAttachmentTexture(device: Device, windowSize: WindowSize): Tex
             SAMPLE_COUNT,
             TextureDimension.D2,
             TextureFormat.BGRA8_UNORM,
-            TextureUsage.OUTPUT_ATTACHMENT))
-}
-
-private fun createRenderPipeline(
-    pipelineLayout: PipelineLayout,
-    vertexModule: ShaderModule,
-    fragModule: ShaderModule,
-    cullMode: CullMode
-): RenderPipelineDescriptor {
-    return TODO()
+            TextureUsage.OUTPUT_ATTACHMENT
+        )
+    )
 }

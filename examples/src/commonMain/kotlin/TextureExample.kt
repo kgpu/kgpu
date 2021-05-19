@@ -2,7 +2,7 @@ import io.github.kgpu.*
 import io.github.kgpu.kcgmath.Matrix4
 
 const val TEXTURE_SHADER =
-"""
+    """
 struct VertexOutput {
     [[location(0)]] uv: vec2<f32>;
     [[builtin(position)]] position: vec4<f32>;
@@ -98,7 +98,8 @@ suspend fun runTextureExample(window: Window) {
     val pipelineLayout = device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayout))
     val pipelineDesc = RenderPipelineDescriptor(
         pipelineLayout,
-        VertexState(shader, "vs_main",
+        VertexState(
+            shader, "vs_main",
             VertexBufferLayout(
                 4 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
