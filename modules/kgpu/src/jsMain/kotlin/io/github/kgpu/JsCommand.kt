@@ -213,10 +213,12 @@ actual class VertexAttribute actual constructor(
 }
 
 actual class VertexBufferLayout actual constructor(
-    arrayStride: Long,
+    val arrayStride: Long,
     stepMode: InputStepMode,
-    vararg attributes: VertexAttribute
-)
+    vararg val attributes: VertexAttribute
+) {
+    val stepMode = stepMode.jsType
+}
 
 actual class ComputePipelineDescriptor
 actual constructor(val layout: PipelineLayout, computeStage: ProgrammableStageDescriptor) {

@@ -100,10 +100,10 @@ actual enum class VertexFormat(val jsType: String) {
     SHORT4_NORM("short4norm"),
     HALF2("half2"),
     HALF4("half4"),
-    FLOAT("float"),
-    FLOAT2("float2"),
-    FLOAT3("float3"),
-    FLOAT4("float4"),
+    FLOAT("float32"),
+    FLOAT2("float32x2"),
+    FLOAT3("float32x3"),
+    FLOAT4("float32x4"),
     UINT("uint"),
     UINT2("uint2"),
     UINT3("uint3"),
@@ -162,12 +162,6 @@ actual enum class CompareFunction(val jsType: String) {
     ALWAYS("always"),
 }
 
-actual enum class TextureComponentType(val jsType: String) {
-    FLOAT("float"),
-    SINT("sint"),
-    UINT("uint")
-}
-
 actual enum class BufferBindingType(val jsType: String) {
     UNIFORM("uniform"), STORAGE("storage"), READ_ONLY_STORAGE("read-only-storage"),
 }
@@ -196,4 +190,17 @@ actual enum class CullMode(val jsType: String) {
 actual enum class InputStepMode(val jsType: String) {
     VERTEX("vertex"),
     INSTANCE("instance"),
+}
+
+actual enum class TextureSampleType(val jsType: String) {
+    FLOAT("float"),
+    SINT("sint"),
+    UINT("uint"),
+    DEPTH("depth")
+}
+
+actual enum class SamplerBindingType(val jsType: String) {
+    FILTERING("filtering"),
+    NON_FILTERING("non-filtering"),
+    COMPARISON("comparison"),
 }

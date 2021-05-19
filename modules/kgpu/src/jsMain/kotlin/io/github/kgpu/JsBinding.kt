@@ -45,6 +45,29 @@ actual class BufferBindingLayout actual constructor(
     }
 }
 
+actual class TextureBindingLayout actual constructor(
+    sampleType: TextureSampleType,
+    viewDimension: TextureViewDimension,
+    val multisampled: Boolean,
+) : BindingLayout() {
+    val sampleType = sampleType.jsType
+    val viewDimension = viewDimension.jsType
+
+    override fun toJsType(entry: dynamic) {
+        entry.texture = this
+    }
+}
+
+actual class SamplerBindingLayout actual constructor(
+    type: SamplerBindingType
+) : BindingLayout() {
+    val type = type.jsType
+
+    override fun toJsType(entry: dynamic) {
+        entry.sampler = this
+    }
+}
+
 actual class BindGroupLayoutDescriptor
 actual constructor(vararg entries: BindGroupLayoutEntry) {
     val entries: Array<dynamic> = entries.map { it.jsType }.toTypedArray()
