@@ -229,94 +229,94 @@ expect enum class IndexFormat {
 
 expect enum class VertexFormat {
     /** Two unsigned bytes. uvec2 in shaders */
-    UCHAR2,
+    UINT8x2,
 
     /** Four unsigned bytes. uvec4 in shaders */
-    UCHAR4,
+    UINT8x4,
 
     /** Two signed bytes. ivec2 in shaders */
-    CHAR2,
+    SINT8x2,
 
     /** Four signed bytes. ivec4 in shaders */
-    CHAR4,
+    SINT8x4,
 
     /** Two unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec2 in shaders */
-    UCHAR2_NORM,
+    UNORM8x2,
 
     /** Four unsigned bytes `[0, 255]` converted to floats `[0, 1]`. vec4 in shaders */
-    UCHAR4_NORM,
+    UNORM8x4,
 
-    /** two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
-    CHAR2_NORM,
+    /** two signed bytes converted to float `[-1,1]`. vec2 in shaders */
+    SNORM8x2,
 
-    /** two unsigned bytes converted to float `[-1,1]`. vec2 in shaders */
-    CHAR4_NORM,
+    /** two signed bytes converted to float `[-1,1]`. vec2 in shaders */
+    SNORM8x4,
 
     /** two unsigned shorts. uvec2 in shaders */
-    USHORT2,
+    UINT16x2,
 
     /** four unsigned shorts. uvec4 in shaders */
-    USHORT4,
+    UINT16x4,
 
     /** two signed shorts. ivec2 in shaders */
-    SHORT2,
+    SINT16x2,
 
     /** four signed shorts. ivec4 in shaders */
-    SHORT4,
+    SINT16x4,
 
     /** two unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec2 in shaders */
-    USHORT2_NORM,
+    UNORM16x2,
 
     /** four unsigned shorts `[0, 65525]` converted to float `[0, 1]`. vec4 in shaders */
-    USHORT4_NORM,
+    UNORM16x4,
 
     /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec2 in shaders */
-    SHORT2_NORM,
+    SNORM16x2,
 
     /** two signed shorts `[-32767, 32767]` converted to float `[-1, 1]`. vec4 in shaders */
-    SHORT4_NORM,
+    SNORM16x4,
 
     /** two half precision floats. vec2 in shaders */
-    HALF2,
+    FLOAT16x2,
 
     /** four half precision floats. vec4 in shaders */
-    HALF4,
+    FLOAT16x4,
 
     /** one float. float in shaders */
-    FLOAT,
+    FLOAT32,
 
     /** two floats. vec2 in shaders */
-    FLOAT2,
+    FLOAT32x2,
 
     /** three floats. vec3 in shaders */
-    FLOAT3,
+    FLOAT32x3,
 
     /** four floats. vec4 in shaders */
-    FLOAT4,
+    FLOAT32x4,
 
     /** one unsigned int. uint in shaders */
-    UINT,
+    UINT32,
 
     /** two unsigned ints. uvec2 in shaders */
-    UINT2,
+    UINT32x2,
 
     /** three unsigned ints. uvec3 in shaders */
-    UINT3,
+    UINT32x3,
 
     /** four unsigned ints. uvec4 in shaders */
-    UINT4,
+    UINT32x4,
 
     /** one signed int. int in shaders */
-    INT,
+    SINT32,
 
     /** two signed ints. ivec2 in shaders */
-    INT2,
+    SINT32x2,
 
     /** three signed ints. ivec2 in shaders */
-    INT3,
+    SINT32x3,
 
     /** four signed ints. ivec2 in shaders */
-    INT4,
+    SINT32x4,
 }
 
 expect enum class InputStepMode {

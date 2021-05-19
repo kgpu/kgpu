@@ -81,7 +81,7 @@ actual class Window actual constructor() {
                     onMouseMove(mouseX, mouseY)
                 }
 
-                asDynamic() // On mouse move requires we return a dynamic
+                Any().asDynamic() // On mouse move requires we return a dynamic
             }
     }
 

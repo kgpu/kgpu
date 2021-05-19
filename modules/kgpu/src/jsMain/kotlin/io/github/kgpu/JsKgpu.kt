@@ -49,7 +49,7 @@ actual class Device(val jsType: GPUDevice) {
     }
 
     actual fun createShaderModule(src: String): ShaderModule {
-        val desc = asDynamic()
+        val desc = Any().asDynamic()
         desc.code = src
 
         return jsType.createShaderModule(desc)
@@ -290,7 +290,7 @@ actual class Buffer(val jsType: GPUBuffer, actual val size: Long) : IntoBindingR
     }
 
     override fun intoBindingResource(): dynamic {
-        val binding = asDynamic()
+        val binding = Any().asDynamic()
         binding.buffer = jsType
         binding.offset = 0
         binding.size = size

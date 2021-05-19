@@ -102,8 +102,8 @@ suspend fun runTextureExample(window: Window) {
             VertexBufferLayout(
                 4 * Primitives.FLOAT_BYTES,
                 InputStepMode.VERTEX,
-                VertexAttribute(VertexFormat.FLOAT2, 0, 0),
-                VertexAttribute(VertexFormat.FLOAT2, 2 * Primitives.FLOAT_BYTES, 1)
+                VertexAttribute(VertexFormat.FLOAT32x2, 0, 0),
+                VertexAttribute(VertexFormat.FLOAT32x2, 2 * Primitives.FLOAT_BYTES, 1)
             )
         ),
         PrimitiveState(PrimitiveTopology.TRIANGLE_LIST),
