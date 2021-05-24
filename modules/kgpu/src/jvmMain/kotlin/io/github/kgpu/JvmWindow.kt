@@ -58,17 +58,30 @@ actual class Window actual constructor() {
                     TODO("Linux Surfaces are not implemented in the Panama rewrite")
                 }
                 Platform.isMac -> {
-                    //                val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
-                    //                val CAMetalLayer = objc_getClass("CAMetalLayer")
-                    //                val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
-                    //                // [ns_window.contentView setWantsLayer:YES];
-                    //                invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend)
-                    //                // metal_layer = [CAMetalLayer layer];
-                    //                val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
-                    //                // [ns_window.contentView setLayer:metal_layer];
-                    //                invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
-                    //                WgpuJava.wgpuNative.wgpu_create_surface_from_metal_layer(metal_layer)
-                    TODO("Mac surfaces are not implemented in the Panama rewrite")
+                    val objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend")
+                    val CAMetalLayer = objc_getClass("CAMetalLayer")
+                    val contentView = invokePPP(osHandle, sel_getUid("contentView"), objc_msgSend)
+                    // [ns_window.contentView setWantsLayer:YES];
+                    invokePPV(contentView, sel_getUid("setWantsLayer:"), true, objc_msgSend)
+                    // metal_layer = [CAMetalLayer layer];
+                    val metal_layer = invokePPP(CAMetalLayer, sel_registerName("layer"), objc_msgSend)
+                    // [ns_window.contentView setLayer:metal_layer];
+                    invokePPPP(contentView, sel_getUid("setLayer:"), metal_layer, objc_msgSend)
+
+                    val desc = WGPUSurfaceDescriptor.allocate()
+                    val metalDesc = WGPUSurfaceDescriptorFromMetalLayer.allocate()
+                    WGPUSurfaceDescriptorFromMetalLayer.`layer$set`(
+                        metalDesc,
+                        MemoryAddress.ofLong(metal_layer)
+                    )
+                    WGPUChainedStruct.`sType$set`(
+                        WGPUSurfaceDescriptorFromMetalLayer.`chain$slice`(metalDesc),
+                        WGPUSType_SurfaceDescriptorFromMetalLayer()
+                    )
+                    WGPUSurfaceDescriptor.`label$set`(desc, CUtils.NULL)
+                    WGPUSurfaceDescriptor.`nextInChain$set`(desc, metalDesc.address())
+
+                    wgpuInstanceCreateSurface(CUtils.NULL, desc.address())
                 }
                 else -> {
                     println(
