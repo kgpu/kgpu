@@ -32,6 +32,8 @@ expect class Window() {
 
     fun configureSwapChain(desc: SwapChainDescriptor): SwapChain
 
+    fun getSwapChainPreferredFormat(adapter: Adapter) : TextureFormat
+
     /** Sets the size and updates the window */
     fun resize(width: Int, height: Int)
 }

@@ -133,9 +133,8 @@ suspend fun runCubeExample(window: Window) {
 
 suspend fun runTriangleExample(window: Window) {
     val adapter = Kgpu.requestAdapterAsync(window)
-    println("Adapter: $adapter")
+    val swapChainFormat = window.getSwapChainPreferredFormat(adapter)
     val device = adapter.requestDeviceAsync()
-    println("Device: $device")
     val shaderModule = device.createShaderModule(ShapeShaders.TRIANGLE)
 
     // spotless:off
@@ -157,14 +156,14 @@ suspend fun runTriangleExample(window: Window) {
         FragmentState(
             shaderModule, "fs_main", arrayOf(
                 ColorTargetState(
-                    TextureFormat.BGRA8_UNORM, BlendState(BlendComponent(), BlendComponent()), 0xF
+                    swapChainFormat, BlendState(BlendComponent(), BlendComponent()), 0xF
                 )
             )
         ),
     )
 
     val pipeline = device.createRenderPipeline(pipelineDesc)
-    val swapChainDescriptor = SwapChainDescriptor(device, TextureFormat.BGRA8_UNORM)
+    val swapChainDescriptor = SwapChainDescriptor(device, swapChainFormat)
 
     var swapChain = window.configureSwapChain(swapChainDescriptor)
     window.onResize =

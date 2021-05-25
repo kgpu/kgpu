@@ -11,7 +11,6 @@ actual class Window actual constructor() {
 
     private val canvas = kotlinx.browser.document.getElementById("kgpuCanvas") as HTMLCanvasElement
     private val context = canvas.getContext("gpupresent")
-    private var canvasHackRan = false
     actual var windowSize: WindowSize = WindowSize(canvas.width, canvas.height)
         private set
     actual var onResize: (size: WindowSize) -> Unit = {}
@@ -101,14 +100,19 @@ actual class Window actual constructor() {
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
-        if (!canvasHackRan) {
-            canvas.width +=
-                1 // Hack to get around chromium not showing canvas unless clicked/resized
-            canvasHackRan = true
-            windowSize = WindowSize(canvas.width, canvas.height)
+        return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
+    }
+
+    actual fun getSwapChainPreferredFormat(adapter: Adapter) : TextureFormat {
+        val gpuTextureFormat = context.asDynamic().getSwapChainPreferredFormat(adapter.jsType)
+
+        for(x in TextureFormat.values()){
+            if(x.jsType == gpuTextureFormat){
+                return x
+            }
         }
 
-        return SwapChain(context.asDynamic().configureSwapChain(desc) as GPUSwapChain)
+        throw RuntimeException("Unknown TextureFormat: $gpuTextureFormat")
     }
 
     actual fun resize(width: Int, height: Int) {

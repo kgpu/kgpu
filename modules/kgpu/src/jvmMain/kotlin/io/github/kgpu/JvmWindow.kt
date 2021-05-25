@@ -10,6 +10,8 @@ import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.macosx.ObjCRuntime
 import org.lwjgl.system.macosx.ObjCRuntime.*
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 actual class Window actual constructor() {
     private val handle: Long = GLFW.glfwCreateWindow(640, 480, "", MemoryUtil.NULL, MemoryUtil.NULL)
@@ -156,6 +158,27 @@ actual class Window actual constructor() {
 
     actual fun update() {
         GLFW.glfwPollEvents()
+    }
+
+    actual fun getSwapChainPreferredFormat(adapter: Adapter) : TextureFormat {
+        val outputAtomic = AtomicInteger()
+
+        NativeScope.unboundedScope().use { scope ->
+            val callback = WGPUSurfaceGetPreferredFormatCallback.allocate({ result: Int, _: MemoryAddress? ->
+                outputAtomic.set(result)
+            }, scope)
+
+            wgpuSurfaceGetPreferredFormat(surface, adapter.id, callback, CUtils.NULL)
+        }
+
+        val output = outputAtomic.get()
+        for(format in TextureFormat.values()) {
+            if(format.nativeVal == output) {
+                return format
+            }
+        }
+
+        throw java.lang.RuntimeException("Unsupported TextureFormat: $output")
     }
 
     actual fun configureSwapChain(desc: SwapChainDescriptor): SwapChain {
